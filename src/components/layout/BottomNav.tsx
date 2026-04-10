@@ -7,7 +7,11 @@ const tabs = [
   { path: '/mypage', label: '내정보', icon: '👤' },
 ]
 
-export default function BottomNav() {
+interface BottomNavProps {
+  isDark: boolean
+}
+
+export default function BottomNav({ isDark }: BottomNavProps) {
   const location = useLocation()
   return (
     <nav style={{
@@ -17,8 +21,8 @@ export default function BottomNav() {
       transform: 'translateX(-50%)',
       width: '100%',
       maxWidth: '430px',
-      backgroundColor: '#1A1A1A',
-      borderTop: '1px solid #333',
+      backgroundColor: isDark ? '#1A1A1A' : '#FFFFFF',
+      borderTop: `1px solid ${isDark ? '#333' : '#E0E0E0'}`,
       display: 'flex',
     }}>
       {tabs.map(tab => (
@@ -29,7 +33,7 @@ export default function BottomNav() {
           alignItems: 'center',
           padding: '8px 0',
           textDecoration: 'none',
-          color: location.pathname === tab.path ? '#C0392B' : '#888888',
+          color: location.pathname === tab.path ? '#C0392B' : (isDark ? '#888888' : '#555555'),
           fontSize: '10px',
           gap: '2px',
         }}>

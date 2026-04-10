@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { useState, useEffect } from 'react'
 import Header from './components/layout/Header'
 import BottomNav from './components/layout/BottomNav'
 import PhoneBook from './pages/PhoneBook'
@@ -7,9 +8,16 @@ import News from './pages/News'
 import MyPage from './pages/MyPage'
 
 export default function App() {
+  const [isDark, setIsDark] = useState(false)
+
+  useEffect(() => {
+    document.body.style.backgroundColor = isDark ? '#111111' : '#F5F5F5'
+    document.body.style.color = isDark ? '#FFFFFF' : '#1A1A1A'
+  }, [isDark])
+
   return (
     <BrowserRouter>
-      <Header />
+      <Header isDark={isDark} setIsDark={setIsDark} />
       <div style={{ paddingTop: '65px', paddingBottom: '65px' }}>
         <Routes>
           <Route path="/" element={<PhoneBook />} />
@@ -18,7 +26,7 @@ export default function App() {
           <Route path="/mypage" element={<MyPage />} />
         </Routes>
       </div>
-      <BottomNav />
+      <BottomNav isDark={isDark} />
     </BrowserRouter>
   )
 }

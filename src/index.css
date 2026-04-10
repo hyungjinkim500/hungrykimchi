@@ -25,4 +25,5 @@ body {
   max-width: 430px;
   margin: 0 auto;
   min-height: 100vh;
+  transition: background-color 0.3s, color 0.3s;
 }
