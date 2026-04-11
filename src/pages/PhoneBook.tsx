@@ -86,7 +86,7 @@ export default function PhoneBook({ isDark }: Props) {
       border: 'none',
       whiteSpace: 'nowrap',
       lineHeight: '1',
-      boxSizing: 'border-box',
+      boxSizing: ('border-box' as React.CSSProperties['boxSizing']),
     }),
     listContainer: {
       overflowY: 'auto',
