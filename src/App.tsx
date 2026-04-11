@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { useState, useEffect } from 'react'
+import { APIProvider } from '@vis.gl/react-google-maps';
 import Header from './components/layout/Header'
 import BottomNav from './components/layout/BottomNav'
 import PhoneBook from './pages/PhoneBook'
@@ -16,17 +17,19 @@ export default function App() {
   }, [isDark])
 
   return (
-    <BrowserRouter>
-      <Header isDark={isDark} setIsDark={setIsDark} />
-      <div style={{ paddingTop: '65px', paddingBottom: '65px' }}>
-        <Routes>
-          <Route path="/" element={<PhoneBook />} />
-          <Route path="/map" element={<KimchiMap />} />
-          <Route path="/news" element={<News />} />
-          <Route path="/mypage" element={<MyPage />} />
-        </Routes>
-      </div>
-      <BottomNav isDark={isDark} />
-    </BrowserRouter>
+    <APIProvider apiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY}>
+      <BrowserRouter>
+        <Header isDark={isDark} setIsDark={setIsDark} />
+        <div style={{ paddingTop: '65px', paddingBottom: '65px' }}>
+          <Routes>
+            <Route path="/" element={<PhoneBook isDark={isDark} />} />
+            <Route path="/map" element={<KimchiMap isDark={isDark} />} />
+            <Route path="/news" element={<News />} />
+            <Route path="/mypage" element={<MyPage />} />
+          </Routes>
+        </div>
+        <BottomNav isDark={isDark} />
+      </BrowserRouter>
+    </APIProvider>
   )
 }
