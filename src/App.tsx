@@ -24,7 +24,7 @@ export default function App() {
           <Routes>
             <Route path="/" element={<PhoneBook isDark={isDark} />} />
             <Route path="/map" element={<KimchiMap isDark={isDark} />} />
-            <Route path="/news" element={<News />} />
+            <Route path="/news" element={<News isDark={isDark} />} />
             <Route path="/mypage" element={<MyPage />} />
           </Routes>
         </div>
