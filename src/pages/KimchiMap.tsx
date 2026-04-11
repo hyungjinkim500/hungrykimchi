@@ -7,7 +7,7 @@ interface Props {
   isDark: boolean;
 }
 
-export default function KimchiMap({ isDark }: Props) {
+export default function KimchiMap({ isDark: _isDark }: Props) {
   const [businesses, setBusinesses] = useState<Business[]>([]);
   const [selectedBusiness, setSelectedBusiness] = useState<Business | null>(null);
 

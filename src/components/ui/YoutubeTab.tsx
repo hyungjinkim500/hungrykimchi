@@ -14,10 +14,6 @@ interface Video {
 
 const YOUTUBE_API_KEY = import.meta.env.VITE_YOUTUBE_API_KEY;
 
-const FIXED_CHANNELS = [
-  { id: 'UCxh-thumbnail', name: '하노이맛집TV', query: '하노이 한식당' },
-];
-
 export default function YoutubeTab({ isDark }: Props) {
   const [videos, setVideos] = useState<Video[]>([]);
   const [loading, setLoading] = useState(true);

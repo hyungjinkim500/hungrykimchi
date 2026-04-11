@@ -186,7 +186,7 @@ export default function PhoneBook({ isDark }: Props) {
         value={searchQuery}
         onChange={(e) => setSearchQuery(e.target.value)}
         style={{
-          boxSizing: 'border-box',
+          boxSizing: ('border-box' as React.CSSProperties['boxSizing']),
           margin: '0 16px 8px',
           width: 'calc(100% - 32px)',
           padding: '10px 14px',
