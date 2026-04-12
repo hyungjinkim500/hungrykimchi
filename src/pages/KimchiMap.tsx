@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from 'react';
-import { Map, AdvancedMarker, Pin, InfoWindow, useMap } from '@vis.gl/react-google-maps';
+import { Map, AdvancedMarker, Pin, InfoWindow } from '@vis.gl/react-google-maps';
 import type { Business } from '../types/index';
 import { supabase } from '../lib/supabase';
 
@@ -22,7 +22,6 @@ export default function KimchiMap({ isDark: _isDark }: Props) {
   const [placeMarkers, setPlaceMarkers] = useState<PlaceMarker[]>([]);
   const [selectedBusiness, setSelectedBusiness] = useState<Business | null>(null);
   const [selectedPlace, setSelectedPlace] = useState<PlaceMarker | null>(null);
-  const map = useMap();
 
   useEffect(() => {
     const fetchBusinesses = async () => {
@@ -37,56 +36,67 @@ export default function KimchiMap({ isDark: _isDark }: Props) {
   }, []);
 
   useEffect(() => {
-    if (!map) return;
+    const cached = sessionStorage.getItem('kimchi_places');
+    if (cached) { setPlaceMarkers(JSON.parse(cached)); return; }
 
-    const cachedPlaces = sessionStorage.getItem('kimchi_places');
-    if (cachedPlaces) {
-      setPlaceMarkers(JSON.parse(cachedPlaces));
-      return;
-    }
-
-    const placesService = new google.maps.places.PlacesService(map);
     const keywords = ['한식당', '한국음식', 'korean food', 'nhà hàng Hàn Quốc', '한식'];
-    const hanoiCenter = { lat: 21.0285, lng: 105.8542 };
-    const allPlaces: google.maps.places.PlaceResult[] = [];
-    let requestsCompleted = 0;
+    const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
 
-    keywords.forEach(keyword => {
-      const request = {
-        location: hanoiCenter,
-        radius: 5000,
-        type: 'restaurant' as const,
-        keyword: keyword
-      };
+    const fetchAll = async () => {
+      console.log('Places API fetchAll 시작');
+      const seen = new Set<string>();
+      const results: PlaceMarker[] = [];
 
-      placesService.nearbySearch(request, (results, status) => {
-        requestsCompleted++;
-        if (status === google.maps.places.PlacesServiceStatus.OK && results) {
-          allPlaces.push(...results);
-        }
-
-        if (requestsCompleted === keywords.length) {
-          const uniquePlaces = new Map<string, PlaceMarker>();
-          allPlaces.forEach(place => {
-            if (place.place_id && place.geometry?.location && place.name) {
-              uniquePlaces.set(place.place_id, {
-                placeId: place.place_id,
-                name: place.name,
-                lat: place.geometry.location.lat(),
-                lng: place.geometry.location.lng(),
-                rating: place.rating,
-                vicinity: place.vicinity
-              });
+      for (const keyword of keywords) {
+        try {
+          const res = await fetch(
+            `https://places.googleapis.com/v1/places:searchText`,
+            {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'X-Goog-Api-Key': apiKey,
+                'X-Goog-FieldMask': 'places.id,places.displayName,places.location,places.rating,places.formattedAddress',
+              },
+              body: JSON.stringify({
+                textQuery: `${keyword} 하노이`,
+                locationBias: {
+                  circle: {
+                    center: { latitude: 21.0285, longitude: 105.8542 },
+                    radius: 5000.0,
+                  },
+                },
+                maxResultCount: 20,
+              }),
             }
-          });
-
-          const markers = Array.from(uniquePlaces.values());
-          setPlaceMarkers(markers);
-          sessionStorage.setItem('kimchi_places', JSON.stringify(markers));
+          );
+          const data = await res.json();
+          if (data.places) {
+            for (const p of data.places) {
+              if (p.id && !seen.has(p.id)) {
+                seen.add(p.id);
+                results.push({
+                  placeId: p.id,
+                  name: p.displayName?.text ?? '',
+                  lat: p.location.latitude,
+                  lng: p.location.longitude,
+                  rating: p.rating,
+                  vicinity: p.formattedAddress,
+                });
+              }
+            }
+          }
+        } catch (error) {
+          console.error(`Failed to fetch places for keyword: ${keyword}`, error);
         }
-      });
-    });
-  }, [map]);
+      }
+      setPlaceMarkers(results);
+      sessionStorage.setItem('kimchi_places', JSON.stringify(results));
+    };
+
+    console.log('fetchAll 호출');
+    fetchAll();
+  }, []);
 
   const defaultCenter = { lat: 21.0285, lng: 105.8542 };
 
