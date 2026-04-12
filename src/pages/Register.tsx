@@ -10,7 +10,7 @@ interface Props {
 export default function Register({ isDark }: Props) {
   const [registrationType, setRegistrationType] = useState<'owner' | 'suggestion'>('owner');
   const [name, setName] = useState('');
-  const [category, setCategory] = useState(CATEGORIES.filter(c => c !== '전체')[0]);
+  const [category, setCategory] = useState<string>(CATEGORIES.filter(c => c !== '전체')[0]);
   const [subcategory, setSubcategory] = useState('');
   const [city, setCity] = useState('하노이');
   const [address, setAddress] = useState('');
@@ -188,7 +188,7 @@ export default function Register({ isDark }: Props) {
           </div>
           <div>
             <label style={styles.label}>카테고리</label>
-            <select style={styles.select} value={category} onChange={(e) => setCategory(e.target.value)}>
+            <select style={styles.select} value={category} onChange={(e) => setCategory(e.target.value as string)}>
               {CATEGORIES.filter(c => c !== '전체').map(c => <option key={c} value={c}>{c}</option>)}
             </select>
           </div>
