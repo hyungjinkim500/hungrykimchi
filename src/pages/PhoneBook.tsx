@@ -19,7 +19,7 @@ export default function PhoneBook({ isDark }: Props) {
   useEffect(() => {
     const fetchBusinesses = async () => {
       setLoading(true);
-      const { data, error } = await supabase.from('businesses').select('*').eq('pending_approval', false);
+      const { data, error } = await supabase.from('businesses').select('*').eq('pending_approval', false).not('phone', 'is', null);
       if (error) {
         setError(error.message);
       } else {
@@ -41,10 +41,19 @@ export default function PhoneBook({ isDark }: Props) {
       ? businesses
       : businesses.filter((b) => b.category === selectedCategory);
 
-    if (!searchQuery.trim()) return categoryFiltered;
+    const sortByName = (arr: Business[]) => [...arr].sort((a, b) => {
+      const nameA = (a as any).name_ko || a.name || '';
+      const nameB = (b as any).name_ko || b.name || '';
+      const aIsKorean = /^[가-힣]/.test(nameA);
+      const bIsKorean = /^[가-힣]/.test(nameB);
+      if (aIsKorean && !bIsKorean) return -1;
+      if (!aIsKorean && bIsKorean) return 1;
+      return nameA.localeCompare(nameB, 'ko');
+    });
 
+    if (!searchQuery.trim()) return sortByName(categoryFiltered);
     const fuseCat = new Fuse(categoryFiltered, fuseOptions);
-    return fuseCat.search(searchQuery).map((r) => r.item);
+    return sortByName(fuseCat.search(searchQuery).map((r) => r.item));
   })();
 
   const styles = {
@@ -192,7 +201,7 @@ export default function PhoneBook({ isDark }: Props) {
           borderRadius: '10px',
           border: 'none',
           backgroundColor: isDark ? '#2A2A2A' : '#E8E8E8',
-          color: isDark ? '#FFFFFF' : '#1A1A1A',
+      color: isDark ? '#FFFFFF' : '#1A1A1A',
           fontSize: '14px',
           outline: 'none',
         }}
@@ -233,7 +242,9 @@ export default function PhoneBook({ isDark }: Props) {
                 <button
                   style={styles.button(false)}
                   onClick={() => {
-                    const url = business.lat && business.lng
+                    const url = (business as any).google_place_id
+                      ? `https://www.google.com/maps/place/?q=place_id:${(business as any).google_place_id}`
+                      : business.lat && business.lng
                       ? `https://maps.google.com/?q=${business.lat},${business.lng}`
                       : `https://maps.google.com/?q=${encodeURIComponent(business.address || '')}`;
                     window.open(url, '_blank');
