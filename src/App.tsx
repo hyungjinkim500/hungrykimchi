@@ -8,6 +8,7 @@ import KimchiMap from './pages/KimchiMap'
 import News from './pages/News'
 import MyPage from './pages/MyPage'
 import Register from './pages/Register';
+import Admin from './pages/Admin';
 
 export default function App() {
   const [isDark, setIsDark] = useState(false)
@@ -18,7 +19,7 @@ export default function App() {
   }, [isDark])
 
   return (
-    <APIProvider apiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY}>
+    <APIProvider apiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY} libraries={['places']}>
       <BrowserRouter>
         <Header isDark={isDark} setIsDark={setIsDark} />
         <div style={{ paddingTop: '65px', paddingBottom: '65px' }}>
@@ -28,6 +29,7 @@ export default function App() {
             <Route path="/news" element={<News isDark={isDark} />} />
             <Route path="/mypage" element={<MyPage />} />
             <Route path="/register" element={<Register isDark={isDark} />} />
+            <Route path="/admin" element={<Admin isDark={isDark} />} />
           </Routes>
         </div>
         <BottomNav isDark={isDark} />
