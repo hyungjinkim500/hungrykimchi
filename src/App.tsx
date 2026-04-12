@@ -7,6 +7,7 @@ import PhoneBook from './pages/PhoneBook'
 import KimchiMap from './pages/KimchiMap'
 import News from './pages/News'
 import MyPage from './pages/MyPage'
+import Register from './pages/Register';
 
 export default function App() {
   const [isDark, setIsDark] = useState(false)
@@ -26,6 +27,7 @@ export default function App() {
             <Route path="/map" element={<KimchiMap isDark={isDark} />} />
             <Route path="/news" element={<News isDark={isDark} />} />
             <Route path="/mypage" element={<MyPage />} />
+            <Route path="/register" element={<Register isDark={isDark} />} />
           </Routes>
         </div>
         <BottomNav isDark={isDark} />

@@ -4,6 +4,7 @@ const tabs = [
   { path: '/', label: '전화번호부', icon: '📋' },
   { path: '/map', label: '김치맵', icon: '🗺️' },
   { path: '/news', label: '소식', icon: '📰' },
+  { path: '/register', label: '업체등록', icon: '➕' },
   { path: '/mypage', label: '내정보', icon: '👤' },
 ]
 
