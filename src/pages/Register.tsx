@@ -8,7 +8,7 @@ interface Props {
 }
 
 export default function Register({ isDark }: Props) {
-  const [registrationType, setRegistrationType] = useState('owner');
+  const [registrationType, setRegistrationType] = useState<'owner' | 'suggestion'>('owner');
   const [name, setName] = useState('');
   const [category, setCategory] = useState(CATEGORIES.filter(c => c !== '전체')[0]);
   const [subcategory, setSubcategory] = useState('');
@@ -170,11 +170,11 @@ export default function Register({ isDark }: Props) {
           <label style={styles.label}>등록 타입</label>
           <div style={styles.radioGroup}>
             <label style={styles.radioLabel}>
-              <input type="radio" value="owner" checked={registrationType === 'owner'} onChange={(e) => setRegistrationType(e.target.value)} />
+              <input type="radio" value="owner" checked={registrationType === 'owner'} onChange={(e) => setRegistrationType(e.target.value as 'owner' | 'suggestion')} />
               업주 등록
             </label>
             <label style={styles.radioLabel}>
-              <input type="radio" value="suggestion" checked={registrationType === 'suggestion'} onChange={(e) => setRegistrationType(e.target.value)} />
+              <input type="radio" value="suggestion" checked={registrationType === 'suggestion'} onChange={(e) => setRegistrationType(e.target.value as 'owner' | 'suggestion')} />
               업체 제보
             </label>
           </div>
