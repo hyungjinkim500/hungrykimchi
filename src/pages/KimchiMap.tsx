@@ -103,7 +103,7 @@ export default function KimchiMap({ isDark: _isDark }: Props) {
   return (
     <div style={{ position: 'fixed', top: '65px', bottom: '65px', left: '50%', transform: 'translateX(-50%)', width: '100%', maxWidth: '430px' }}>
       <Map
-        mapId="kimchi-map"
+        styles={[{ featureType: 'poi', stylers: [{ visibility: 'off' }] }]}
         defaultCenter={defaultCenter}
         defaultZoom={13}
         gestureHandling="greedy"
@@ -143,6 +143,9 @@ export default function KimchiMap({ isDark: _isDark }: Props) {
             <div style={{ padding: '4px', minWidth: '160px' }}>
               <p style={{ fontWeight: 'bold', margin: '0 0 4px', fontSize: '14px' }}>{selectedBusiness.name}</p>
               <p style={{ margin: '0 0 4px', fontSize: '12px', color: '#666' }}>{selectedBusiness.subcategory} · {selectedBusiness.category}</p>
+              {selectedBusiness.address && (
+                <p style={{ margin: '0 0 4px', fontSize: '12px', color: '#666' }}>{selectedBusiness.address}</p>
+              )}
               {selectedBusiness.phone && (
                 <a href={`tel:${selectedBusiness.phone}`} style={{ fontSize: '12px', color: '#C0392B', textDecoration: 'none' }}>📞 {selectedBusiness.phone}</a>
               )}
