@@ -174,6 +174,8 @@ export default function PhoneBook({ isDark }: Props) {
     return <div>에러: {error}</div>;
   }
 
+  const muted = isDark ? '#888' : '#666';
+
   return (
     <div style={styles.container}>
       <style>{customStyles}</style>
@@ -207,46 +209,47 @@ export default function PhoneBook({ isDark }: Props) {
         }}
       />
       <div style={styles.listContainer}>
-        {filteredBusinesses.map((business) => (
-          <div key={business.id} style={styles.card}>
+        {filteredBusinesses.map((b) => (
+          <div key={b.id} style={styles.card}>
             <div style={styles.cardHeader}>
-              <span style={styles.businessName}>{(business as any).name_ko || business.name}</span>
-              {business.category === '음식점' && (
-                <span style={styles.okBadge}>Lv.{business.ok_level}</span>
+              <span style={styles.businessName}>{(b as any).name_ko || b.name}</span>
+              {b.category === '음식점' && (
+                <span style={styles.okBadge}>Lv.{b.ok_level}</span>
               )}
             </div>
 
-            <p style={{...styles.mutedText, marginTop: '4px', marginBottom: 0}}>
-              {selectedCategory === '음식점'
-                ? ((business as any).primary_type_ko || '')
-                : `${business.subcategory ? business.subcategory + ' · ' : ''}${business.category}`
-              }
-            </p>
+            {(() => {
+              const GENERIC_TYPES = ['음식점', '한식당', '한국 음식점', '한국 요리', '식당', '레스토랑', '음식'];
+              const typeKo = (b as any).primary_type_ko;
+              return typeKo && !GENERIC_TYPES.includes(typeKo) ? (
+                <p style={{ fontSize: '12px', color: muted, margin: '4px 0 0' }}>{typeKo}</p>
+              ) : null;
+            })()}
             
             <p style={{...styles.addressText, margin: '4px 0 0'}}>
-                {business.address}
+                {b.address}
             </p>
 
             <div style={styles.buttonContainer}>
-              {business.phone ? (
+              {b.phone ? (
                 <button
                   style={styles.button(true)}
-                  onClick={() => window.location.href = `tel:${business.phone}`}
+                  onClick={() => window.location.href = `tel:${b.phone}`}
                 >
                   📞 전화
                 </button>
               ) : (
                 <span style={styles.noPhoneText}>전화번호 없음</span>
               )}
-              {((business as any).google_place_id || (business.lat && business.lng)) && (
+              {((b as any).google_place_id || (b.lat && b.lng)) && (
                 <button
                   style={styles.button(false)}
                   onClick={() => {
-                    const url = (business as any).google_place_id
-                      ? `https://www.google.com/maps/place/?q=place_id:${(business as any).google_place_id}`
-                      : business.lat && business.lng
-                      ? `https://maps.google.com/?q=${business.lat},${business.lng}`
-                      : `https://maps.google.com/?q=${encodeURIComponent(business.address || '')}`;
+                    const url = (b as any).google_place_id
+                      ? `https://www.google.com/maps/place/?q=place_id:${(b as any).google_place_id}`
+                      : b.lat && b.lng
+                      ? `https://maps.google.com/?q=${b.lat},${b.lng}`
+                      : `https://maps.google.com/?q=${encodeURIComponent(b.address || '')}`;
                     window.open(url, '_blank');
                   }}
                 >
