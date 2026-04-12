@@ -19,7 +19,7 @@ export default function PhoneBook({ isDark }: Props) {
   useEffect(() => {
     const fetchBusinesses = async () => {
       setLoading(true);
-      const { data, error } = await supabase.from('businesses').select('*');
+      const { data, error } = await supabase.from('businesses').select('*').eq('pending_approval', false);
       if (error) {
         setError(error.message);
       } else {
@@ -32,7 +32,7 @@ export default function PhoneBook({ isDark }: Props) {
   }, []);
 
   const fuseOptions = {
-    keys: ['name', 'subcategory', 'address'],
+    keys: ['name', 'name_ko', 'subcategory', 'address', 'primary_type_ko'],
     threshold: 0.4,
   };
 
@@ -151,7 +151,6 @@ export default function PhoneBook({ isDark }: Props) {
     },
   };
   
-  // Hide scrollbar for Webkit browsers
   const customStyles = `
     .no-scrollbar::-webkit-scrollbar {
         display: none;
@@ -202,25 +201,22 @@ export default function PhoneBook({ isDark }: Props) {
         {filteredBusinesses.map((business) => (
           <div key={business.id} style={styles.card}>
             <div style={styles.cardHeader}>
-              <span style={styles.businessName}>{business.name}</span>
+              <span style={styles.businessName}>{(business as any).name_ko || business.name}</span>
               {business.category === '음식점' && (
                 <span style={styles.okBadge}>Lv.{business.ok_level}</span>
               )}
             </div>
 
             <p style={{...styles.mutedText, marginTop: '4px', marginBottom: 0}}>
-              {business.subcategory && `${business.subcategory} · `}{business.category}
+              {selectedCategory === '음식점'
+                ? ((business as any).primary_type_ko || '')
+                : `${business.subcategory ? business.subcategory + ' · ' : ''}${business.category}`
+              }
             </p>
             
             <p style={{...styles.addressText, margin: '4px 0 0'}}>
                 {business.address}
             </p>
-
-            {business.google_rating && (
-              <p style={{...styles.ratingText, margin: '4px 0 0'}}>
-                ⭐ {business.google_rating}
-              </p>
-            )}
 
             <div style={styles.buttonContainer}>
               {business.phone ? (
@@ -233,17 +229,19 @@ export default function PhoneBook({ isDark }: Props) {
               ) : (
                 <span style={styles.noPhoneText}>전화번호 없음</span>
               )}
-              <button
-                style={styles.button(false)}
-                onClick={() => {
-                  const url = business.lat && business.lng
-                    ? `https://maps.google.com/?q=${business.lat},${business.lng}`
-                    : `https://maps.google.com/?q=${encodeURIComponent(business.address || '')}`;
-                  window.open(url, '_blank');
-                }}
-              >
-                🗺️ 지도
-              </button>
+              {((business as any).google_place_id || (business.lat && business.lng)) && (
+                <button
+                  style={styles.button(false)}
+                  onClick={() => {
+                    const url = business.lat && business.lng
+                      ? `https://maps.google.com/?q=${business.lat},${business.lng}`
+                      : `https://maps.google.com/?q=${encodeURIComponent(business.address || '')}`;
+                    window.open(url, '_blank');
+                  }}
+                >
+                  🗺️ 지도
+                </button>
+              )}
             </div>
           </div>
         ))}
