@@ -12,14 +12,15 @@ const SORT_OPTIONS = [{ id: 'newest', label: '최신순' }, { id: 'abc', label: 
 interface Props { isDark: boolean }
 
 export default function Admin({ isDark }: Props) {
-  const [loggedIn, setLoggedIn] = useState(false);
+  const [loggedIn, setLoggedIn] = useState(() => sessionStorage.getItem('admin_logged_in') === 'true');
   const [id, setId] = useState('');
   const [pw, setPw] = useState('');
   const [loginError, setLoginError] = useState('');
   const [businesses, setBusinesses] = useState<Business[]>([]);
   const [loading, setLoading] = useState(false);
-  const [filter, setFilter] = useState<'all' | 'pending'>('pending');
+  const [filter, setFilter] = useState<'published' | 'pending' | 'request'>('pending');
   const [nameKoEdits, setNameKoEdits] = useState<Record<string, string>>({});
+  const [searchQuery, setSearchQuery] = useState('');
 
   const [categoryFilter, setCategoryFilter] = useState('전체');
   const [countryFilter, setCountryFilter] = useState('전체');
@@ -27,6 +28,7 @@ export default function Admin({ isDark }: Props) {
 
   const handleLogin = () => {
     if (id === ADMIN_ID && pw === ADMIN_PW) {
+      sessionStorage.setItem('admin_logged_in', 'true');
       setLoggedIn(true);
     } else {
       setLoginError('아이디 또는 비밀번호가 틀렸습니다.');
@@ -41,7 +43,13 @@ export default function Admin({ isDark }: Props) {
   const fetchBusinesses = async () => {
     setLoading(true);
     let query = supabase.from('businesses').select('*').order('created_at', { ascending: false });
-    if (filter === 'pending') query = query.eq('pending_approval', true);
+    if (filter === 'pending') {
+      query = query.eq('pending_approval', true).eq('registration_type', 'script');
+    } else if (filter === 'request') {
+      query = query.eq('pending_approval', true).in('registration_type', ['owner', 'suggestion']);
+    } else if (filter === 'published') {
+      query = query.eq('pending_approval', false);
+    }
     const { data } = await query;
     if (data) setBusinesses(data as Business[]);
     setLoading(false);
@@ -62,7 +70,7 @@ export default function Admin({ isDark }: Props) {
   const handleHide = async (businessId: string) => {
     const { error } = await supabase.from('businesses').update({ pending_approval: true }).eq('id', businessId);
     if (error) { alert('보류 실패: ' + error.message); return; }
-    if (filter === 'all') setBusinesses(prev => prev.filter(b => b.id !== businessId));
+    if (filter === 'published') setBusinesses(prev => prev.filter(b => b.id !== businessId));
   };
 
   const handleSaveNameKo = async (businessId: string) => {
@@ -78,6 +86,14 @@ export default function Admin({ isDark }: Props) {
 
   const filteredAndSortedBusinesses = useMemo(() => {
     let result = [...businesses];
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase();
+      result = result.filter(b =>
+        b.name?.toLowerCase().includes(q) ||
+        (b as any).name_ko?.toLowerCase().includes(q) ||
+        b.address?.toLowerCase().includes(q)
+      );
+    }
     if (categoryFilter !== '전체') result = result.filter(b => b.category === categoryFilter);
     if (countryFilter === '베트남') result = result.filter(b => b.city === 'hanoi');
     if (sortOrder === 'abc') {
@@ -88,7 +104,7 @@ export default function Admin({ isDark }: Props) {
       });
     } // 'newest' is the default order from the API
     return result;
-  }, [businesses, categoryFilter, countryFilter, sortOrder]);
+  }, [businesses, categoryFilter, countryFilter, sortOrder, searchQuery]);
 
   const bg = isDark ? '#111111' : '#F5F5F5';
   const cardBg = isDark ? '#1A1A1A' : '#FFFFFF';
@@ -120,8 +136,17 @@ export default function Admin({ isDark }: Props) {
       <h2 style={{ marginTop: 0 }}>관리자 페이지</h2>
       <div style={{ display: 'flex', gap: '8px', marginBottom: '8px' }}>
         <button onClick={() => setFilter('pending')} style={{ padding: '8px 16px', borderRadius: '20px', border: 'none', backgroundColor: filter === 'pending' ? '#C0392B' : isDark ? '#2A2A2A' : '#E0E0E0', color: filter === 'pending' ? '#FFF' : text, cursor: 'pointer', fontSize: '13px' }}>승인 대기</button>
-        <button onClick={() => setFilter('all')} style={{ padding: '8px 16px', borderRadius: '20px', border: 'none', backgroundColor: filter === 'all' ? '#C0392B' : isDark ? '#2A2A2A' : '#E0E0E0', color: filter === 'all' ? '#FFF' : text, cursor: 'pointer', fontSize: '13px' }}>전체</button>
+        <button onClick={() => setFilter('request')} style={{ padding: '8px 16px', borderRadius: '20px', border: 'none', backgroundColor: filter === 'request' ? '#FF6B35' : isDark ? '#2A2A2A' : '#E0E0E0', color: filter === 'request' ? '#FFF' : text, cursor: 'pointer', fontSize: '13px' }}>게시 요청</button>
+        <button onClick={() => setFilter('published')} style={{ padding: '8px 16px', borderRadius: '20px', border: 'none', backgroundColor: filter === 'published' ? '#2D7A3A' : isDark ? '#2A2A2A' : '#E0E0E0', color: filter === 'published' ? '#FFF' : text, cursor: 'pointer', fontSize: '13px' }}>게시됨</button>
       </div>
+
+      <input
+        type="text"
+        placeholder="업체명 검색..."
+        value={searchQuery}
+        onChange={e => setSearchQuery(e.target.value)}
+        style={{ width: '100%', padding: '8px 12px', borderRadius: '8px', border: '1px solid #444', backgroundColor: isDark ? '#2A2A2A' : '#F0F0F0', color: text, fontSize: '13px', marginBottom: '8px', boxSizing: 'border-box' }}
+      />
 
       <div style={{ display: 'flex', gap: '6px', overflowX: 'auto', marginBottom: '8px', paddingBottom: '4px' }}>
         {CATEGORIES.map(c => <button key={c} onClick={() => setCategoryFilter(c)} style={chipStyle(categoryFilter === c)}>{c}</button>)}
