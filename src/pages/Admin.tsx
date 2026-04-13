@@ -18,8 +18,9 @@ export default function Admin({ isDark }: Props) {
   const [loginError, setLoginError] = useState('');
   const [businesses, setBusinesses] = useState<Business[]>([]);
   const [loading, setLoading] = useState(false);
-  const [filter, setFilter] = useState<'published' | 'pending' | 'request'>('pending');
+  const [filter, setFilter] = useState<'published' | 'pending' | 'request' | 'deleted'>('pending');
   const [nameKoEdits, setNameKoEdits] = useState<Record<string, string>>({});
+  const [deletedPlaces, setDeletedPlaces] = useState<{google_place_id: string, name: string, deleted_at: string}[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
 
   const [categoryFilter, setCategoryFilter] = useState('전체');
@@ -42,6 +43,13 @@ export default function Admin({ isDark }: Props) {
 
   const fetchBusinesses = async () => {
     setLoading(true);
+    if (filter === 'deleted') {
+      const { data: deletedData } = await supabase.from('deleted_places').select('*').order('deleted_at', { ascending: false });
+      setDeletedPlaces(deletedData || []);
+      setBusinesses([]);
+      setLoading(false);
+      return;
+    }
     let query = supabase.from('businesses').select('*').order('created_at', { ascending: false });
     if (filter === 'pending') {
       query = query.eq('pending_approval', true).eq('registration_type', 'script');
@@ -62,6 +70,10 @@ export default function Admin({ isDark }: Props) {
   };
 
   const handleReject = async (businessId: string) => {
+    const target = businesses.find(b => b.id === businessId);
+    if (target?.google_place_id) {
+      await supabase.from('deleted_places').upsert({ google_place_id: target.google_place_id, name: target.name });
+    }
     const { error } = await supabase.from('businesses').delete().eq('id', businessId);
     if (error) { alert('삭제 실패: ' + error.message); return; }
     setBusinesses(prev => prev.filter(b => b.id !== businessId));
@@ -138,6 +150,7 @@ export default function Admin({ isDark }: Props) {
         <button onClick={() => setFilter('pending')} style={{ padding: '8px 16px', borderRadius: '20px', border: 'none', backgroundColor: filter === 'pending' ? '#C0392B' : isDark ? '#2A2A2A' : '#E0E0E0', color: filter === 'pending' ? '#FFF' : text, cursor: 'pointer', fontSize: '13px' }}>승인 대기</button>
         <button onClick={() => setFilter('request')} style={{ padding: '8px 16px', borderRadius: '20px', border: 'none', backgroundColor: filter === 'request' ? '#FF6B35' : isDark ? '#2A2A2A' : '#E0E0E0', color: filter === 'request' ? '#FFF' : text, cursor: 'pointer', fontSize: '13px' }}>게시 요청</button>
         <button onClick={() => setFilter('published')} style={{ padding: '8px 16px', borderRadius: '20px', border: 'none', backgroundColor: filter === 'published' ? '#2D7A3A' : isDark ? '#2A2A2A' : '#E0E0E0', color: filter === 'published' ? '#FFF' : text, cursor: 'pointer', fontSize: '13px' }}>게시됨</button>
+        <button onClick={() => setFilter('deleted')} style={{ padding: '8px 16px', borderRadius: '20px', border: 'none', backgroundColor: filter === 'deleted' ? '#555555' : isDark ? '#2A2A2A' : '#E0E0E0', color: filter === 'deleted' ? '#FFF' : text, cursor: 'pointer', fontSize: '13px' }}>삭제됨</button>
       </div>
 
       <input
@@ -159,37 +172,47 @@ export default function Admin({ isDark }: Props) {
       </div>
 
       {loading ? <p>불러오는 중...</p> : (
-        <>
-          <p style={{ color: muted, fontSize: '13px', margin: '0 0 12px' }}>총 {filteredAndSortedBusinesses.length}개</p>
-          {filteredAndSortedBusinesses.map(b => {
-            const mapUrl = getGoogleMapUrl(b);
-            return (
-              <div key={b.id} style={{ background: cardBg, borderRadius: '12px', padding: '14px', marginBottom: '10px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '4px' }}>
-                  <p style={{ fontWeight: 'bold', fontSize: '15px', margin: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{b.name}</p>
-                  {mapUrl && <button onClick={() => window.open(mapUrl, '_blank')} style={{ padding: '3px 8px', borderRadius: '6px', border: 'none', backgroundColor: isDark ? '#2A2A2A' : '#E0E0E0', color: text, fontSize: '12px', cursor: 'pointer', marginLeft: '8px' }}>📍</button>}
-                </div>
-                <p style={{ fontSize: '12px', color: muted, margin: '0 0 2px' }}>{b.category} {b.subcategory ? `· ${b.subcategory}` : ''}</p>
-                <p style={{ fontSize: '12px', color: muted, margin: '0 0 2px' }}>{b.address}</p>
-                <p style={{ fontSize: '12px', color: muted, margin: '0 0 8px' }}>{b.phone ?? '전화번호 없음'}</p>
-
-                <div style={{ marginBottom: '8px' }}>
-                  <label style={{ fontSize: '12px', color: muted }}>한국어 이름</label>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <input value={nameKoEdits[b.id] ?? (b as any).name_ko ?? ''} onChange={e => setNameKoEdits(prev => ({ ...prev, [b.id]: e.target.value }))} style={{ width: '100%', padding: '6px 10px', borderRadius: '6px', border: '1px solid #444', backgroundColor: isDark ? '#2A2A2A' : '#F0F0F0', color: text, fontSize: '13px', boxSizing: 'border-box' }} />
-                    <button onClick={() => handleSaveNameKo(b.id)} style={{ padding: '6px 14px', borderRadius: '6px', border: 'none', backgroundColor: '#FF6B35', color: '#FFF', fontSize: '12px', cursor: 'pointer' }}>저장</button>
+        filter === 'deleted' ? (
+          <>
+            <p style={{ color: muted, fontSize: '13px', margin: '0 0 12px' }}>총 {deletedPlaces.length}개</p>
+            {deletedPlaces.filter(d => searchQuery.trim() === '' || d.name?.toLowerCase().includes(searchQuery.toLowerCase())).map(d => (
+              <div key={d.google_place_id} style={{ background: cardBg, borderRadius: '12px', padding: '14px', marginBottom: '10px' }}>
+                <p style={{ fontWeight: 'bold', fontSize: '15px', margin: '0 0 4px' }}>{d.name}</p>
+                <p style={{ fontSize: '12px', color: muted, margin: 0 }}>삭제일: {new Date(d.deleted_at).toLocaleDateString('ko-KR')}</p>
+              </div>
+            ))}
+          </>
+        ) : (
+          <>
+            <p style={{ color: muted, fontSize: '13px', margin: '0 0 12px' }}>총 {filteredAndSortedBusinesses.length}개</p>
+            {filteredAndSortedBusinesses.map(b => {
+              const mapUrl = getGoogleMapUrl(b);
+              return (
+                <div key={b.id} style={{ background: cardBg, borderRadius: '12px', padding: '14px', marginBottom: '10px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '4px' }}>
+                    <p style={{ fontWeight: 'bold', fontSize: '15px', margin: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{b.name}</p>
+                    {mapUrl && <button onClick={() => window.open(mapUrl, '_blank')} style={{ padding: '3px 8px', borderRadius: '6px', border: 'none', backgroundColor: isDark ? '#2A2A2A' : '#E0E0E0', color: text, fontSize: '12px', cursor: 'pointer', marginLeft: '8px' }}>📍</button>}
+                  </div>
+                  <p style={{ fontSize: '12px', color: muted, margin: '0 0 2px' }}>{b.category} {b.subcategory ? `· ${b.subcategory}` : ''}</p>
+                  <p style={{ fontSize: '12px', color: muted, margin: '0 0 2px' }}>{b.address}</p>
+                  <p style={{ fontSize: '12px', color: muted, margin: '0 0 8px' }}>{b.phone ?? '전화번호 없음'}</p>
+                  <div style={{ marginBottom: '8px' }}>
+                    <label style={{ fontSize: '12px', color: muted }}>한국어 이름</label>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <input value={nameKoEdits[b.id] ?? (b as any).name_ko ?? ''} onChange={e => setNameKoEdits(prev => ({ ...prev, [b.id]: e.target.value }))} style={{ width: '100%', padding: '6px 10px', borderRadius: '6px', border: '1px solid #444', backgroundColor: isDark ? '#2A2A2A' : '#F0F0F0', color: text, fontSize: '13px', boxSizing: 'border-box' }} />
+                      <button onClick={() => handleSaveNameKo(b.id)} style={{ padding: '6px 14px', borderRadius: '6px', border: 'none', backgroundColor: '#FF6B35', color: '#FFF', fontSize: '12px', cursor: 'pointer' }}>저장</button>
+                    </div>
+                  </div>
+                  <div style={{ display: 'flex', gap: '8px' }}>
+                    <button onClick={() => handleApprove(b.id)} style={{ flex: 1, padding: '7px', borderRadius: '8px', border: 'none', backgroundColor: '#2D7A3A', color: '#FFF', fontSize: '13px', cursor: 'pointer' }}>✅ 게시</button>
+                    <button onClick={() => handleHide(b.id)} style={{ flex: 1, padding: '7px', borderRadius: '8px', border: 'none', backgroundColor: isDark ? '#2A2A2A' : '#E0E0E0', color: text, fontSize: '13px', cursor: 'pointer' }}>⏸ 보류</button>
+                    <button onClick={() => handleReject(b.id)} style={{ flex: 1, padding: '7px', borderRadius: '8px', border: 'none', backgroundColor: '#C0392B', color: '#FFF', fontSize: '13px', cursor: 'pointer' }}>🗑 삭제</button>
                   </div>
                 </div>
-
-                <div style={{ display: 'flex', gap: '8px' }}>
-                  <button onClick={() => handleApprove(b.id)} style={{ flex: 1, padding: '7px', borderRadius: '8px', border: 'none', backgroundColor: '#2D7A3A', color: '#FFF', fontSize: '13px', cursor: 'pointer' }}>✅ 게시</button>
-                  <button onClick={() => handleHide(b.id)} style={{ flex: 1, padding: '7px', borderRadius: '8px', border: 'none', backgroundColor: isDark ? '#2A2A2A' : '#E0E0E0', color: text, fontSize: '13px', cursor: 'pointer' }}>⏸ 보류</button>
-                  <button onClick={() => handleReject(b.id)} style={{ flex: 1, padding: '7px', borderRadius: '8px', border: 'none', backgroundColor: '#C0392B', color: '#FFF', fontSize: '13px', cursor: 'pointer' }}>🗑 삭제</button>
-                </div>
-              </div>
-            )
-          })}
-        </>
+              );
+            })}
+          </>
+        )
       )}
     </div>
   );

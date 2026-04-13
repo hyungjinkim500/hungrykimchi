@@ -64,6 +64,8 @@ async function searchPlaces(keyword, lat, lng) {
 }
 
 async function main() {
+  const { data: deletedData } = await supabase.from('deleted_places').select('google_place_id');
+  const deletedIds = new Set((deletedData || []).map(d => d.google_place_id));
   const seen = new Set();
   const toUpsert = [];
 
@@ -74,7 +76,7 @@ async function main() {
         const places = await searchPlaces(keyword, zone.lat, zone.lng);
         let newCount = 0;
         for (const p of places) {
-          if (!p.id || seen.has(p.id)) continue;
+          if (!p.id || seen.has(p.id) || deletedIds.has(p.id)) continue;
           seen.add(p.id);
           newCount++;
           toUpsert.push({
