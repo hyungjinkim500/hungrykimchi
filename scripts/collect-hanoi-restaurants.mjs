@@ -12,19 +12,29 @@ if (!SUPABASE_KEY || !GOOGLE_API_KEY) {
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-// 하노이 주요 지역 좌표
 const ZONES = [
-  { name: '미딩',       lat: 21.0245, lng: 105.7788 },
-  { name: '호안끼엠',   lat: 21.0285, lng: 105.8542 },
-  { name: '떠이호',     lat: 21.0600, lng: 105.8230 },
-  { name: '동다',       lat: 21.0200, lng: 105.8430 },
-  { name: '까우저이',   lat: 21.0380, lng: 105.7980 },
-  { name: '하동',       lat: 20.9800, lng: 105.7800 },
-  { name: '롱비엔',     lat: 21.0450, lng: 105.8850 },
-  { name: '탄쑤언',     lat: 20.9950, lng: 105.8200 },
+  { name: '미딩-중심',     lat: 21.0245, lng: 105.7788 },
+  { name: '미딩-북',       lat: 21.0320, lng: 105.7788 },
+  { name: '미딩-남',       lat: 21.0170, lng: 105.7788 },
+  { name: '미딩-동',       lat: 21.0245, lng: 105.7900 },
+  { name: '호안끼엠-중심', lat: 21.0285, lng: 105.8542 },
+  { name: '호안끼엠-북',   lat: 21.0380, lng: 105.8500 },
+  { name: '호안끼엠-남',   lat: 21.0200, lng: 105.8500 },
+  { name: '떠이호-중심',   lat: 21.0600, lng: 105.8230 },
+  { name: '떠이호-동',     lat: 21.0600, lng: 105.8400 },
+  { name: '떠이호-서',     lat: 21.0600, lng: 105.8050 },
+  { name: '동다-중심',     lat: 21.0200, lng: 105.8430 },
+  { name: '동다-북',       lat: 21.0300, lng: 105.8430 },
+  { name: '까우저이-중심', lat: 21.0380, lng: 105.7980 },
+  { name: '까우저이-북',   lat: 21.0480, lng: 105.7980 },
+  { name: '까우저이-서',   lat: 21.0380, lng: 105.7850 },
+  { name: '하동-중심',     lat: 20.9800, lng: 105.7800 },
+  { name: '하동-북',       lat: 20.9950, lng: 105.7900 },
+  { name: '롱비엔',        lat: 21.0450, lng: 105.8850 },
+  { name: '탄쑤언-중심',   lat: 20.9950, lng: 105.8200 },
+  { name: '탄쑤언-서',     lat: 20.9950, lng: 105.8050 },
 ];
 
-// 검색 키워드
 const KEYWORDS = [
   '한식당',
   '한국 음식점',
@@ -36,6 +46,16 @@ const KEYWORDS = [
   '고기구이',
   '한국 BBQ',
   'nhà hàng Hàn Quốc',
+  '곱창',
+  '부대찌개',
+  '족발',
+  '감자탕',
+  '떡볶이',
+  '김치찌개',
+  '된장찌개',
+  '한국 분식',
+  '소주',
+  '포차',
 ];
 
 async function searchPlaces(keyword, lat, lng) {
@@ -52,7 +72,7 @@ async function searchPlaces(keyword, lat, lng) {
       locationBias: {
         circle: {
           center: { latitude: lat, longitude: lng },
-          radius: 3000.0,
+          radius: 1500.0,
         },
       },
       maxResultCount: 20,
@@ -66,8 +86,12 @@ async function searchPlaces(keyword, lat, lng) {
 async function main() {
   const { data: deletedData } = await supabase.from('deleted_places').select('google_place_id');
   const deletedIds = new Set((deletedData || []).map(d => d.google_place_id));
+
+  const { data: existingData } = await supabase.from('businesses').select('google_place_id').not('google_place_id', 'is', null);
+  const existingIds = new Set((existingData || []).map(b => b.google_place_id));
+
   const seen = new Set();
-  const toUpsert = [];
+  const toInsert = [];
 
   for (const zone of ZONES) {
     for (const keyword of KEYWORDS) {
@@ -76,10 +100,10 @@ async function main() {
         const places = await searchPlaces(keyword, zone.lat, zone.lng);
         let newCount = 0;
         for (const p of places) {
-          if (!p.id || seen.has(p.id) || deletedIds.has(p.id)) continue;
+          if (!p.id || seen.has(p.id) || deletedIds.has(p.id) || existingIds.has(p.id)) continue;
           seen.add(p.id);
           newCount++;
-          toUpsert.push({
+          toInsert.push({
             google_place_id: p.id,
             name: p.displayName?.text ?? '',
             primary_type_ko: p.primaryTypeDisplayName?.text ?? null,
@@ -103,18 +127,14 @@ async function main() {
     }
   }
 
-  console.log(`
-총 수집: ${toUpsert.length}개 upsert 시작...`);
+  console.log(`\n총 신규: ${toInsert.length}개 INSERT 시작...`);
 
-  // 50개씩 나눠서 upsert
   const chunkSize = 50;
-  for (let i = 0; i < toUpsert.length; i += chunkSize) {
-    const chunk = toUpsert.slice(i, i + chunkSize);
-    const { error } = await supabase
-      .from('businesses')
-      .upsert(chunk, { onConflict: 'google_place_id' });
-    if (error) console.error(`upsert 에러 (${i}~${i+chunkSize}):`, error.message);
-    else console.log(`upsert 완료: ${i+1}~${Math.min(i+chunkSize, toUpsert.length)}`);
+  for (let i = 0; i < toInsert.length; i += chunkSize) {
+    const chunk = toInsert.slice(i, i + chunkSize);
+    const { error } = await supabase.from('businesses').insert(chunk);
+    if (error) console.error(`insert 에러 (${i}~${i+chunkSize}):`, error.message);
+    else console.log(`insert 완료: ${i+1}~${Math.min(i+chunkSize, toInsert.length)}`);
   }
 
   console.log('완료!');

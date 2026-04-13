@@ -1,5 +1,6 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { CATEGORIES } from '../constants/categories';
 import { supabase } from '../lib/supabase';
 
@@ -9,6 +10,13 @@ interface Props {
 
 export default function Register({ isDark }: Props) {
   const [registrationType, setRegistrationType] = useState<'owner' | 'suggestion'>('owner');
+  const [searchParams] = useSearchParams();
+  useEffect(() => {
+    const type = searchParams.get('type');
+    if (type === 'suggestion') setRegistrationType('suggestion');
+    else if (type === 'owner') setRegistrationType('owner');
+  }, [searchParams]);
+
   const [name, setName] = useState('');
   const [category, setCategory] = useState<string>(CATEGORIES.filter(c => c !== '전체')[0]);
   const [subcategory, setSubcategory] = useState('');
@@ -161,25 +169,13 @@ export default function Register({ isDark }: Props) {
 
   return (
     <div style={styles.container}>
-      <h2 style={{ textAlign: 'center', margin: '0 0 24px' }}>신규 업체 등록/제보</h2>
+      <h2 style={{ textAlign: 'center', margin: '0 0 24px' }}>
+        {registrationType === 'owner' ? '🏪 업체 등록/수정 (사장님)' : '📝 업체 제보'}
+      </h2>
       {success && <div style={{...styles.message, backgroundColor: isDark ? '#2E7D32' : '#D4EDDA', color: isDark ? '#FFF' : '#155724'}}>{success}</div>}
       {error && <div style={{...styles.message, backgroundColor: isDark ? '#D32F2F' : '#F8D7DA', color: isDark ? '#FFF' : '#721C24'}}>{error}</div>}
       
       <form onSubmit={handleSubmit} style={styles.form}>
-        <div style={styles.card}>
-          <label style={styles.label}>등록 타입</label>
-          <div style={styles.radioGroup}>
-            <label style={styles.radioLabel}>
-              <input type="radio" value="owner" checked={registrationType === 'owner'} onChange={(e) => setRegistrationType(e.target.value as 'owner' | 'suggestion')} />
-              업주 등록
-            </label>
-            <label style={styles.radioLabel}>
-              <input type="radio" value="suggestion" checked={registrationType === 'suggestion'} onChange={(e) => setRegistrationType(e.target.value as 'owner' | 'suggestion')} />
-              업체 제보
-            </label>
-          </div>
-        </div>
-
         <div style={styles.card}>
           <h3 style={{marginTop: 0}}>업체 정보 (공통)</h3>
           <div>

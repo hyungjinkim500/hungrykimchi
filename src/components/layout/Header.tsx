@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import kimchiLogoLight from '../../assets/images/kimchi_level5_nb.png';
 import kimchiLogoDark from '../../assets/images/kimchi_level2_nb.png';
 
@@ -18,6 +18,7 @@ interface HeaderProps {
 
 export default function Header({ isDark, setIsDark }: HeaderProps) {
   const location = useLocation();
+  const navigate = useNavigate();
   const subtitle = pageTitles[location.pathname] ?? '';
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -36,6 +37,8 @@ export default function Header({ isDark, setIsDark }: HeaderProps) {
 
   const menuItems = [
     { label: isDark ? '☀️ 라이트 모드' : '🌙 다크 모드', action: () => setIsDark(!isDark) },
+    { label: '📝 업체 제보', action: () => { navigate('/register?type=suggestion'); } },
+    { label: '🏪 업체 등록/수정 (사장님)', action: () => { navigate('/register?type=owner'); } },
     { label: '로그인', action: () => alert('준비 중입니다') },
     { label: '공지사항', action: () => alert('준비 중입니다') },
     { label: '광고·제휴 문의', action: () => alert('준비 중입니다') },

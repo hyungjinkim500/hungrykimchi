@@ -13,7 +13,7 @@ export default function PhoneBook({ isDark }: Props) {
   const [businesses, setBusinesses] = useState<Business[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [selectedCategory, setSelectedCategory] = useState<string>('전체');
+  const [selectedCategory, setSelectedCategory] = useState<string>('음식점');
   const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
@@ -180,7 +180,7 @@ export default function PhoneBook({ isDark }: Props) {
     <div style={styles.container}>
       <style>{customStyles}</style>
       <div style={styles.categoryContainer} className="no-scrollbar">
-        {CATEGORIES.map((category) => (
+        {CATEGORIES.filter(c => c !== '전체').map((category) => (
           <button
             key={category}
             style={styles.categoryChip(selectedCategory === category)}
