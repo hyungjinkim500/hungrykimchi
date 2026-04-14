@@ -31,6 +31,8 @@ export default function Register({ isDark }: Props) {
   const [ownerKakao, setOwnerKakao] = useState('');
   const [ownerEmail, setOwnerEmail] = useState('');
   const [ownerContact2, setOwnerContact2] = useState('');
+  const [ownerName, setOwnerName] = useState('');
+  const [ownerPosition, setOwnerPosition] = useState('');
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -53,6 +55,8 @@ export default function Register({ isDark }: Props) {
     setOwnerKakao('');
     setOwnerEmail('');
     setOwnerContact2('');
+    setOwnerName('');
+    setOwnerPosition('');
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -81,6 +85,8 @@ export default function Register({ isDark }: Props) {
       owner_contact: registrationType === 'owner' ? finalOwnerContact : null,
       owner_kakao: registrationType === 'owner' ? ownerKakao : null,
       owner_email: registrationType === 'owner' ? ownerEmail : null,
+      owner_name: registrationType === 'owner' ? ownerName : null,
+      owner_position: registrationType === 'owner' ? ownerPosition : null,
       pending_approval: true,
       is_verified: false,
     }]);
@@ -202,25 +208,29 @@ export default function Register({ isDark }: Props) {
 
         {registrationType === 'owner' && (
           <div style={styles.card}>
-            <h3 style={{marginTop: 0}}>업주 정보 (선택)</h3>
-            <p style={{fontSize: 12, color: '#888', marginTop: -10, marginBottom: 15}}>
-              업주 인증 및 업체 정보 수정 권한 부여를 위해 필요한 정보입니다.
+            <h3 style={{marginTop: 0}}>업체 담당자 정보</h3>
+            <p style={{fontSize: '12px', color: '#888', marginTop: '4px', marginBottom: '16px', lineHeight: '1.5'}}>
+              업체 담당자 인증 및 정보 수정 권한 부여를 위해 필요합니다.
             </p>
             <div style={{marginBottom: '12px'}}>
-              <label style={styles.label}>업주 연락처</label>
-              <input style={styles.input} type="tel" value={ownerContact} onChange={e => setOwnerContact(e.target.value)} placeholder="개인 연락처" />
+              <label style={styles.label}>성함 <span style={{color: '#C0392B'}}>*</span></label>
+              <input style={styles.input} type="text" value={ownerName} onChange={e => setOwnerName(e.target.value)} placeholder="담당자 성함" />
             </div>
             <div style={{marginBottom: '12px'}}>
-              <label style={styles.label}>영업/제휴 문의 연락처</label>
-              <input style={styles.input} type="tel" value={ownerContact2} onChange={e => setOwnerContact2(e.target.value)} placeholder="별도 문의 연락처가 있을 경우" />
+              <label style={styles.label}>이메일 <span style={{color: '#C0392B'}}>*</span></label>
+              <input style={styles.input} type="email" value={ownerEmail} onChange={e => setOwnerEmail(e.target.value)} />
             </div>
             <div style={{marginBottom: '12px'}}>
               <label style={styles.label}>카카오톡 ID</label>
               <input style={styles.input} type="text" value={ownerKakao} onChange={e => setOwnerKakao(e.target.value)} />
             </div>
+            <div style={{marginBottom: '12px'}}>
+              <label style={styles.label}>연락처</label>
+              <input style={styles.input} type="tel" value={ownerContact} onChange={e => setOwnerContact(e.target.value)} placeholder="개인 연락처" />
+            </div>
             <div>
-              <label style={styles.label}>이메일</label>
-              <input style={styles.input} type="email" value={ownerEmail} onChange={e => setOwnerEmail(e.target.value)} />
+              <label style={styles.label}>직책</label>
+              <input style={styles.input} type="text" value={ownerPosition} onChange={e => setOwnerPosition(e.target.value)} placeholder="예: 대표, 매니저, 담당자" />
             </div>
           </div>
         )}
