@@ -29,11 +29,13 @@ export default function KimchiMap({ isDark: _isDark }: Props) {
   const defaultCenter = { lat: 21.0285, lng: 105.8542 };
 
   const getDirectionsUrl = (business: Business) => {
-    if (business.google_place_id) {
-      return `https://maps.google.com/?q=place_id:${business.google_place_id}`;
+    const name = encodeURIComponent((business as any).name_ko || business.name || '');
+    const placeId = (business as any).google_place_id;
+    if (placeId) {
+      return `https://www.google.com/maps/search/?api=1&query=${name}&query_place_id=${placeId}`;
     }
     if (business.lat && business.lng) {
-      return `https://maps.google.com/?q=${business.lat},${business.lng}`;
+      return `https://www.google.com/maps/search/?api=1&query=${business.lat},${business.lng}`;
     }
     return null;
   };
