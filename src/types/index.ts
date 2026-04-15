@@ -1,3 +1,5 @@
+export type City = 'hanoi' | 'hochiminh' | null;
+
 export type Business = {
   id: string;
   name: string;
@@ -14,4 +16,14 @@ export type Business = {
   ok_level: number;
   is_verified: boolean;
   created_at: string;
+  name_ko: string | null;
+  primary_type_ko: string | null;
+  is_korean_run: boolean;
+  registration_type: string | null;
+  owner_name: string | null;
+  owner_position: string | null;
+  owner_email: string | null;
+  owner_kakao: string | null;
+  owner_contact: string | null;
+  pending_approval: boolean;
 };
