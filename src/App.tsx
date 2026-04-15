@@ -9,9 +9,12 @@ import News from './pages/News'
 import MyPage from './pages/MyPage'
 import Register from './pages/Register';
 import Admin from './pages/Admin';
+import { useCity } from './hooks/useCity';
+import type { City } from './types/index';
 
 export default function App() {
   const [isDark, setIsDark] = useState(false)
+  const { city, changeCity, CITY_CENTERS } = useCity();
 
   useEffect(() => {
     document.body.style.backgroundColor = isDark ? '#111111' : '#F5F5F5'
@@ -21,11 +24,11 @@ export default function App() {
   return (
     <APIProvider apiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY} libraries={['places']}>
       <BrowserRouter>
-        <Header isDark={isDark} setIsDark={setIsDark} />
+        <Header isDark={isDark} setIsDark={setIsDark} city={city} changeCity={changeCity} CITY_CENTERS={CITY_CENTERS} />
         <div style={{ paddingTop: '65px', paddingBottom: '65px' }}>
           <Routes>
-            <Route path="/" element={<PhoneBook isDark={isDark} />} />
-            <Route path="/map" element={<KimchiMap isDark={isDark} />} />
+            <Route path="/" element={<PhoneBook isDark={isDark} city={city} />} />
+            <Route path="/map" element={<KimchiMap isDark={isDark} city={city} CITY_CENTERS={CITY_CENTERS} />} />
             <Route path="/news" element={<News isDark={isDark} />} />
             <Route path="/mypage" element={<MyPage isDark={isDark} />} />
             <Route path="/register" element={<Register isDark={isDark} />} />

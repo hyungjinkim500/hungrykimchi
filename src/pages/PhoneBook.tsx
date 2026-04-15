@@ -1,15 +1,16 @@
 import { useState, useEffect, useRef } from 'react';
 import Fuse from 'fuse.js';
-import type { Business } from '../types/index';
+import type { Business, City } from '../types/index';
 import { CATEGORIES } from '../constants/categories';
 import { supabase } from '../lib/supabase';
 import kimchiLogo from '../assets/images/kimchi_level5_nb.png';
 
 interface Props {
   isDark: boolean;
+  city: City;
 }
 
-export default function PhoneBook({ isDark }: Props) {
+export default function PhoneBook({ isDark, city }: Props) {
   const [businesses, setBusinesses] = useState<Business[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -22,7 +23,9 @@ export default function PhoneBook({ isDark }: Props) {
   useEffect(() => {
     const fetchBusinesses = async () => {
       setLoading(true);
-      const { data, error } = await supabase.from('businesses').select('*').eq('pending_approval', false).not('phone', 'is', null);
+      let query = supabase.from('businesses').select('*').eq('pending_approval', false).not('phone', 'is', null);
+      if (city) query = query.eq('city', city);
+      const { data, error } = await query;
       if (error) {
         setError(error.message);
       } else {
@@ -32,7 +35,7 @@ export default function PhoneBook({ isDark }: Props) {
     };
 
     fetchBusinesses();
-  }, []);
+  }, [city]);
 
   const fuseOptions = {
     keys: ['name', 'name_ko', 'subcategory', 'address', 'primary_type_ko'],

@@ -4,6 +4,7 @@ import { supabase, signOut } from '../../lib/supabase';
 import type { User } from '@supabase/supabase-js';
 import kimchiLogoLight from '../../assets/images/kimchi_level5_nb.png';
 import kimchiLogoDark from '../../assets/images/kimchi_level2_nb.png';
+import type { City } from '../../types/index';
 
 const pageTitles: Record<string, string> = {
   '/': '한인업체 전화번호부',
@@ -16,9 +17,12 @@ const pageTitles: Record<string, string> = {
 interface HeaderProps {
   isDark: boolean;
   setIsDark: (v: boolean) => void;
+  city: City;
+  changeCity: (city: City) => void;
+  CITY_CENTERS: Record<string, { lat: number; lng: number; radius: number; label: string }>;
 }
 
-export default function Header({ isDark, setIsDark }: HeaderProps) {
+export default function Header({ isDark, setIsDark, city, changeCity, CITY_CENTERS }: HeaderProps) {
   const location = useLocation();
   const navigate = useNavigate();
   const subtitle = pageTitles[location.pathname] ?? '';
@@ -87,18 +91,36 @@ export default function Header({ isDark, setIsDark }: HeaderProps) {
         </div>
       </div>
 
-      <button
-        onClick={handleMenuToggle}
-        style={{
-          background: 'none',
-          border: 'none',
-          fontSize: '22px',
-          cursor: 'pointer',
-          color: isDark ? '#FFFFFF' : '#1A1A1A',
-        }}
-      >
-        ☰
-      </button>
+      <div style={{ display: 'flex', alignItems: 'center' }}>
+        <button
+          onClick={() => changeCity(city === 'hanoi' ? 'hochiminh' : 'hanoi')}
+          style={{
+            background: isDark ? '#2A2A2A' : '#E8E8E8',
+            border: 'none',
+            borderRadius: '8px',
+            padding: '5px 10px',
+            fontSize: '12px',
+            fontWeight: 'bold',
+            color: isDark ? '#FFFFFF' : '#1A1A1A',
+            cursor: 'pointer',
+            marginRight: '8px',
+          }}
+        >
+          📍 {city ? CITY_CENTERS[city]?.label : '도시선택'}
+        </button>
+        <button
+          onClick={handleMenuToggle}
+          style={{
+            background: 'none',
+            border: 'none',
+            fontSize: '22px',
+            cursor: 'pointer',
+            color: isDark ? '#FFFFFF' : '#1A1A1A',
+          }}
+        >
+          ☰
+        </button>
+      </div>
 
       {menuOpen && (
         <div style={{

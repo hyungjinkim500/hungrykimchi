@@ -1,15 +1,17 @@
 
 import { useState, useEffect } from 'react';
 import { Map, AdvancedMarker, Pin, InfoWindow } from '@vis.gl/react-google-maps';
-import type { Business } from '../types/index';
+import type { Business, City } from '../types/index';
 import { supabase } from '../lib/supabase';
 import kimchiLogo from '../assets/images/kimchi_level5_nb.png';
 
 interface Props {
   isDark: boolean;
+  city: City;
+  CITY_CENTERS: Record<string, { lat: number; lng: number; radius: number; label: string }>;
 }
 
-export default function KimchiMap({ isDark: _isDark }: Props) {
+export default function KimchiMap({ isDark: _isDark, city, CITY_CENTERS }: Props) {
   const [businesses, setBusinesses] = useState<Business[]>([]);
   const [selectedBusiness, setSelectedBusiness] = useState<Business | null>(null);
 
@@ -26,7 +28,9 @@ export default function KimchiMap({ isDark: _isDark }: Props) {
     fetchBusinesses();
   }, []);
 
-  const defaultCenter = { lat: 21.0285, lng: 105.8542 };
+  const defaultCenter = city && CITY_CENTERS[city]
+    ? { lat: CITY_CENTERS[city].lat, lng: CITY_CENTERS[city].lng }
+    : { lat: 21.0285, lng: 105.8542 };
 
   const getDirectionsUrl = (business: Business) => {
     const name = encodeURIComponent((business as any).name_ko || business.name || '');
