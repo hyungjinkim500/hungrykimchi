@@ -293,11 +293,13 @@ export default function PhoneBook({ isDark }: Props) {
                 <button
                   style={styles.button(false)}
                   onClick={() => {
-                    const url = (b as any).google_place_id
-                      ? `https://maps.google.com/?q=place_id:${(b as any).google_place_id}`
+                    const name = encodeURIComponent((b as any).name_ko || b.name || '');
+                    const placeId = (b as any).google_place_id;
+                    const url = placeId
+                      ? `https://www.google.com/maps/search/?api=1&query=${name}&query_place_id=${placeId}`
                       : b.lat && b.lng
-                      ? `https://maps.google.com/?q=${b.lat},${b.lng}`
-                      : `https://maps.google.com/?q=${encodeURIComponent(b.address || '')}`;
+                      ? `https://www.google.com/maps/search/?api=1&query=${b.lat},${b.lng}`
+                      : `https://www.google.com/maps/search/?api=1&query=${name}`;
                     window.location.href = url;
                   }}
                 >
