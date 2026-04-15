@@ -30,10 +30,10 @@ export default function KimchiMap({ isDark: _isDark }: Props) {
 
   const getDirectionsUrl = (business: Business) => {
     if (business.google_place_id) {
-      return `https://www.google.com/maps/place/?q=place_id:${business.google_place_id}`;
+      return `https://maps.google.com/?q=place_id:${business.google_place_id}`;
     }
     if (business.lat && business.lng) {
-      return `https://www.google.com/maps?q=${business.lat},${business.lng}`;
+      return `https://maps.google.com/?q=${business.lat},${business.lng}`;
     }
     return null;
   };
@@ -95,8 +95,7 @@ export default function KimchiMap({ isDark: _isDark }: Props) {
                 {getDirectionsUrl(selectedBusiness) && (
                   <a
                     href={getDirectionsUrl(selectedBusiness)!}
-                    target="_blank"
-                    rel="noopener noreferrer"
+                    onClick={(e) => { e.preventDefault(); window.location.href = getDirectionsUrl(selectedBusiness)!; }}
                     style={{ fontSize: '12px', color: '#1A73E8', textDecoration: 'none', whiteSpace: 'nowrap' }}
                   >
                     📍 구글맵에서 보기

@@ -294,11 +294,11 @@ export default function PhoneBook({ isDark }: Props) {
                   style={styles.button(false)}
                   onClick={() => {
                     const url = (b as any).google_place_id
-                      ? `https://www.google.com/maps/place/?q=place_id:${(b as any).google_place_id}`
+                      ? `https://maps.google.com/?q=place_id:${(b as any).google_place_id}`
                       : b.lat && b.lng
                       ? `https://maps.google.com/?q=${b.lat},${b.lng}`
                       : `https://maps.google.com/?q=${encodeURIComponent(b.address || '')}`;
-                    window.open(url, '_blank');
+                    window.location.href = url;
                   }}
                 >
                   🗺️ 지도
