@@ -5,7 +5,7 @@ import type { Business } from '../types/index';
 const ADMIN_ID = 'hyung64a';
 const ADMIN_PW = 'hj0105';
 
-const CATEGORIES = ['전체', '음식점', '택시', '의료', '관공·긴급', '기관', '기타'];
+const CATEGORIES = ['전체', '음식점', '택시', '의료', '관공·긴급', '기관', '마트/슈퍼', '기타'];
 const COUNTRIES = ['전체', '베트남'];
 const SORT_OPTIONS = [{ id: 'newest', label: '최신순' }, { id: 'abc', label: '가나다·ABC순' }];
 
@@ -94,6 +94,12 @@ export default function Admin({ isDark }: Props) {
     const { error } = await supabase.from('businesses').update({ is_korean_run: !current }).eq('id', businessId);
     if (error) { alert('저장 실패: ' + error.message); return; }
     setBusinesses(prev => prev.map(b => b.id === businessId ? { ...b, is_korean_run: !current } as any : b));
+  };
+
+  const handleCategoryChange = async (businessId: string, newCategory: string) => {
+    const { error } = await supabase.from('businesses').update({ category: newCategory }).eq('id', businessId);
+    if (error) { alert('카테고리 변경 실패: ' + error.message); return; }
+    setBusinesses(prev => prev.map(b => b.id === businessId ? { ...b, category: newCategory } as any : b));
   };
 
   const getGoogleMapUrl = (b: Business) => {
@@ -199,7 +205,18 @@ export default function Admin({ isDark }: Props) {
                     <p style={{ fontWeight: 'bold', fontSize: '15px', margin: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{b.name}</p>
                     {mapUrl && <button onClick={() => window.open(mapUrl, '_blank')} style={{ padding: '3px 8px', borderRadius: '6px', border: 'none', backgroundColor: isDark ? '#2A2A2A' : '#E0E0E0', color: text, fontSize: '12px', cursor: 'pointer', marginLeft: '8px' }}>📍</button>}
                   </div>
-                  <p style={{ fontSize: '12px', color: muted, margin: '0 0 2px' }}>{b.category} {b.subcategory ? `· ${b.subcategory}` : ''}</p>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '2px' }}>
+                    <select
+                      value={b.category ?? '기타'}
+                      onChange={e => handleCategoryChange(b.id, e.target.value)}
+                      style={{ fontSize: '12px', color: muted, background: 'transparent', border: 'none', cursor: 'pointer', padding: 0 }}
+                    >
+                      {['음식점', '택시', '의료', '관공·긴급', '기관', '마트/슈퍼', '기타'].map(c => (
+                        <option key={c} value={c}>{c}</option>
+                      ))}
+                    </select>
+                    {b.subcategory && <span style={{ fontSize: '12px', color: muted }}>· {b.subcategory}</span>}
+                  </div>
                   <p style={{ fontSize: '12px', color: muted, margin: '0 0 2px' }}>{b.address}</p>
                   <p style={{ fontSize: '12px', color: muted, margin: '0 0 8px' }}>{b.phone ?? '전화번호 없음'}</p>
                   <div style={{ marginBottom: '8px' }}>
