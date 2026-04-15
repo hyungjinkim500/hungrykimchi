@@ -1,9 +1,9 @@
-
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Fuse from 'fuse.js';
 import type { Business } from '../types/index';
 import { CATEGORIES } from '../constants/categories';
 import { supabase } from '../lib/supabase';
+import kimchiLogo from '../assets/images/kimchi_level5_nb.png';
 
 interface Props {
   isDark: boolean;
@@ -15,6 +15,9 @@ export default function PhoneBook({ isDark }: Props) {
   const [error, setError] = useState<string | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string>('음식점');
   const [searchQuery, setSearchQuery] = useState('');
+  const [showKoreanOnly, setShowKoreanOnly] = useState(false);
+  const [tooltipId, setTooltipId] = useState<string | null>(null);
+  const tooltipTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     const fetchBusinesses = async () => {
@@ -37,18 +40,22 @@ export default function PhoneBook({ isDark }: Props) {
   };
 
   const filteredBusinesses = (() => {
-    const categoryFiltered = selectedCategory === '전체'
-      ? businesses
-      : businesses.filter((b) => b.category === selectedCategory);
+    let categoryFiltered = selectedCategory === '전체'
+        ? businesses
+        : businesses.filter((b) => b.category === selectedCategory);
+
+    if (showKoreanOnly) {
+        categoryFiltered = categoryFiltered.filter(b => (b as any).is_korean_run === true);
+    }
 
     const sortByName = (arr: Business[]) => [...arr].sort((a, b) => {
-      const nameA = (a as any).name_ko || a.name || '';
-      const nameB = (b as any).name_ko || b.name || '';
-      const aIsKorean = /^[가-힣]/.test(nameA);
-      const bIsKorean = /^[가-힣]/.test(nameB);
-      if (aIsKorean && !bIsKorean) return -1;
-      if (!aIsKorean && bIsKorean) return 1;
-      return nameA.localeCompare(nameB, 'ko');
+        const nameA = (a as any).name_ko || a.name || '';
+        const nameB = (b as any).name_ko || b.name || '';
+        const aIsKorean = /^[가-힣]/.test(nameA);
+        const bIsKorean = /^[가-힣]/.test(nameB);
+        if (aIsKorean && !bIsKorean) return -1;
+        if (!aIsKorean && bIsKorean) return 1;
+        return nameA.localeCompare(nameB, 'ko');
     });
 
     if (!searchQuery.trim()) return sortByName(categoryFiltered);
@@ -75,7 +82,6 @@ export default function PhoneBook({ isDark }: Props) {
       alignItems: 'center',
       overflowX: 'auto',
       flexShrink: 0,
-      height: '48px',
       padding: '0 16px',
       gap: '8px',
       scrollbarWidth: 'none',
@@ -144,12 +150,12 @@ export default function PhoneBook({ isDark }: Props) {
       marginTop: '12px',
     },
     button: (primary: boolean) => ({
-      background: primary ? '#C0392B' : isDark ? '#2A2A2A' : '#E8E8E8',
-      color: primary ? '#FFFFFF' : isDark ? '#FFFFFF' : '#1A1A1A',
+      background: primary ? 'transparent' : isDark ? '#2A2A2A' : '#E8E8E8',
+      color: primary ? '#C0392B' : isDark ? '#FFFFFF' : '#1A1A1A',
       borderRadius: '8px',
       padding: '7px 14px',
       fontSize: '13px',
-      border: 'none',
+      border: primary ? '1.5px solid #C0392B' : 'none',
       cursor: 'pointer',
       marginLeft: '8px',
     }),
@@ -159,7 +165,7 @@ export default function PhoneBook({ isDark }: Props) {
       marginRight: 'auto',
     },
   };
-  
+
   const customStyles = `
     .no-scrollbar::-webkit-scrollbar {
         display: none;
@@ -179,16 +185,35 @@ export default function PhoneBook({ isDark }: Props) {
   return (
     <div style={styles.container}>
       <style>{customStyles}</style>
-      <div style={styles.categoryContainer} className="no-scrollbar">
-        {CATEGORIES.filter(c => c !== '전체').map((category) => (
-          <button
-            key={category}
-            style={styles.categoryChip(selectedCategory === category)}
-            onClick={() => setSelectedCategory(category)}
-          >
-            {category}
-          </button>
-        ))}
+      <div style={{ display: 'flex', height: '48px', alignItems: 'center' }}>
+        <div style={{ ...styles.categoryContainer, flex: 1 }} className="no-scrollbar">
+          {CATEGORIES.filter(c => c !== '전체').map((category) => (
+            <button
+              key={category}
+              style={styles.categoryChip(selectedCategory === category)}
+              onClick={() => setSelectedCategory(category)}
+            >
+              {category}
+            </button>
+          ))}
+        </div>
+        <button
+          onClick={() => setShowKoreanOnly(!showKoreanOnly)}
+          style={{
+            flexShrink: 0,
+            marginLeft: '8px',
+            marginRight: '16px',
+            padding: '3px 6px',
+            borderRadius: '10px',
+            background: showKoreanOnly ? (isDark ? '#2A2A2A' : '#FFE8E8') : 'transparent',
+            border: showKoreanOnly ? '2px solid #C0392B' : '2px solid transparent',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+          }}
+        >
+          <img src={kimchiLogo} alt="한인 인증" style={{ width: '22px', height: '22px' }} />
+        </button>
       </div>
       <input
         type="text"
@@ -203,7 +228,7 @@ export default function PhoneBook({ isDark }: Props) {
           borderRadius: '10px',
           border: 'none',
           backgroundColor: isDark ? '#2A2A2A' : '#E8E8E8',
-      color: isDark ? '#FFFFFF' : '#1A1A1A',
+          color: isDark ? '#FFFFFF' : '#1A1A1A',
           fontSize: '14px',
           outline: 'none',
         }}
@@ -213,8 +238,41 @@ export default function PhoneBook({ isDark }: Props) {
           <div key={b.id} style={styles.card}>
             <div style={styles.cardHeader}>
               <span style={styles.businessName}>{(b as any).name_ko || b.name}</span>
-              {b.category === '음식점' && (
-                <span style={styles.okBadge}>Lv.{b.ok_level}</span>
+              {(b as any).is_korean_run && (
+                <div style={{ position: 'relative', display: 'inline-block' }}>
+                  <img
+                    src={kimchiLogo}
+                    alt="한국인 운영"
+                    style={{ width: '28px', height: '28px', objectFit: 'contain', cursor: 'pointer' }}
+                    onClick={() => {
+                      if (tooltipTimerRef.current) clearTimeout(tooltipTimerRef.current);
+                      if (tooltipId === b.id) {
+                        setTooltipId(null);
+                      } else {
+                        setTooltipId(b.id);
+                        tooltipTimerRef.current = setTimeout(() => setTooltipId(null), 5000);
+                      }
+                    }}
+                  />
+                  {tooltipId === b.id && (
+                    <div style={{
+                      position: 'absolute', bottom: '34px', right: 0,
+                      backgroundColor: '#C0392B', color: '#FFF',
+                      padding: '6px 10px', borderRadius: '8px',
+                      fontSize: '12px', whiteSpace: 'nowrap',
+                      zIndex: 50, boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
+                    }}>
+                      한국인이 운영/근무하는 곳이에요 🇰🇷
+                      <div style={{
+                        position: 'absolute', bottom: '-6px', right: '8px',
+                        width: 0, height: 0,
+                        borderLeft: '6px solid transparent',
+                        borderRight: '6px solid transparent',
+                        borderTop: '6px solid #C0392B',
+                      }} />
+                    </div>
+                  )}
+                </div>
               )}
             </div>
 
@@ -231,16 +289,6 @@ export default function PhoneBook({ isDark }: Props) {
             </p>
 
             <div style={styles.buttonContainer}>
-              {b.phone ? (
-                <button
-                  style={styles.button(true)}
-                  onClick={() => window.location.href = `tel:${b.phone}`}
-                >
-                  📞 전화
-                </button>
-              ) : (
-                <span style={styles.noPhoneText}>전화번호 없음</span>
-              )}
               {((b as any).google_place_id || (b.lat && b.lng)) && (
                 <button
                   style={styles.button(false)}
@@ -255,6 +303,16 @@ export default function PhoneBook({ isDark }: Props) {
                 >
                   🗺️ 지도
                 </button>
+              )}
+              {b.phone ? (
+                <button
+                  style={styles.button(true)}
+                  onClick={() => window.location.href = `tel:${b.phone}`}
+                >
+                  📞 전화
+                </button>
+              ) : (
+                <span style={styles.noPhoneText}>전화번호 없음</span>
               )}
             </div>
           </div>

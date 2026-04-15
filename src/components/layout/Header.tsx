@@ -1,5 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { supabase, signOut } from '../../lib/supabase';
+import type { User } from '@supabase/supabase-js';
 import kimchiLogoLight from '../../assets/images/kimchi_level5_nb.png';
 import kimchiLogoDark from '../../assets/images/kimchi_level2_nb.png';
 
@@ -21,6 +23,17 @@ export default function Header({ isDark, setIsDark }: HeaderProps) {
   const navigate = useNavigate();
   const subtitle = pageTitles[location.pathname] ?? '';
   const [menuOpen, setMenuOpen] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null);
+    });
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+    });
+    return () => subscription.unsubscribe();
+  }, []);
 
   const handleMenuToggle = () => {
     setMenuOpen(!menuOpen);
@@ -39,7 +52,9 @@ export default function Header({ isDark, setIsDark }: HeaderProps) {
     { label: isDark ? '☀️ 라이트 모드' : '🌙 다크 모드', action: () => setIsDark(!isDark) },
     { label: '📝 업체 제보', action: () => { navigate('/register?type=suggestion'); } },
     { label: '🏪 업체 등록/수정 (사장님)', action: () => { navigate('/register?type=owner'); } },
-    { label: '로그인', action: () => alert('준비 중입니다') },
+    user
+      ? { label: '로그아웃', action: async () => { try { await signOut(); } catch (e) {} } }
+      : { label: '🔑 로그인', action: () => navigate('/mypage') },
     { label: '공지사항', action: () => alert('준비 중입니다') },
     { label: '광고·제휴 문의', action: () => alert('준비 중입니다') },
   ];

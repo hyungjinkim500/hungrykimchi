@@ -16,15 +16,23 @@ interface NewsItem {
 const TYPE_LABELS: Record<string, string> = {
   notice: '공지',
   event: '이벤트',
-  new: '신규등록',
-  rss: '한인회',
+  question: '질문·추천',
+  review: '맛집후기',
 };
 
 const TYPE_COLORS: Record<string, string> = {
   notice: '#C0392B',
   event: '#FF6B35',
-  new: '#2D7A3A',
-  rss: '#1A6BB5',
+  question: '#2D7A3A',
+  review: '#1A6BB5',
+};
+
+const EMPTY_MESSAGES: Record<string, string> = {
+  '전체': '아직 소식이 없어요 🌱',
+  '공지': '등록된 공지가 없어요',
+  '이벤트': '진행 중인 이벤트가 없어요',
+  '질문·추천': '첫 번째 질문을 남겨보세요! (로그인 후 작성 가능, 준비중)',
+  '맛집후기': '첫 번째 맛집후기를 남겨보세요! (로그인 후 작성 가능, 준비중)',
 };
 
 export default function NewsTab({ isDark }: Props) {
@@ -32,7 +40,7 @@ export default function NewsTab({ isDark }: Props) {
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<string>('전체');
 
-  const FILTERS = ['전체', '공지', '이벤트', '신규등록', '한인회'];
+  const FILTERS = ['전체', '공지', '이벤트', '질문·추천', '맛집후기'];
 
   useEffect(() => {
     const fetch = async () => {
@@ -78,7 +86,7 @@ export default function NewsTab({ isDark }: Props) {
 
       {filtered.length === 0 ? (
         <div style={{ textAlign: 'center', padding: '40px', color: isDark ? '#888' : '#666', fontSize: '14px' }}>
-          아직 소식이 없어요 🌱
+          {EMPTY_MESSAGES[filter]}
         </div>
       ) : (
         filtered.map((item) => (

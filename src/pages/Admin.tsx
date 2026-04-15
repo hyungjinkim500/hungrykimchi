@@ -90,6 +90,12 @@ export default function Admin({ isDark }: Props) {
     if (error) { alert('저장 실패: ' + error.message); } else { alert('저장됐습니다'); }
   };
 
+  const handleToggleKoreanRun = async (businessId: string, current: boolean) => {
+    const { error } = await supabase.from('businesses').update({ is_korean_run: !current }).eq('id', businessId);
+    if (error) { alert('저장 실패: ' + error.message); return; }
+    setBusinesses(prev => prev.map(b => b.id === businessId ? { ...b, is_korean_run: !current } as any : b));
+  };
+
   const getGoogleMapUrl = (b: Business) => {
     if (b.google_place_id) return `https://www.google.com/maps/place/?q=place_id:${b.google_place_id}`;
     if (b.lat && b.lng) return `https://www.google.com/maps?q=${b.lat},${b.lng}`;
@@ -202,6 +208,18 @@ export default function Admin({ isDark }: Props) {
                       <input value={nameKoEdits[b.id] ?? (b as any).name_ko ?? ''} onChange={e => setNameKoEdits(prev => ({ ...prev, [b.id]: e.target.value }))} style={{ width: '100%', padding: '6px 10px', borderRadius: '6px', border: '1px solid #444', backgroundColor: isDark ? '#2A2A2A' : '#F0F0F0', color: text, fontSize: '13px', boxSizing: 'border-box' }} />
                       <button onClick={() => handleSaveNameKo(b.id)} style={{ padding: '6px 14px', borderRadius: '6px', border: 'none', backgroundColor: '#FF6B35', color: '#FFF', fontSize: '12px', cursor: 'pointer' }}>저장</button>
                     </div>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+                    <input
+                      type="checkbox"
+                      id={`korean-run-${b.id}`}
+                      checked={(b as any).is_korean_run ?? false}
+                      onChange={() => handleToggleKoreanRun(b.id, (b as any).is_korean_run ?? false)}
+                      style={{ width: '16px', height: '16px', cursor: 'pointer' }}
+                    />
+                    <label htmlFor={`korean-run-${b.id}`} style={{ fontSize: '13px', color: text, cursor: 'pointer' }}>
+                      🇰🇷 한국인 운영/근무
+                    </label>
                   </div>
                   <div style={{ display: 'flex', gap: '8px' }}>
                     <button onClick={() => handleApprove(b.id)} style={{ flex: 1, padding: '7px', borderRadius: '8px', border: 'none', backgroundColor: '#2D7A3A', color: '#FFF', fontSize: '13px', cursor: 'pointer' }}>✅ 게시</button>

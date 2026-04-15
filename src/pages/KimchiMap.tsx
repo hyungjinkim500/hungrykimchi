@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { Map, AdvancedMarker, Pin, InfoWindow } from '@vis.gl/react-google-maps';
 import type { Business } from '../types/index';
 import { supabase } from '../lib/supabase';
+import kimchiLogo from '../assets/images/kimchi_level5_nb.png';
 
 interface Props {
   isDark: boolean;
@@ -64,9 +65,19 @@ export default function KimchiMap({ isDark: _isDark }: Props) {
             onCloseClick={() => setSelectedBusiness(null)}
           >
             <div style={{ padding: '4px', minWidth: '160px' }}>
-              <p style={{ fontWeight: 'bold', margin: '0 0 4px', fontSize: '14px' }}>
-                {(selectedBusiness as any).name_ko || selectedBusiness.name}
-              </p>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '4px' }}>
+                <p style={{ fontWeight: 'bold', margin: 0, fontSize: '14px' }}>
+                  {(selectedBusiness as any).name_ko || selectedBusiness.name}
+                </p>
+                {(selectedBusiness as any).is_korean_run && (
+                  <img
+                    src={kimchiLogo}
+                    alt="한국인 운영"
+                    title="한국인이 운영/근무하는 곳이에요 🇰🇷"
+                    style={{ width: '24px', height: '24px', objectFit: 'contain', marginLeft: '8px' }}
+                  />
+                )}
+              </div>
               {(() => {
                 const GENERIC_TYPES = ['음식점', '한식당', '한국 음식점', '한국 요리', '식당', '레스토랑', '음식'];
                 const typeKo = (selectedBusiness as any).primary_type_ko;
@@ -80,20 +91,27 @@ export default function KimchiMap({ isDark: _isDark }: Props) {
                   {selectedBusiness.address}
                 </p>
               )}
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '4px' }}>
-                {selectedBusiness.phone && (
-                  <a href={`tel:${selectedBusiness.phone}`} style={{ fontSize: '12px', color: '#C0392B', textDecoration: 'none' }}>
-                    📞 {selectedBusiness.phone}
-                  </a>
-                )}
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '6px', gap: '8px' }}>
                 {getDirectionsUrl(selectedBusiness) && (
                   <a
                     href={getDirectionsUrl(selectedBusiness)!}
                     target="_blank"
                     rel="noopener noreferrer"
-                    style={{ fontSize: '12px', color: '#1A73E8', textDecoration: 'none', marginLeft: '8px', whiteSpace: 'nowrap' }}
+                    style={{ fontSize: '12px', color: '#1A73E8', textDecoration: 'none', whiteSpace: 'nowrap' }}
                   >
                     📍 구글맵에서 보기
+                  </a>
+                )}
+                {selectedBusiness.phone && (
+                  <a
+                    href={`tel:${selectedBusiness.phone}`}
+                    style={{
+                      fontSize: '12px', color: '#C0392B', textDecoration: 'none',
+                      border: '1.5px solid #C0392B', borderRadius: '6px',
+                      padding: '3px 8px', whiteSpace: 'nowrap',
+                    }}
+                  >
+                    📞 전화
                   </a>
                 )}
               </div>
