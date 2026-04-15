@@ -10,7 +10,6 @@ import MyPage from './pages/MyPage'
 import Register from './pages/Register';
 import Admin from './pages/Admin';
 import { useCity } from './hooks/useCity';
-import type { City } from './types/index';
 
 export default function App() {
   const [isDark, setIsDark] = useState(false)
