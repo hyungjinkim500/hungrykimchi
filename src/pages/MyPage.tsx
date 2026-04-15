@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { supabase, signInWithKakao, signOut } from '../lib/supabase';
+import { supabase, signInWithKakao, signInWithGoogle, signOut } from '../lib/supabase';
 import type { User } from '@supabase/supabase-js';
 
 interface Props {
@@ -70,6 +70,29 @@ export default function MyPage({ isDark }: Props) {
         >
           <img src="https://developers.kakao.com/assets/img/about/logos/kakaotalksharing/kakaotalk_sharing_btn_medium.png" style={{ width: '24px', height: '24px' }} />
           카카오로 시작하기
+        </button>
+        <button
+          onClick={async () => { try { await signInWithGoogle(); } catch (e) { alert('로그인 중 오류가 발생했어요'); } }}
+          style={{
+            width: '100%',
+            maxWidth: '320px',
+            padding: '14px',
+            borderRadius: '12px',
+            border: '1.5px solid #DADCE0',
+            background: '#FFFFFF',
+            color: '#1A1A1A',
+            fontSize: '16px',
+            fontWeight: 'bold',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '8px',
+            marginTop: '12px',
+          }}
+        >
+          <img src="https://www.google.com/favicon.ico" style={{ width: '20px', height: '20px' }} />
+          구글로 시작하기
         </button>
       </div>
     );
