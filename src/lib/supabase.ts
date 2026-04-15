@@ -9,7 +9,7 @@ export const signInWithKakao = async () => {
   const { error } = await supabase.auth.signInWithOAuth({
     provider: 'kakao',
     options: {
-      redirectTo: window.location.origin,
+      redirectTo: 'https://hungrykimchi.vercel.app',
       scopes: 'profile_nickname profile_image',
     },
   })
