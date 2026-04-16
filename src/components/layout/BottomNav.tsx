@@ -36,7 +36,7 @@ export default function BottomNav({ isDark }: BottomNavProps) {
           key={tab.path}
           style={{
             textDecoration: 'none',
-            color: location.pathname === tab.path ? (isDark ? '#FFFFFF' : '#C0392B') : '#888888',
+            color: location.pathname === tab.path ? (isDark ? '#7DBA31' : '#C0392B') : '#888888',
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',

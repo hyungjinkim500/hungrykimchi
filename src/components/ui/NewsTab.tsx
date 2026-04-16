@@ -75,7 +75,7 @@ export default function NewsTab({ isDark }: Props) {
               fontSize: '12px',
               cursor: 'pointer',
               flexShrink: 0,
-              background: filter === f ? '#C0392B' : isDark ? '#2A2A2A' : '#E0E0E0',
+              background: filter === f ? (isDark ? '#7DBA31' : '#C0392B') : isDark ? '#2A2A2A' : '#E0E0E0',
               color: filter === f ? '#FFFFFF' : isDark ? '#FFFFFF' : '#1A1A1A',
             }}
           >

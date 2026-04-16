@@ -61,7 +61,11 @@ export default function KimchiMap({ isDark: _isDark, city, CITY_CENTERS }: Props
               setSelectedBusiness(business);
             }}
           >
-            <Pin background="#C0392B" borderColor="#8B1A1A" glyphColor="#FFFFFF" />
+            <Pin
+              background={business.category === '마트/슈퍼' ? '#7DBA31' : '#C0392B'}
+              borderColor={business.category === '마트/슈퍼' ? '#4A7A1A' : '#8B1A1A'}
+              glyphColor="#FFFFFF"
+            />
           </AdvancedMarker>
         ))}
 
