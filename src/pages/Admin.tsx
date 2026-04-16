@@ -18,9 +18,10 @@ export default function Admin({ isDark }: Props) {
   const [loginError, setLoginError] = useState('');
   const [businesses, setBusinesses] = useState<Business[]>([]);
   const [loading, setLoading] = useState(false);
-  const [filter, setFilter] = useState<'published' | 'pending' | 'request' | 'deleted'>('pending');
+  const [filter, setFilter] = useState<'published' | 'pending' | 'request' | 'deleted' | 'inquiry'>('pending');
   const [nameKoEdits, setNameKoEdits] = useState<Record<string, string>>({});
   const [deletedPlaces, setDeletedPlaces] = useState<{google_place_id: string, name: string, deleted_at: string}[]>([]);
+  const [inquiries, setInquiries] = useState<{id: string, name: string, company: string | null, email: string, contact: string | null, message: string, is_read: boolean, created_at: string}[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
 
   const [categoryFilter, setCategoryFilter] = useState('전체');
@@ -43,6 +44,13 @@ export default function Admin({ isDark }: Props) {
 
   const fetchBusinesses = async () => {
     setLoading(true);
+    if (filter === 'inquiry') {
+      const { data: inquiryData } = await supabase.from('inquiries').select('*').order('created_at', { ascending: false });
+      setInquiries(inquiryData || []);
+      setBusinesses([]);
+      setLoading(false);
+      return;
+    }
     if (filter === 'deleted') {
       const { data: deletedData } = await supabase.from('deleted_places').select('*').order('deleted_at', { ascending: false });
       setDeletedPlaces(deletedData || []);
@@ -163,6 +171,7 @@ export default function Admin({ isDark }: Props) {
         <button onClick={() => setFilter('request')} style={{ padding: '8px 16px', borderRadius: '20px', border: 'none', backgroundColor: filter === 'request' ? '#FF6B35' : isDark ? '#2A2A2A' : '#E0E0E0', color: filter === 'request' ? '#FFF' : text, cursor: 'pointer', fontSize: '13px' }}>게시 요청</button>
         <button onClick={() => setFilter('published')} style={{ padding: '8px 16px', borderRadius: '20px', border: 'none', backgroundColor: filter === 'published' ? '#2D7A3A' : isDark ? '#2A2A2A' : '#E0E0E0', color: filter === 'published' ? '#FFF' : text, cursor: 'pointer', fontSize: '13px' }}>게시됨</button>
         <button onClick={() => setFilter('deleted')} style={{ padding: '8px 16px', borderRadius: '20px', border: 'none', backgroundColor: filter === 'deleted' ? '#555555' : isDark ? '#2A2A2A' : '#E0E0E0', color: filter === 'deleted' ? '#FFF' : text, cursor: 'pointer', fontSize: '13px' }}>삭제됨</button>
+        <button onClick={() => setFilter('inquiry')} style={{ padding: '8px 16px', borderRadius: '20px', border: 'none', backgroundColor: filter === 'inquiry' ? '#1A6BB5' : isDark ? '#2A2A2A' : '#E0E0E0', color: filter === 'inquiry' ? '#FFF' : text, cursor: 'pointer', fontSize: '13px' }}>📣 문의</button>
       </div>
 
       <input
@@ -184,7 +193,22 @@ export default function Admin({ isDark }: Props) {
       </div>
 
       {loading ? <p>불러오는 중...</p> : (
-        filter === 'deleted' ? (
+        filter === 'inquiry' ? (
+          <>
+            <p style={{ color: muted, fontSize: '13px', margin: '0 0 12px' }}>총 {inquiries.length}개</p>
+            {inquiries.map(q => (
+              <div key={q.id} style={{ background: cardBg, borderRadius: '12px', padding: '14px', marginBottom: '10px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+                  <p style={{ fontWeight: 'bold', fontSize: '15px', margin: 0 }}>{q.name}{q.company ? ` (${q.company})` : ''}</p>
+                  <span style={{ fontSize: '11px', color: muted }}>{new Date(q.created_at).toLocaleDateString('ko-KR')}</span>
+                </div>
+                <p style={{ fontSize: '12px', color: muted, margin: '0 0 2px' }}>📧 {q.email}</p>
+                {q.contact && <p style={{ fontSize: '12px', color: muted, margin: '0 0 6px' }}>📞 {q.contact}</p>}
+                <p style={{ fontSize: '13px', margin: '6px 0 0', lineHeight: '1.6', whiteSpace: 'pre-wrap' }}>{q.message}</p>
+              </div>
+            ))}
+          </>
+        ) : filter === 'deleted' ? (
           <>
             <p style={{ color: muted, fontSize: '13px', margin: '0 0 12px' }}>총 {deletedPlaces.length}개</p>
             {deletedPlaces.filter(d => searchQuery.trim() === '' || d.name?.toLowerCase().includes(searchQuery.toLowerCase())).map(d => (
@@ -211,7 +235,9 @@ export default function Admin({ isDark }: Props) {
                       onChange={e => handleCategoryChange(b.id, e.target.value)}
                       style={{ fontSize: '12px', color: muted, background: 'transparent', border: 'none', cursor: 'pointer', padding: 0 }}
                     >
-                      {['음식점', '택시', '의료', '관공·긴급', '기관', '마트/슈퍼', '기타'].map(c => (
+                      {[
+                        '음식점', '택시', '의료', '관공·긴급', '기관', '마트/슈퍼', '기타'
+                      ].map(c => (
                         <option key={c} value={c}>{c}</option>
                       ))}
                     </select>

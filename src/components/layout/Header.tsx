@@ -60,7 +60,7 @@ export default function Header({ isDark, setIsDark, city, changeCity, CITY_CENTE
       ? { label: '로그아웃', action: async () => { try { await signOut(); } catch (e) {} } }
       : { label: '🔑 로그인', action: () => navigate('/mypage') },
     { label: '공지사항', action: () => alert('준비 중입니다') },
-    { label: '광고·제휴 문의', action: () => alert('준비 중입니다') },
+    { label: '📣 광고·제휴 문의', action: () => navigate('/inquiry') },
   ];
 
   return (
