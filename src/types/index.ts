@@ -1,4 +1,17 @@
-export type City = 'hanoi' | 'hochiminh' | null;
+export type City =
+  | 'hanoi' | 'hochiminh' | 'danang' | 'vietnam-other'
+  | 'bangkok' | 'chiangmai' | 'pattaya' | 'phuket' | 'huahin' | 'thailand-other'
+  | 'kualalumpur' | 'johorbahru' | 'kotakinabalu' | 'penang' | 'malaysia-other'
+  | 'singapore'
+  | 'jakarta' | 'bali' | 'indonesia-other'
+  | 'manila' | 'cebu' | 'philippines-other'
+  | 'phnompenh' | 'siemreap'
+  | 'yangon'
+  | 'tokyo' | 'osaka' | 'fukuoka' | 'kyoto' | 'nagoya' | 'sapporo' | 'hiroshima' | 'japan-other'
+  | 'hongkong'
+  | 'taipei' | 'kaohsiung'
+  | 'newdelhi' | 'mumbai' | 'india-other'
+  | null;
 
 export type Business = {
   id: string;

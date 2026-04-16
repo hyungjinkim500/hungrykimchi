@@ -33,6 +33,15 @@ const ZONES = [
   { name: '탄빈-중심',      lat: 10.7550, lng: 106.6650 },
   { name: '탄빈-북',        lat: 10.7650, lng: 106.6680 },
   { name: '빈짠-중심',      lat: 10.8150, lng: 106.6600 },
+  { name: '빈증-투안안',    lat: 10.8700, lng: 106.7200 },
+  { name: '빈증-중심',      lat: 11.0000, lng: 106.6500 },
+  { name: '빈증-북',        lat: 11.1500, lng: 106.6200 },
+  { name: '동나이-비엔호아', lat: 10.9500, lng: 106.8200 },
+  { name: '동나이-롱탄',    lat: 10.7900, lng: 107.0000 },
+  { name: '롱안-떤안',      lat: 10.5300, lng: 106.4100 },
+  { name: '롱안-벤룩',      lat: 10.6500, lng: 106.4800 },
+  { name: '붕따우-중심',    lat: 10.3460, lng: 107.0843 },
+  { name: '붕따우-북',      lat: 10.4000, lng: 107.0600 },
 ];
 
 const KEYWORDS = [
@@ -127,7 +136,8 @@ async function main() {
     }
   }
 
-  console.log(`\n총 신규: ${toInsert.length}개 INSERT 시작...`);
+  console.log(`
+총 신규: ${toInsert.length}개 INSERT 시작...`);
 
   const chunkSize = 50;
   for (let i = 0; i < toInsert.length; i += chunkSize) {
