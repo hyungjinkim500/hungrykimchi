@@ -1,6 +1,5 @@
-
-import { useState, useEffect } from 'react';
-import { Map, AdvancedMarker, Pin, InfoWindow } from '@vis.gl/react-google-maps';
+import { useState, useEffect, useRef, useMemo } from 'react';
+import { Map, AdvancedMarker, Pin, InfoWindow, useMap } from '@vis.gl/react-google-maps';
 import type { Business, City } from '../types/index';
 import { supabase } from '../lib/supabase';
 import kimchiLogo from '../assets/images/kimchi_level5_nb.png';
@@ -11,18 +10,72 @@ interface Props {
   CITY_CENTERS: Record<string, { lat: number; lng: number; radius: number; label: string }>;
 }
 
-export default function KimchiMap({ isDark: _isDark, city, CITY_CENTERS }: Props) {
+const PIN_COLORS: Record<string, { bg: string; border: string }> = {
+  '음식점':   { bg: '#C0392B', border: '#8B1A1A' },
+  '마트/슈퍼': { bg: '#7DBA31', border: '#4A7A1A' },
+  '의료':     { bg: '#2980B9', border: '#1A5276' },
+  '관공·긴급': { bg: '#FF6B35', border: '#CC4400' },
+};
+const DEFAULT_PIN = { bg: '#C0392B', border: '#8B1A1A' };
+const FILTER_CATEGORIES = ['전체', '음식점', '마트/슈퍼', '의료', '관공·긴급'];
+
+function KimchiMapInner({ isDark: _isDark, city, CITY_CENTERS }: Props) {
   const [businesses, setBusinesses] = useState<Business[]>([]);
   const [selectedBusiness, setSelectedBusiness] = useState<Business | null>(null);
+  const [activeCategory, setActiveCategory] = useState<string>('전체');
+  const map = useMap();
+  const watchIdRef = useRef<number | null>(null);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const searchInputRef = useRef<HTMLInputElement>(null);
+
+  const searchResults = useMemo(() => {
+    if (!searchQuery.trim()) return [];
+    const q = searchQuery.toLowerCase();
+    return businesses
+      .filter(b =>
+        b.city === city &&
+        (
+          ((b as any).name_ko || b.name || '').toLowerCase().includes(q) ||
+          (b.category || '').toLowerCase().includes(q)
+        )
+      )
+      .slice(0, 5);
+  }, [searchQuery, businesses, city]);
+
+  const handleSelectResult = (b: Business) => {
+    if (map && b.lat && b.lng) {
+      map.panTo({ lat: b.lat, lng: b.lng });
+      map.setZoom(17);
+      setSelectedBusiness(b);
+    }
+    setSearchQuery('');
+    setSearchOpen(false);
+  };
+
+  const handleMyLocation = () => {
+    if (!navigator.geolocation) return;
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        if (map) {
+          map.panTo({ lat: pos.coords.latitude, lng: pos.coords.longitude });
+          map.setZoom(15);
+        }
+      },
+      () => {},
+      { timeout: 5000 }
+    );
+  };
 
   useEffect(() => {
     const fetchBusinesses = async () => {
       const { data } = await supabase
         .from('businesses')
-        .select('*')
+        .select('id,name,name_ko,category,primary_type_ko,address,phone,lat,lng,google_place_id,is_korean_run,city')
         .not('lat', 'is', null)
         .not('lng', 'is', null)
-        .eq('pending_approval', false);
+        .eq('pending_approval', false)
+        .limit(100000);
       if (data) setBusinesses(data as Business[]);
     };
     fetchBusinesses();
@@ -44,16 +97,128 @@ export default function KimchiMap({ isDark: _isDark, city, CITY_CENTERS }: Props
     return null;
   };
 
+  const filteredBusinesses = activeCategory === '전체'
+    ? businesses.filter(b => b.city === city)
+    : businesses.filter(b => b.city === city && b.category === activeCategory);
+
   return (
     <div style={{ position: 'fixed', top: '65px', bottom: '65px', left: '50%', transform: 'translateX(-50%)', width: '100%', maxWidth: '430px' }}>
+      <div style={{
+        position: 'absolute', top: '10px', left: '50%', transform: 'translateX(-50%)',
+        zIndex: 10, display: 'flex', gap: '6px',
+        backgroundColor: 'rgba(255,255,255,0.9)', borderRadius: '20px',
+        padding: '6px 10px', boxShadow: '0 2px 6px rgba(0,0,0,0.2)',
+      }}>
+        {FILTER_CATEGORIES.map(cat => (
+          <button
+            key={cat}
+            onClick={() => setActiveCategory(cat)}
+            style={{
+              padding: '4px 10px', borderRadius: '14px', border: 'none',
+              fontSize: '12px', cursor: 'pointer', whiteSpace: 'nowrap',
+              background: activeCategory === cat
+                ? (cat === '전체' ? '#555' : (PIN_COLORS[cat]?.bg ?? '#555'))
+                : '#EEEEEE',
+              color: activeCategory === cat ? '#FFFFFF' : '#333333',
+              fontWeight: activeCategory === cat ? 'bold' : 'normal',
+            }}
+          >
+            {cat}
+          </button>
+        ))}
+      </div>
+
+      {/* 검색 버튼 */}
+      <button
+        onClick={() => { setSearchOpen(v => !v); setTimeout(() => searchInputRef.current?.focus(), 50); }}
+        style={{
+          position: 'absolute', top: '10px', right: '10px', zIndex: 10,
+          width: '36px', height: '36px', borderRadius: '50%',
+          background: '#FFFFFF', border: 'none',
+          boxShadow: '0 2px 6px rgba(0,0,0,0.3)',
+          cursor: 'pointer', fontSize: '16px',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+        }}
+      >
+        {searchOpen ? '✕' : '🔍'}
+      </button>
+
+      {/* 검색창 + 결과 드롭다운 */}
+      {searchOpen && (
+        <div style={{
+          position: 'absolute', top: '56px', left: '10px', right: '10px', zIndex: 20,
+        }}>
+          <input
+            ref={searchInputRef}
+            type="text"
+            value={searchQuery}
+            onChange={e => setSearchQuery(e.target.value)}
+            placeholder="업체명 검색..."
+            style={{
+              width: '100%', padding: '10px 14px', borderRadius: '12px',
+              border: 'none', fontSize: '14px', outline: 'none',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
+              boxSizing: 'border-box',
+              backgroundColor: '#FFFFFF', color: '#1A1A1A',
+            }}
+          />
+          {searchResults.length > 0 && (
+            <div style={{
+              marginTop: '4px', borderRadius: '12px', overflow: 'hidden',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
+              backgroundColor: '#FFFFFF',
+            }}>
+              {searchResults.map(b => (
+                <div
+                  key={b.id}
+                  onClick={() => handleSelectResult(b)}
+                  style={{
+                    padding: '10px 14px', cursor: 'pointer', borderBottom: '1px solid #F0F0F0',
+                    display: 'flex', flexDirection: 'column', gap: '2px',
+                  }}
+                  onMouseEnter={e => (e.currentTarget.style.backgroundColor = '#F5F5F5')}
+                  onMouseLeave={e => (e.currentTarget.style.backgroundColor = '#FFFFFF')}
+                >
+                  <span style={{ fontSize: '14px', fontWeight: 'bold', color: '#1A1A1A' }}>
+                    {(b as any).name_ko || b.name}
+                  </span>
+                  <span style={{ fontSize: '12px', color: '#888' }}>
+                    {b.category} · {b.address}
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      <button
+        onClick={handleMyLocation}
+        style={{
+          position: 'absolute', bottom: '120px', right: '10px', zIndex: 10,
+          width: '40px', height: '40px', borderRadius: '50%',
+          background: '#FFFFFF', border: 'none',
+          boxShadow: '0 2px 6px rgba(0,0,0,0.3)',
+          cursor: 'pointer', fontSize: '18px',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+        }}
+      >
+        ⊕
+      </button>
       <Map
-        mapId="kimchi-map"
+        mapId="3c0c11535be505e82aed68f4"
         defaultCenter={defaultCenter}
         defaultZoom={13}
         gestureHandling="greedy"
-        disableDefaultUI={false}
+        disableDefaultUI={true}
+        zoomControl={true}
+        mapTypeControl={false}
+        streetViewControl={false}
+        fullscreenControl={false}
+        rotateControl={false}
+        scaleControl={false}
       >
-        {businesses.map((business) => (
+        {filteredBusinesses.map((business) => (
           <AdvancedMarker
             key={`biz-${business.id}`}
             position={{ lat: business.lat!, lng: business.lng! }}
@@ -62,8 +227,8 @@ export default function KimchiMap({ isDark: _isDark, city, CITY_CENTERS }: Props
             }}
           >
             <Pin
-              background={business.category === '마트/슈퍼' ? '#7DBA31' : '#C0392B'}
-              borderColor={business.category === '마트/슈퍼' ? '#4A7A1A' : '#8B1A1A'}
+              background={PIN_COLORS[business.category ?? '']?.bg ?? DEFAULT_PIN.bg}
+              borderColor={PIN_COLORS[business.category ?? '']?.border ?? DEFAULT_PIN.border}
               glyphColor="#FFFFFF"
             />
           </AdvancedMarker>
@@ -130,4 +295,8 @@ export default function KimchiMap({ isDark: _isDark, city, CITY_CENTERS }: Props
       </Map>
     </div>
   );
+}
+
+export default function KimchiMap(props: Props) {
+  return <KimchiMapInner {...props} />;
 }

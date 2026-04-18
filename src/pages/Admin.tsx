@@ -6,7 +6,7 @@ const ADMIN_ID = 'hyung64a';
 const ADMIN_PW = 'hj0105';
 
 const CATEGORIES = ['전체', '음식점', '택시', '의료', '관공·긴급', '기관', '마트/슈퍼', '기타'];
-const COUNTRIES = ['전체', '베트남'];
+const COUNTRIES = ['전체', '하노이', '호치민', '다낭'];
 const SORT_OPTIONS = [{ id: 'newest', label: '최신순' }, { id: 'abc', label: '가나다·ABC순' }];
 
 interface Props { isDark: boolean }
@@ -93,6 +93,21 @@ export default function Admin({ isDark }: Props) {
     if (filter === 'published') setBusinesses(prev => prev.filter(b => b.id !== businessId));
   };
 
+  const handleRestore = async (googlePlaceId: string) => {
+    const { error } = await supabase.from('deleted_places').delete().eq('google_place_id', googlePlaceId);
+    if (error) { alert('복구 실패: ' + error.message); return; }
+    setDeletedPlaces(prev => prev.filter(d => d.google_place_id !== googlePlaceId));
+    alert('복구됐습니다. 이제 스크립트로 재INSERT 하면 표시됩니다.');
+  };
+
+  const handleRestoreAll = async () => {
+    if (!window.confirm(`삭제됨 목록 전체(${deletedPlaces.length}개)를 복구하시겠습니까? deleted_places 테이블이 전부 비워집니다.`)) return;
+    const { error } = await supabase.from('deleted_places').delete().neq('google_place_id', '');
+    if (error) { alert('전체 복구 실패: ' + error.message); return; }
+    setDeletedPlaces([]);
+    alert('전체 복구 완료! 이제 스크립트를 재실행하면 다시 INSERT됩니다.');
+  };
+
   const handleSaveNameKo = async (businessId: string) => {
     const { error } = await supabase.from('businesses').update({ name_ko: nameKoEdits[businessId] }).eq('id', businessId);
     if (error) { alert('저장 실패: ' + error.message); } else { alert('저장됐습니다'); }
@@ -127,7 +142,9 @@ export default function Admin({ isDark }: Props) {
       );
     }
     if (categoryFilter !== '전체') result = result.filter(b => b.category === categoryFilter);
-    if (countryFilter === '베트남') result = result.filter(b => b.city === 'hanoi');
+    if (countryFilter === '하노이') result = result.filter(b => b.city === 'hanoi');
+    else if (countryFilter === '호치민') result = result.filter(b => b.city === 'hochiminh');
+    else if (countryFilter === '다낭') result = result.filter(b => b.city === 'danang');
     if (sortOrder === 'abc') {
       result.sort((a, b) => {
         const nameA = (a as any).name_ko || a.name || '';
@@ -210,11 +227,15 @@ export default function Admin({ isDark }: Props) {
           </>
         ) : filter === 'deleted' ? (
           <>
-            <p style={{ color: muted, fontSize: '13px', margin: '0 0 12px' }}>총 {deletedPlaces.length}개</p>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+              <p style={{ color: muted, fontSize: '13px', margin: 0 }}>총 {deletedPlaces.length}개</p>
+              <button onClick={handleRestoreAll} style={{ padding: '6px 14px', borderRadius: '8px', border: 'none', backgroundColor: '#2980B9', color: '#FFF', fontSize: '12px', cursor: 'pointer' }}>🔄 전체 복구</button>
+            </div>
             {deletedPlaces.filter(d => searchQuery.trim() === '' || d.name?.toLowerCase().includes(searchQuery.toLowerCase())).map(d => (
               <div key={d.google_place_id} style={{ background: cardBg, borderRadius: '12px', padding: '14px', marginBottom: '10px' }}>
                 <p style={{ fontWeight: 'bold', fontSize: '15px', margin: '0 0 4px' }}>{d.name}</p>
-                <p style={{ fontSize: '12px', color: muted, margin: 0 }}>삭제일: {new Date(d.deleted_at).toLocaleDateString('ko-KR')}</p>
+                <p style={{ fontSize: '12px', color: muted, margin: '0 0 8px' }}>삭제일: {new Date(d.deleted_at).toLocaleDateString('ko-KR')}</p>
+                <button onClick={() => handleRestore(d.google_place_id)} style={{ width: '100%', padding: '7px', borderRadius: '8px', border: 'none', backgroundColor: '#2980B9', color: '#FFF', fontSize: '13px', cursor: 'pointer' }}>🔄 복구 (deleted_places에서 제거)</button>
               </div>
             ))}
           </>

@@ -190,7 +190,7 @@ export default function PhoneBook({ isDark, city }: Props) {
       <style>{customStyles}</style>
       <div style={{ display: 'flex', height: '48px', alignItems: 'center' }}>
         <div style={{ ...styles.categoryContainer, flex: 1 }} className="no-scrollbar">
-          {CATEGORIES.filter(c => c !== '전체').map((category) => (
+          {CATEGORIES.filter(c => c !== '전체' && c !== '택시' && c !== '기관').map((category) => (
             <button
               key={category}
               style={styles.categoryChip(selectedCategory === category)}
