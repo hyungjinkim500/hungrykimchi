@@ -3,8 +3,8 @@ import { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { supabase, signOut } from '../../lib/supabase';
 import type { User } from '@supabase/supabase-js';
-import kimchiLogoLight from '../../assets/images/kimchi_level5_nb.png';
-import kimchiLogoDark from '../../assets/images/kimchi_level2_nb.png';
+import kimchiLogoLight from "../../assets/images/kimchi_level5_nb.webp";
+import kimchiLogoDark from "../../assets/images/kimchi_level2_nb.webp";
 import type { City } from '../../types/index';
 
 const pageTitles: Record<string, string> = {

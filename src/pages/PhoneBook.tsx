@@ -3,7 +3,7 @@ import Fuse from 'fuse.js';
 import type { Business, City } from '../types/index';
 import { CATEGORIES } from '../constants/categories';
 import { supabase } from '../lib/supabase';
-import kimchiLogo from '../assets/images/kimchi_level5_nb.png';
+import kimchiLogo from "../assets/images/kimchi_level5_nb.webp";
 
 interface Props {
   isDark: boolean;

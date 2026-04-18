@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useMemo } from 'react';
 import { Map, AdvancedMarker, Pin, InfoWindow, useMap } from '@vis.gl/react-google-maps';
 import type { Business, City } from '../types/index';
 import { supabase } from '../lib/supabase';
-import kimchiLogo from '../assets/images/kimchi_level5_nb.png';
+import kimchiLogo from "../assets/images/kimchi_level5_nb.webp";
 
 interface Props {
   isDark: boolean;
