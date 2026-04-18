@@ -24,7 +24,6 @@ function KimchiMapInner({ isDark: _isDark, city, CITY_CENTERS }: Props) {
   const [selectedBusiness, setSelectedBusiness] = useState<Business | null>(null);
   const [activeCategory, setActiveCategory] = useState<string>('전체');
   const map = useMap();
-  const watchIdRef = useRef<number | null>(null);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const searchInputRef = useRef<HTMLInputElement>(null);
