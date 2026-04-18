@@ -1,4 +1,5 @@
 {
+  "id": "com.pulsehouse.hungrykimchi",
   "name": "헝그리김치",
   "short_name": "헝그리김치",
   "description": "헝그리김치 -한인식당/한국마트/병원/약국/비상·응급연락망-",
@@ -9,6 +10,16 @@
   "scope": "/",
   "start_url": "/",
   "lang": "ko",
+  "categories": ["food", "travel", "lifestyle"],
+  "prefer_related_applications": false,
+  "screenshots": [
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "form_factor": "narrow"
+    }
+  ],
   "icons": [
     {
       "src": "icon-192.png",
