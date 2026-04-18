@@ -24,6 +24,7 @@ function KimchiMapInner({ isDark: _isDark, city, CITY_CENTERS }: Props) {
   const [selectedBusiness, setSelectedBusiness] = useState<Business | null>(null);
   const [activeCategory, setActiveCategory] = useState<string>('전체');
   const map = useMap();
+  const [myLocation, setMyLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const searchInputRef = useRef<HTMLInputElement>(null);
@@ -56,8 +57,10 @@ function KimchiMapInner({ isDark: _isDark, city, CITY_CENTERS }: Props) {
     if (!navigator.geolocation) return;
     navigator.geolocation.getCurrentPosition(
       (pos) => {
+        const loc = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+        setMyLocation(loc);
         if (map) {
-          map.panTo({ lat: pos.coords.latitude, lng: pos.coords.longitude });
+          map.panTo(loc);
           map.setZoom(15);
         }
       },
@@ -65,6 +68,13 @@ function KimchiMapInner({ isDark: _isDark, city, CITY_CENTERS }: Props) {
       { timeout: 5000 }
     );
   };
+
+  useEffect(() => {
+    if (map && city && CITY_CENTERS[city]) {
+      map.panTo({ lat: CITY_CENTERS[city].lat, lng: CITY_CENTERS[city].lng });
+      map.setZoom(13);
+    }
+  }, [city, map]);
 
   useEffect(() => {
     const fetchBusinesses = async () => {
@@ -232,6 +242,12 @@ function KimchiMapInner({ isDark: _isDark, city, CITY_CENTERS }: Props) {
             />
           </AdvancedMarker>
         ))}
+
+        {myLocation && (
+          <AdvancedMarker position={myLocation}>
+            <div style={{              width: '18px', height: '18px', borderRadius: '50%',              backgroundColor: '#4285F4',              border: '3px solid #FFFFFF',              boxShadow: '0 2px 6px rgba(0,0,0,0.4)',            }} />
+          </AdvancedMarker>
+        )}
 
         {selectedBusiness && (
           <InfoWindow

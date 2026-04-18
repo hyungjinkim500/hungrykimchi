@@ -66,7 +66,7 @@ export default function Admin({ isDark }: Props) {
     } else if (filter === 'published') {
       query = query.eq('pending_approval', false);
     }
-    const { data } = await query;
+    const { data } = await query.limit(100000);
     if (data) setBusinesses(data as Business[]);
     setLoading(false);
   };
