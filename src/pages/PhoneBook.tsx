@@ -268,7 +268,7 @@ export default function PhoneBook({ isDark, city }: Props) {
           }}>
             <div>
               <span style={{ fontSize: '12px', color: '#2980B9', fontWeight: 'bold' }}>🚑 구급·응급신고</span>
-              <p style={{ margin: '2px 0 0', fontWeight: 'bold', fontSize: '16px', color: isDark ? '#FFFFFF' : '#1A1A1A' }}>{EMERGENCY_NUMBERS[city]?.ambulance ?? '115'}</p>
+              <p style={{ margin: '2px 0 0', fontWeight: 'bold', fontSize: '16px', color: isDark ? '#FFFFFF' : '#1A1A1A' }}>{EMERGENCY_NUMBERS[city ?? '']?.ambulance ?? '115'}</p>
             </div>
             <button
               style={{
@@ -280,7 +280,7 @@ export default function PhoneBook({ isDark, city }: Props) {
                 fontSize: '13px',
                 cursor: 'pointer',
               }}
-              onClick={() => window.location.href = `tel:${EMERGENCY_NUMBERS[city]?.ambulance ?? '115'}`}
+              onClick={() => window.location.href = `tel:${EMERGENCY_NUMBERS[city ?? '']?.ambulance ?? '115'}`}
             >
               📞 전화
             </button>
@@ -300,7 +300,7 @@ export default function PhoneBook({ isDark, city }: Props) {
           }}>
             <div>
               <span style={{ fontSize: '12px', color: '#FF6B35', fontWeight: 'bold' }}>🚔 경찰신고</span>
-              <p style={{ margin: '2px 0 0', fontWeight: 'bold', fontSize: '16px', color: isDark ? '#FFFFFF' : '#1A1A1A' }}>{EMERGENCY_NUMBERS[city]?.police ?? '113'}</p>
+              <p style={{ margin: '2px 0 0', fontWeight: 'bold', fontSize: '16px', color: isDark ? '#FFFFFF' : '#1A1A1A' }}>{EMERGENCY_NUMBERS[city ?? '']?.police ?? '113'}</p>
             </div>
             <button
               style={{
@@ -312,7 +312,7 @@ export default function PhoneBook({ isDark, city }: Props) {
                 fontSize: '13px',
                 cursor: 'pointer',
               }}
-              onClick={() => window.location.href = `tel:${EMERGENCY_NUMBERS[city]?.police ?? '113'}`}
+              onClick={() => window.location.href = `tel:${EMERGENCY_NUMBERS[city ?? '']?.police ?? '113'}`}
             >
               📞 전화
             </button>
