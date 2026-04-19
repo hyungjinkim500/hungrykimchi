@@ -32,10 +32,10 @@ const CONTINENTS = [
       {
         key: 'thailand', label: '🇹🇭 태국',
         cities: [
-          { key: 'bangkok', label: '방콕', active: false },
-          { key: 'chiangmai', label: '치앙마이', active: false },
-          { key: 'pattaya', label: '파타야', active: false },
-          { key: 'phuket', label: '푸켓', active: false },
+          { key: 'bangkok', label: '방콕', active: true },
+          { key: 'chiangmai', label: '치앙마이', active: true },
+          { key: 'pattaya', label: '파타야', active: true },
+          { key: 'phuket', label: '푸켓', active: true },
           { key: 'huahin', label: '후아힌', active: false },
           { key: 'thailand-other', label: '기타지역', active: false },
         ],

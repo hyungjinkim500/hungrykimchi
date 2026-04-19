@@ -10,6 +10,16 @@ interface Props {
   city: City;
 }
 
+const EMERGENCY_NUMBERS: Record<string, { ambulance: string; police: string }> = {
+  hanoi:     { ambulance: '115', police: '113' },
+  hochiminh: { ambulance: '115', police: '113' },
+  danang:    { ambulance: '115', police: '113' },
+  bangkok:   { ambulance: '1669', police: '191' },
+  chiangmai: { ambulance: '1669', police: '191' },
+  pattaya:   { ambulance: '1669', police: '191' },
+  phuket:    { ambulance: '1669', police: '191' },
+};
+
 export default function PhoneBook({ isDark, city }: Props) {
   const [businesses, setBusinesses] = useState<Business[]>([]);
   const [loading, setLoading] = useState(true);
@@ -66,6 +76,14 @@ export default function PhoneBook({ isDark, city }: Props) {
     return sortByName(fuseCat.search(searchQuery).map((r) => r.item));
   })();
 
+  const getActiveColor = (category: string) => {
+    if (category === '음식점') return '#C0392B';
+    if (category === '마트/슈퍼') return '#7DBA31';
+    if (category === '의료') return '#2980B9';
+    if (category === '관공·긴급') return '#FF6B35';
+    return isDark ? '#7DBA31' : '#C0392B';
+  };
+
   const styles = {
     container: {
       backgroundColor: isDark ? '#111111' : '#F5F5F5',
@@ -89,12 +107,12 @@ export default function PhoneBook({ isDark, city }: Props) {
       gap: '8px',
       scrollbarWidth: 'none',
     } as React.CSSProperties,
-    categoryChip: (isActive: boolean) => ({
+    categoryChip: (isActive: boolean, category: string) => ({
       height: '32px',
       display: 'inline-flex',
       alignItems: 'center',
       justifyContent: 'center',
-      background: isActive ? (isDark ? '#7DBA31' : '#C0392B') : isDark ? '#2A2A2A' : '#E0E0E0',
+      background: isActive ? getActiveColor(category) : isDark ? '#2A2A2A' : '#E0E0E0',
       color: isActive ? '#FFFFFF' : isDark ? '#FFFFFF' : '#1A1A1A',
       padding: '0 12px',
       borderRadius: '16px',
@@ -193,7 +211,7 @@ export default function PhoneBook({ isDark, city }: Props) {
           {CATEGORIES.filter(c => c !== '전체' && c !== '택시' && c !== '기관').map((category) => (
             <button
               key={category}
-              style={styles.categoryChip(selectedCategory === category)}
+              style={styles.categoryChip(selectedCategory === category, category)}
               onClick={() => setSelectedCategory(category)}
             >
               {category}
@@ -237,6 +255,69 @@ export default function PhoneBook({ isDark, city }: Props) {
         }}
       />
       <div style={styles.listContainer}>
+        {selectedCategory === '의료' && (
+          <div style={{
+            background: isDark ? '#1A1A1A' : '#FFFFFF',
+            border: 'none',
+            borderRadius: '12px',
+            padding: '10px 14px',
+            marginBottom: '10px',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+          }}>
+            <div>
+              <span style={{ fontSize: '12px', color: '#2980B9', fontWeight: 'bold' }}>🚑 구급·응급신고</span>
+              <p style={{ margin: '2px 0 0', fontWeight: 'bold', fontSize: '16px', color: isDark ? '#FFFFFF' : '#1A1A1A' }}>{EMERGENCY_NUMBERS[city]?.ambulance ?? '115'}</p>
+            </div>
+            <button
+              style={{
+                background: 'transparent',
+                color: isDark ? '#7DBA31' : '#C0392B',
+                border: `1.5px solid ${isDark ? '#7DBA31' : '#C0392B'}`,
+                borderRadius: '8px',
+                padding: '7px 14px',
+                fontSize: '13px',
+                cursor: 'pointer',
+              }}
+              onClick={() => window.location.href = `tel:${EMERGENCY_NUMBERS[city]?.ambulance ?? '115'}`}
+            >
+              📞 전화
+            </button>
+          </div>
+        )}
+
+        {selectedCategory === '관공·긴급' && (
+          <div style={{
+            background: isDark ? '#1A1A1A' : '#FFFFFF',
+            border: 'none',
+            borderRadius: '12px',
+            padding: '10px 14px',
+            marginBottom: '10px',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+          }}>
+            <div>
+              <span style={{ fontSize: '12px', color: '#FF6B35', fontWeight: 'bold' }}>🚔 경찰신고</span>
+              <p style={{ margin: '2px 0 0', fontWeight: 'bold', fontSize: '16px', color: isDark ? '#FFFFFF' : '#1A1A1A' }}>{EMERGENCY_NUMBERS[city]?.police ?? '113'}</p>
+            </div>
+            <button
+              style={{
+                background: 'transparent',
+                color: isDark ? '#7DBA31' : '#C0392B',
+                border: `1.5px solid ${isDark ? '#7DBA31' : '#C0392B'}`,
+                borderRadius: '8px',
+                padding: '7px 14px',
+                fontSize: '13px',
+                cursor: 'pointer',
+              }}
+              onClick={() => window.location.href = `tel:${EMERGENCY_NUMBERS[city]?.police ?? '113'}`}
+            >
+              📞 전화
+            </button>
+          </div>
+        )}
         {filteredBusinesses.map((b) => (
           <div key={b.id} style={styles.card}>
             <div style={styles.cardHeader}>

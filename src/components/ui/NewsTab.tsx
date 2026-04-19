@@ -39,11 +39,12 @@ export default function NewsTab({ isDark }: Props) {
   const [newsList, setNewsList] = useState<NewsItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<string>('전체');
+  const [selectedNews, setSelectedNews] = useState<NewsItem | null>(null);
 
   const FILTERS = ['전체', '공지', '이벤트', '질문·추천', '맛집후기'];
 
   useEffect(() => {
-    const fetch = async () => {
+    const fetchNews = async () => {
       const { data } = await supabase
         .from('news')
         .select('*')
@@ -51,7 +52,7 @@ export default function NewsTab({ isDark }: Props) {
       if (data) setNewsList(data as NewsItem[]);
       setLoading(false);
     };
-    fetch();
+    fetchNews();
   }, []);
 
   const filtered = filter === '전체'
@@ -92,11 +93,13 @@ export default function NewsTab({ isDark }: Props) {
         filtered.map((item) => (
           <div
             key={item.id}
+            onClick={() => setSelectedNews(item)}
             style={{
               background: isDark ? '#1A1A1A' : '#FFFFFF',
               borderRadius: '12px',
               padding: '14px',
               marginBottom: '10px',
+              cursor: 'pointer',
             }}
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
@@ -114,13 +117,78 @@ export default function NewsTab({ isDark }: Props) {
               </span>
             </div>
             <p style={{ margin: '0 0 4px', fontWeight: 'bold', fontSize: '14px' }}>{item.title}</p>
-            {item.content && (
-              <p style={{ margin: 0, fontSize: '13px', color: isDark ? '#888' : '#666', lineHeight: '1.5' }}>
-                {item.content}
-              </p>
-            )}
           </div>
         ))
+      )}
+
+      {selectedNews && (
+        <div
+          onClick={() => setSelectedNews(null)}
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.7)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 1000,
+            padding: '20px',
+            boxSizing: 'border-box'
+          }}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              background: isDark ? '#2A2A2A' : '#FFFFFF',
+              padding: '24px',
+              borderRadius: '12px',
+              width: '100%',
+              maxWidth: '430px',
+              position: 'relative',
+              maxHeight: '80vh',
+              overflowY: 'auto',
+              color: isDark ? '#FFFFFF' : '#1A1A1A',
+            }}
+          >
+            <button
+              onClick={() => setSelectedNews(null)}
+              style={{
+                position: 'absolute',
+                top: '12px',
+                right: '12px',
+                background: 'transparent',
+                border: 'none',
+                color: isDark ? '#FFF' : '#000',
+                fontSize: '24px',
+                cursor: 'pointer',
+                lineHeight: 1,
+              }}
+            >
+              &times;
+            </button>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
+                <span style={{
+                    background: TYPE_COLORS[selectedNews.type] || '#888',
+                    color: '#FFFFFF',
+                    borderRadius: '4px',
+                    padding: '2px 8px',
+                    fontSize: '11px',
+                }}>
+                    {TYPE_LABELS[selectedNews.type] || selectedNews.type}
+                </span>
+                <span style={{ fontSize: '12px', color: isDark ? '#888' : '#666' }}>
+                    {new Date(selectedNews.created_at).toLocaleDateString('ko-KR')}
+                </span>
+            </div>
+            <h2 style={{ margin: '0 0 16px', fontSize: '18px', fontWeight: 'bold' }}>{selectedNews.title}</h2>
+            <p style={{ margin: 0, fontSize: '14px', whiteSpace: 'pre-line', lineHeight: '1.7', color: isDark ? '#DDD' : '#333' }}>
+              {selectedNews.content}
+            </p>
+          </div>
+        </div>
       )}
     </div>
   );
