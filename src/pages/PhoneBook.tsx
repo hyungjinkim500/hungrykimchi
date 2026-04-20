@@ -10,14 +10,14 @@ interface Props {
   city: City;
 }
 
-const EMERGENCY_NUMBERS: Record<string, { ambulance: string; police: string }> = {
+const EMERGENCY_NUMBERS: Record<string, { ambulance: string; police: string; touristPolice?: string }> = {
   hanoi:     { ambulance: '115', police: '113' },
   hochiminh: { ambulance: '115', police: '113' },
   danang:    { ambulance: '115', police: '113' },
-  bangkok:   { ambulance: '1669', police: '191' },
-  chiangmai: { ambulance: '1669', police: '191' },
-  pattaya:   { ambulance: '1669', police: '191' },
-  phuket:    { ambulance: '1669', police: '191' },
+  bangkok:   { ambulance: '1669', police: '191', touristPolice: '1155' },
+  chiangmai: { ambulance: '1669', police: '191', touristPolice: '1155' },
+  pattaya:   { ambulance: '1669', police: '191', touristPolice: '1155' },
+  phuket:    { ambulance: '1669', police: '191', touristPolice: '1155' },
 };
 
 export default function PhoneBook({ isDark, city }: Props) {
@@ -288,35 +288,71 @@ export default function PhoneBook({ isDark, city }: Props) {
         )}
 
         {selectedCategory === '관공·긴급' && (
-          <div style={{
-            background: isDark ? '#1A1A1A' : '#FFFFFF',
-            border: 'none',
-            borderRadius: '12px',
-            padding: '10px 14px',
-            marginBottom: '10px',
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-          }}>
-            <div>
-              <span style={{ fontSize: '12px', color: '#FF6B35', fontWeight: 'bold' }}>🚔 경찰신고</span>
-              <p style={{ margin: '2px 0 0', fontWeight: 'bold', fontSize: '16px', color: isDark ? '#FFFFFF' : '#1A1A1A' }}>{EMERGENCY_NUMBERS[city ?? '']?.police ?? '113'}</p>
+          <>
+            <div style={{
+              background: isDark ? '#1A1A1A' : '#FFFFFF',
+              border: 'none',
+              borderRadius: '12px',
+              padding: '10px 14px',
+              marginBottom: '10px',
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+            }}>
+              <div>
+                <span style={{ fontSize: '12px', color: '#FF6B35', fontWeight: 'bold' }}>🚔 경찰신고</span>
+                <p style={{ margin: '2px 0 0', fontWeight: 'bold', fontSize: '16px', color: isDark ? '#FFFFFF' : '#1A1A1A' }}>{EMERGENCY_NUMBERS[city ?? '']?.police ?? '113'}</p>
+              </div>
+              <button
+                style={{
+                  background: 'transparent',
+                  color: isDark ? '#7DBA31' : '#C0392B',
+                  border: `1.5px solid ${isDark ? '#7DBA31' : '#C0392B'}`,
+                  borderRadius: '8px',
+                  padding: '7px 14px',
+                  fontSize: '13px',
+                  cursor: 'pointer',
+                }}
+                onClick={() => window.location.href = `tel:${EMERGENCY_NUMBERS[city ?? '']?.police ?? '113'}`}
+              >
+                📞 전화
+              </button>
             </div>
-            <button
-              style={{
-                background: 'transparent',
-                color: isDark ? '#7DBA31' : '#C0392B',
-                border: `1.5px solid ${isDark ? '#7DBA31' : '#C0392B'}`,
-                borderRadius: '8px',
-                padding: '7px 14px',
-                fontSize: '13px',
-                cursor: 'pointer',
-              }}
-              onClick={() => window.location.href = `tel:${EMERGENCY_NUMBERS[city ?? '']?.police ?? '113'}`}
-            >
-              📞 전화
-            </button>
-          </div>
+
+            {EMERGENCY_NUMBERS[city ?? '']?.touristPolice && (
+              <div style={{
+                background: isDark ? '#1A1A1A' : '#FFFFFF',
+                border: 'none',
+                borderRadius: '12px',
+                padding: '10px 14px',
+                marginBottom: '10px',
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+              }}>
+                <div>
+                  <span style={{ fontSize: '12px', color: '#FF6B35', fontWeight: 'bold' }}>👮 관광경찰</span>
+                  <p style={{ margin: '2px 0 0', fontWeight: 'bold', fontSize: '16px', color: isDark ? '#FFFFFF' : '#1A1A1A' }}>
+                    {EMERGENCY_NUMBERS[city ?? '']?.touristPolice}
+                  </p>
+                </div>
+                <button
+                  style={{
+                    background: 'transparent',
+                    color: isDark ? '#7DBA31' : '#C0392B',
+                    border: `1.5px solid ${isDark ? '#7DBA31' : '#C0392B'}`,
+                    borderRadius: '8px',
+                    padding: '7px 14px',
+                    fontSize: '13px',
+                    cursor: 'pointer',
+                  }}
+                  onClick={() => window.location.href = `tel:${EMERGENCY_NUMBERS[city ?? '']?.touristPolice}`}
+                >
+                  📞 전화
+                </button>
+              </div>
+            )}
+          </>
         )}
         {filteredBusinesses.map((b) => (
           <div key={b.id} style={styles.card}>
