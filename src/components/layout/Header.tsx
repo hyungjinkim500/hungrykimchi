@@ -15,6 +15,18 @@ const pageTitles: Record<string, string> = {
   '/register': '신규 업체 등록/제보',
 };
 
+const COUNTRY_EMERGENCY: Record<string, { ambulance: string; police: string }> = {
+  malaysia:    { ambulance: '999', police: '999' },
+  myanmar:     { ambulance: '192', police: '199' },
+  singapore:   { ambulance: '995', police: '999' },
+  india:       { ambulance: '108', police: '100' },
+  indonesia:   { ambulance: '118', police: '110' },
+  japan:       { ambulance: '119', police: '110' },
+  cambodia:    { ambulance: '119', police: '117' },
+  philippines: { ambulance: '911', police: '911' },
+  hongkong:    { ambulance: '999', police: '999' },
+};
+
 const CONTINENTS = [
   {
     key: 'asia',
@@ -43,7 +55,7 @@ const CONTINENTS = [
       {
         key: 'taiwan', label: '🇹🇼 대만',
         cities: [
-          { key: 'taipei', label: '타이베이', active: false },
+          { key: 'taipei', label: '타이베이', active: true },
           { key: 'kaohsiung', label: '가오슝', active: false },
           { key: 'taiwan-other', label: '기타지역', active: false },
         ],
@@ -143,6 +155,7 @@ export default function Header({ isDark, setIsDark, city, changeCity, CITY_CENTE
   const [search, setSearch] = useState('');
   const [comingSoon, setComingSoon] = useState(false);
   const [user, setUser] = useState<User | null>(null);
+  const [emergencyPopup, setEmergencyPopup] = useState<{ ambulance: string; police: string; label: string } | null>(null);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -332,7 +345,17 @@ export default function Header({ isDark, setIsDark, city, changeCity, CITY_CENTE
                 {filteredCountries.map(country => (
                   <div
                     key={country.key}
-                    onClick={() => { setSelectedCountry(country.key); setStep('city'); setSearch(''); }}
+                    onClick={() => {
+                      if (COUNTRY_EMERGENCY[country.key]) {
+                        setEmergencyPopup({
+                          ambulance: COUNTRY_EMERGENCY[country.key].ambulance,
+                          police: COUNTRY_EMERGENCY[country.key].police,
+                          label: country.label,
+                        });
+                      } else {
+                        setSelectedCountry(country.key); setStep('city'); setSearch('');
+                      }
+                    }}
                     style={{
                       padding: '14px 12px',
                       borderBottom: `1px solid ${isDark ? '#2A2A2A' : '#F0F0F0'}`,
@@ -371,6 +394,80 @@ export default function Header({ isDark, setIsDark, city, changeCity, CITY_CENTE
                 </div>
               </div>
             )}
+          </div>
+        </div>
+      )}
+
+      {emergencyPopup && (
+        <div
+          onClick={() => setEmergencyPopup(null)}
+          style={{
+            position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 400,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+          }}
+        >
+          <div
+            onClick={e => e.stopPropagation()}
+            style={{
+              width: '85%', maxWidth: '360px',
+              backgroundColor: '#FFFFFF',
+              borderRadius: '16px', padding: '24px 20px',
+              boxShadow: '0 8px 32px rgba(0,0,0,0.3)',
+            }}
+          >
+            <p style={{ fontWeight: 'bold', fontSize: '16px', margin: '0 0 16px', color: '#1A1A1A' }}>
+              {emergencyPopup.label} 비상연락
+            </p>
+
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+              <div>
+                <span style={{ fontSize: '12px', color: '#2980B9', fontWeight: 'bold' }}>🚑 구급·응급신고</span>
+                <p style={{ margin: '2px 0 0', fontWeight: 'bold', fontSize: '22px', color: '#1A1A1A' }}>{emergencyPopup.ambulance}</p>
+              </div>
+              <button
+                onClick={() => window.location.href = `tel:${emergencyPopup.ambulance}`}
+                style={{
+                  background: 'transparent', color: '#C0392B',
+                  border: '1.5px solid #C0392B', borderRadius: '8px',
+                  padding: '7px 14px', fontSize: '13px', cursor: 'pointer',
+                }}
+              >
+                📞 전화
+              </button>
+            </div>
+
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+              <div>
+                <span style={{ fontSize: '12px', color: '#FF6B35', fontWeight: 'bold' }}>🚔 경찰신고</span>
+                <p style={{ margin: '2px 0 0', fontWeight: 'bold', fontSize: '22px', color: '#1A1A1A' }}>{emergencyPopup.police}</p>
+              </div>
+              <button
+                onClick={() => window.location.href = `tel:${emergencyPopup.police}`}
+                style={{
+                  background: 'transparent', color: '#C0392B',
+                  border: '1.5px solid #C0392B', borderRadius: '8px',
+                  padding: '7px 14px', fontSize: '13px', cursor: 'pointer',
+                }}
+              >
+                📞 전화
+              </button>
+            </div>
+
+            <p style={{ fontSize: '13px', color: '#888', textAlign: 'center', margin: '0 0 16px' }}>
+              🌱 해당 지역 데이터를 수집하는 중입니다.
+            </p>
+
+            <button
+              onClick={() => setEmergencyPopup(null)}
+              style={{
+                width: '100%', padding: '12px', borderRadius: '10px',
+                background: '#F0F0F0', border: 'none',
+                fontSize: '14px', fontWeight: 'bold',
+                color: '#1A1A1A', cursor: 'pointer',
+              }}
+            >
+              닫기
+            </button>
           </div>
         </div>
       )}
