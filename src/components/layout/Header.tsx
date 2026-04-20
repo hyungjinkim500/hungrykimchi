@@ -41,6 +41,14 @@ const CONTINENTS = [
         ],
       },
       {
+        key: 'taiwan', label: '🇹🇼 대만',
+        cities: [
+          { key: 'taipei', label: '타이베이', active: false },
+          { key: 'kaohsiung', label: '가오슝', active: false },
+          { key: 'taiwan-other', label: '기타지역', active: false },
+        ],
+      },
+      {
         key: 'malaysia', label: '🇲🇾 말레이시아',
         cities: [
           { key: 'kualalumpur', label: '쿠알라룸푸르', active: false },
@@ -51,9 +59,23 @@ const CONTINENTS = [
         ],
       },
       {
+        key: 'myanmar', label: '🇲🇲 미얀마',
+        cities: [
+          { key: 'yangon', label: '양곤', active: false },
+        ],
+      },
+      {
         key: 'singapore', label: '🇸🇬 싱가포르',
         cities: [
           { key: 'singapore', label: '싱가포르', active: false },
+        ],
+      },
+      {
+        key: 'india', label: '🇮🇳 인도',
+        cities: [
+          { key: 'newdelhi', label: '뉴델리', active: false },
+          { key: 'mumbai', label: '뭄바이', active: false },
+          { key: 'india-other', label: '기타지역', active: false },
         ],
       },
       {
@@ -62,27 +84,6 @@ const CONTINENTS = [
           { key: 'jakarta', label: '자카르타', active: false },
           { key: 'bali', label: '발리', active: false },
           { key: 'indonesia-other', label: '기타지역', active: false },
-        ],
-      },
-      {
-        key: 'philippines', label: '🇵🇭 필리핀',
-        cities: [
-          { key: 'manila', label: '마닐라', active: false },
-          { key: 'cebu', label: '세부', active: false },
-          { key: 'philippines-other', label: '기타지역', active: false },
-        ],
-      },
-      {
-        key: 'cambodia', label: '🇰🇭 캄보디아',
-        cities: [
-          { key: 'phnompenh', label: '프놈펜', active: false },
-          { key: 'siemreap', label: '시엠립', active: false },
-        ],
-      },
-      {
-        key: 'myanmar', label: '🇲🇲 미얀마',
-        cities: [
-          { key: 'yangon', label: '양곤', active: false },
         ],
       },
       {
@@ -99,24 +100,24 @@ const CONTINENTS = [
         ],
       },
       {
+        key: 'cambodia', label: '🇰🇭 캄보디아',
+        cities: [
+          { key: 'phnompenh', label: '프놈펜', active: false },
+          { key: 'siemreap', label: '시엠립', active: false },
+        ],
+      },
+      {
+        key: 'philippines', label: '🇵🇭 필리핀',
+        cities: [
+          { key: 'manila', label: '마닐라', active: false },
+          { key: 'cebu', label: '세부', active: false },
+          { key: 'philippines-other', label: '기타지역', active: false },
+        ],
+      },
+      {
         key: 'hongkong', label: '🇭🇰 홍콩',
         cities: [
           { key: 'hongkong', label: '홍콩', active: false },
-        ],
-      },
-      {
-        key: 'taiwan', label: '🇹🇼 대만',
-        cities: [
-          { key: 'taipei', label: '타이베이', active: false },
-          { key: 'kaohsiung', label: '가오슝', active: false },
-        ],
-      },
-      {
-        key: 'india', label: '🇮🇳 인도',
-        cities: [
-          { key: 'newdelhi', label: '뉴델리', active: false },
-          { key: 'mumbai', label: '뭄바이', active: false },
-          { key: 'india-other', label: '기타지역', active: false },
         ],
       },
     ],
