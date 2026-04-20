@@ -79,13 +79,13 @@ function KimchiMapInner({ isDark: _isDark, city, CITY_CENTERS }: Props) {
   useEffect(() => {
     const fetchBusinesses = async () => {
       const { data } = await supabase
-      .from('businesses')
-      .select('id,name,name_ko,category,primary_type_ko,address,phone,lat,lng,google_place_id,is_korean_run,city')
-      .not('lat', 'is', null)
-      .not('lng', 'is', null)
-      .eq('pending_approval', false)
-      .eq('city', city)
-      .limit(10000);
+        .from('businesses')
+        .select('id,name,name_ko,category,primary_type_ko,address,phone,lat,lng,google_place_id,is_korean_run,city')
+        .not('lat', 'is', null)
+        .not('lng', 'is', null)
+        .eq('pending_approval', false)
+        .eq('city', city)
+        .limit(10000);
       if (data) setBusinesses(data as Business[]);
     };
     fetchBusinesses();
@@ -297,7 +297,7 @@ function KimchiMapInner({ isDark: _isDark, city, CITY_CENTERS }: Props) {
                     href={`tel:${selectedBusiness.phone}`}
                     style={{
                       fontSize: '12px', color: '#C0392B', textDecoration: 'none',
-                      border: '1.5px solid #C0392B', borderRadius: '6px',
+                      border: '1.5px solid #C0392B', borderRadius: '6px', 
                       padding: '3px 8px', whiteSpace: 'nowrap',
                     }}
                   >

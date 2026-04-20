@@ -38,6 +38,7 @@ const CITY_CENTERS: Record<string, { lat: number; lng: number; radius: number; l
   hongkong:     { lat: 22.3193, lng: 114.1694, radius: 20000, label: '홍콩' },
   taipei:       { lat: 25.0330, lng: 121.5654, radius: 20000, label: '타이베이' },
   kaohsiung:    { lat: 22.6273, lng: 120.3014, radius: 20000, label: '가오슝' },
+  'taiwan-other': { lat: 23.5000, lng: 121.0000, radius: 999999, label: '대만 기타' },
   newdelhi:     { lat: 28.6139, lng: 77.2090,  radius: 30000, label: '뉴델리' },
   mumbai:       { lat: 19.0760, lng: 72.8777,  radius: 30000, label: '뭄바이' },
   'india-other': { lat: 20.0000, lng: 77.0000,  radius: 999999, label: '인도 기타' },
