@@ -8,7 +8,7 @@ const ADMIN_PW = 'hj0105';
 const CATEGORIES = ['전체', '음식점', '택시', '의료', '관공·긴급', '기관', '마트/슈퍼', '기타'];
 const SORT_OPTIONS = [{ id: 'newest', label: '최신순' }, { id: 'abc', label: '가나다·ABC순' }];
 
-interface Props { isDark: boolean; city: string }
+interface Props { isDark: boolean; city: string | null }
 
 export default function Admin({ isDark, city }: Props) {
   const [loggedIn, setLoggedIn] = useState(() => sessionStorage.getItem('admin_logged_in') === 'true');
@@ -140,7 +140,7 @@ export default function Admin({ isDark, city }: Props) {
       );
     }
     if (categoryFilter !== '전체') result = result.filter(b => b.category === categoryFilter);
-    if (city !== '') result = result.filter(b => b.city === city);
+    if (city) result = result.filter(b => b.city === city);
     if (sortOrder === 'abc') {
       result.sort((a, b) => {
         const nameA = (a as any).name_ko || a.name || '';
