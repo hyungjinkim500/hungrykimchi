@@ -33,7 +33,7 @@ export default function App() {
             <Route path="/news" element={<News isDark={isDark} />} />
             <Route path="/mypage" element={<MyPage isDark={isDark} />} />
             <Route path="/register" element={<Register isDark={isDark} />} />
-            <Route path="/admin" element={<Admin isDark={isDark} />} />
+            <Route path="/admin" element={<Admin isDark={isDark} city={city} />} />
             <Route path="/inquiry" element={<Inquiry isDark={isDark} />} />
             <Route path="/policy" element={<Policy />} />
           </Routes>

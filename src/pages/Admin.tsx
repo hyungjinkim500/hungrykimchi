@@ -6,21 +6,11 @@ const ADMIN_ID = 'hyung64a';
 const ADMIN_PW = 'hj0105';
 
 const CATEGORIES = ['전체', '음식점', '택시', '의료', '관공·긴급', '기관', '마트/슈퍼', '기타'];
-const COUNTRIES = [
-  { label: '전체', key: '' },
-  { label: '하노이', key: 'hanoi' },
-  { label: '호치민', key: 'hochiminh' },
-  { label: '다낭', key: 'danang' },
-  { label: '방콕', key: 'bangkok' },
-  { label: '치앙마이', key: 'chiangmai' },
-  { label: '파타야', key: 'pattaya' },
-  { label: '푸켓', key: 'phuket' },
-];
 const SORT_OPTIONS = [{ id: 'newest', label: '최신순' }, { id: 'abc', label: '가나다·ABC순' }];
 
-interface Props { isDark: boolean }
+interface Props { isDark: boolean; city: string }
 
-export default function Admin({ isDark }: Props) {
+export default function Admin({ isDark, city }: Props) {
   const [loggedIn, setLoggedIn] = useState(() => sessionStorage.getItem('admin_logged_in') === 'true');
   const [id, setId] = useState('');
   const [pw, setPw] = useState('');
@@ -34,7 +24,6 @@ export default function Admin({ isDark }: Props) {
   const [searchQuery, setSearchQuery] = useState('');
 
   const [categoryFilter, setCategoryFilter] = useState('전체');
-  const [countryFilter, setCountryFilter] = useState('');
   const [sortOrder, setSortOrder] = useState('newest');
 
   const handleLogin = () => {
@@ -151,7 +140,7 @@ export default function Admin({ isDark }: Props) {
       );
     }
     if (categoryFilter !== '전체') result = result.filter(b => b.category === categoryFilter);
-    if (countryFilter !== '') result = result.filter(b => b.city === countryFilter);
+    if (city !== '') result = result.filter(b => b.city === city);
     if (sortOrder === 'abc') {
       result.sort((a, b) => {
         const nameA = (a as any).name_ko || a.name || '';
@@ -160,7 +149,7 @@ export default function Admin({ isDark }: Props) {
       });
     } // 'newest' is the default order from the API
     return result;
-  }, [businesses, categoryFilter, countryFilter, sortOrder, searchQuery]);
+  }, [businesses, categoryFilter, city, sortOrder, searchQuery]);
 
   const bg = isDark ? '#111111' : '#F5F5F5';
   const cardBg = isDark ? '#1A1A1A' : '#FFFFFF';
@@ -208,9 +197,6 @@ export default function Admin({ isDark }: Props) {
 
       <div style={{ display: 'flex', gap: '6px', overflowX: 'auto', marginBottom: '8px', paddingBottom: '4px' }}>
         {CATEGORIES.map(c => <button key={c} onClick={() => setCategoryFilter(c)} style={chipStyle(categoryFilter === c)}>{c}</button>)}
-      </div>
-      <div style={{ display: 'flex', gap: '6px', overflowX: 'auto', marginBottom: '8px', paddingBottom: '4px' }}>
-        {COUNTRIES.map(c => <button key={c.key} onClick={() => setCountryFilter(c.key)} style={chipStyle(countryFilter === c.key)}>{c.label}</button>)}
       </div>
       <div style={{ display: 'flex', gap: '6px', overflowX: 'auto', marginBottom: '16px', paddingBottom: '4px' }}>
         {SORT_OPTIONS.map(o => <button key={o.id} onClick={() => setSortOrder(o.id)} style={chipStyle(sortOrder === o.id)}>{o.label}</button>)}
