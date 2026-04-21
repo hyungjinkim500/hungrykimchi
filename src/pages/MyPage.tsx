@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { supabase, signInWithKakao, signInWithGoogle, signOut } from '../lib/supabase';
+import { useNavigate } from 'react-router-dom';
+import { supabase, signInWithKakao, signInWithGoogle, signOut, deleteUser } from '../lib/supabase';
 import type { User } from '@supabase/supabase-js';
 
 interface Props {
@@ -9,6 +10,7 @@ interface Props {
 export default function MyPage({ isDark }: Props) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -44,7 +46,7 @@ export default function MyPage({ isDark }: Props) {
   if (!user) {
     return (
       <div style={containerStyle}>
-        <img src="/kimchi_level5_nb.png" alt="logo" style={{ width: '64px', marginBottom: '16px' }} />
+        <img src="/icon-192.png" alt="logo" style={{ width: '64px', marginBottom: '16px' }} />
         <p style={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '8px' }}>헝그리김치</p>
         <p style={{ fontSize: '14px', color: isDark ? '#888' : '#666', marginBottom: '32px', textAlign: 'center' }}>
           로그인하면 업체 제보, 리뷰 작성 등<br />더 많은 기능을 이용할 수 있어요
@@ -94,6 +96,20 @@ export default function MyPage({ isDark }: Props) {
           <img src="https://www.google.com/favicon.ico" style={{ width: '20px', height: '20px' }} />
           구글로 시작하기
         </button>
+        <button
+          onClick={() => navigate('/policy')}
+          style={{
+            marginTop: '32px',
+            background: 'transparent',
+            border: 'none',
+            fontSize: '12px',
+            color: isDark ? '#666' : '#999',
+            cursor: 'pointer',
+            textDecoration: 'underline',
+          }}
+        >
+          개인정보처리방침 · 이용약관
+        </button>
       </div>
     );
   }
@@ -101,7 +117,7 @@ export default function MyPage({ isDark }: Props) {
   return (
     <div style={containerStyle}>
       <img
-        src={user.user_metadata?.avatar_url || '/kimchi_level5_nb.png'}
+        src={user.user_metadata?.avatar_url || '/icon-192.png'}
         alt="프로필"
         style={{ width: '72px', height: '72px', borderRadius: '50%', objectFit: 'cover', marginBottom: '12px' }}
       />
@@ -125,6 +141,29 @@ export default function MyPage({ isDark }: Props) {
       >
         로그아웃
       </button>
+      <div style={{ display: 'flex', gap: '16px', marginTop: '32px', alignItems: 'center' }}>
+        <button
+          onClick={() => navigate('/policy')}
+          style={{ background: 'transparent', border: 'none', fontSize: '12px', color: isDark ? '#666' : '#999', cursor: 'pointer', textDecoration: 'underline', padding: 0 }}
+        >
+          개인정보처리방침 · 이용약관
+        </button>
+        <span style={{ fontSize: '12px', color: isDark ? '#444' : '#ccc' }}>|</span>
+        <button
+          onClick={async () => {
+            if (!window.confirm('정말 탈퇴하시겠어요?\n계정 및 모든 데이터가 삭제되며 복구할 수 없습니다.')) return;
+            try {
+              await deleteUser();
+              alert('탈퇴가 완료되었습니다.');
+            } catch (e) {
+              alert('탈퇴 중 오류가 발생했어요. 잠시 후 다시 시도해주세요.');
+            }
+          }}
+          style={{ background: 'transparent', border: 'none', fontSize: '12px', color: isDark ? '#555' : '#bbb', cursor: 'pointer', textDecoration: 'underline', padding: 0 }}
+        >
+          회원탈퇴
+        </button>
+      </div>
     </div>
   );
 }

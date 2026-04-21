@@ -10,6 +10,7 @@ import MyPage from './pages/MyPage'
 import Register from './pages/Register';
 import Admin from './pages/Admin';
 import Inquiry from './pages/Inquiry';
+import Policy from './pages/Policy';
 import { useCity } from './hooks/useCity';
 
 export default function App() {
@@ -34,6 +35,7 @@ export default function App() {
             <Route path="/register" element={<Register isDark={isDark} />} />
             <Route path="/admin" element={<Admin isDark={isDark} />} />
             <Route path="/inquiry" element={<Inquiry isDark={isDark} />} />
+            <Route path="/policy" element={<Policy />} />
           </Routes>
         </div>
         <BottomNav isDark={isDark} />
