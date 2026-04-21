@@ -9,7 +9,7 @@ export const signInWithKakao = async () => {
   const { error } = await supabase.auth.signInWithOAuth({
     provider: 'kakao',
     options: {
-      redirectTo: 'https://hungrykimchi.vercel.app',
+      redirectTo: 'https://hungrykimchi.com',
       scopes: 'profile_nickname profile_image',
     },
   })
@@ -20,7 +20,7 @@ export const signInWithGoogle = async () => {
   const { error } = await supabase.auth.signInWithOAuth({
     provider: 'google',
     options: {
-      redirectTo: window.location.origin,
+      redirectTo: 'https://hungrykimchi.com',
     },
   })
   if (error) throw error
