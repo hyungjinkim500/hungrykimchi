@@ -23,6 +23,10 @@ function KimchiMapInner({ isDark: _isDark, city, CITY_CENTERS }: Props) {
   const [businesses, setBusinesses] = useState<Business[]>([]);
   const [selectedBusiness, setSelectedBusiness] = useState<Business | null>(null);
   const [activeCategory, setActiveCategory] = useState<string>('전체');
+  const [activeSubcategory, setActiveSubcategory] = useState<string>('전체');
+
+  const FOOD_SUBCATEGORIES = ['전체', '종합한식', '고기구이', '치킨', '포차/호프', '분식', '백반/반찬', '족발/보쌈', '중화요리', '회/초밥', '국밥/찌개', '전골/샤브', '브런치/카페', '기타'];
+  const MEDICAL_SUBCATEGORIES = ['전체', '종합/국제병원', '내과/가정의학', '치과', '피부과', '안과', '이비인후과', '정형외과', '한의원', '기타'];
   const map = useMap();
   const [myLocation, setMyLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [searchOpen, setSearchOpen] = useState(false);
@@ -80,7 +84,7 @@ function KimchiMapInner({ isDark: _isDark, city, CITY_CENTERS }: Props) {
     const fetchBusinesses = async () => {
       const { data } = await supabase
         .from('businesses')
-        .select('id,name,name_ko,category,primary_type_ko,address,phone,lat,lng,google_place_id,is_korean_run,city')
+        .select('id,name,name_ko,category,subcategory,primary_type_ko,address,phone,lat,lng,google_place_id,is_korean_run,city')
         .not('lat', 'is', null)
         .not('lng', 'is', null)
         .eq('pending_approval', false)
@@ -107,9 +111,15 @@ function KimchiMapInner({ isDark: _isDark, city, CITY_CENTERS }: Props) {
     return null;
   };
 
-  const filteredBusinesses = activeCategory === '전체'
-    ? businesses.filter(b => b.city === city)
-    : businesses.filter(b => b.city === city && b.category === activeCategory);
+  const filteredBusinesses = (() => {
+    let result = activeCategory === '전체'
+      ? businesses.filter(b => b.city === city)
+      : businesses.filter(b => b.city === city && b.category === activeCategory);
+    if (activeSubcategory !== '전체' && (activeCategory === '음식점' || activeCategory === '의료')) {
+      result = result.filter(b => (b as any).subcategory === activeSubcategory);
+    }
+    return result;
+  })();
 
   return (
     <div style={{ position: 'fixed', top: '65px', bottom: '65px', left: '50%', transform: 'translateX(-50%)', width: '100%', maxWidth: '430px' }}>
@@ -122,7 +132,7 @@ function KimchiMapInner({ isDark: _isDark, city, CITY_CENTERS }: Props) {
         {FILTER_CATEGORIES.map(cat => (
           <button
             key={cat}
-            onClick={() => setActiveCategory(cat)}
+            onClick={() => { setActiveCategory(cat); setActiveSubcategory('전체'); }}
             style={{
               padding: '4px 10px', borderRadius: '14px', border: 'none',
               fontSize: '12px', cursor: 'pointer', whiteSpace: 'nowrap',
@@ -137,6 +147,34 @@ function KimchiMapInner({ isDark: _isDark, city, CITY_CENTERS }: Props) {
           </button>
         ))}
       </div>
+
+      {(activeCategory === '음식점' || activeCategory === '의료') && (
+        <div style={{
+          position: 'absolute', top: '56px', left: '50%', transform: 'translateX(-50%)',
+          zIndex: 10, display: 'flex', gap: '6px',
+          backgroundColor: 'rgba(255,255,255,0.9)', borderRadius: '20px',
+          padding: '6px 10px', boxShadow: '0 2px 6px rgba(0,0,0,0.2)',
+          overflowX: 'auto', maxWidth: '90%', scrollbarWidth: 'none',
+        }}>
+          {(activeCategory === '음식점' ? FOOD_SUBCATEGORIES : MEDICAL_SUBCATEGORIES).map(sub => (
+            <button
+              key={sub}
+              onClick={() => setActiveSubcategory(sub)}
+              style={{
+                padding: '4px 10px', borderRadius: '14px', border: 'none',
+                fontSize: '11px', cursor: 'pointer', whiteSpace: 'nowrap', flexShrink: 0,
+                background: activeSubcategory === sub
+                  ? (PIN_COLORS[activeCategory]?.bg ?? '#555')
+                  : '#EEEEEE',
+                color: activeSubcategory === sub ? '#FFFFFF' : '#333333',
+                fontWeight: activeSubcategory === sub ? 'bold' : 'normal',
+              }}
+            >
+              {sub}
+            </button>
+          ))}
+        </div>
+      )}
 
       {/* 검색 버튼 */}
       <button

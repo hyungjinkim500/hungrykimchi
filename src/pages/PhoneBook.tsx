@@ -58,8 +58,12 @@ export default function PhoneBook({ isDark, city }: Props) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string>('음식점');
+  const [selectedSubcategory, setSelectedSubcategory] = useState<string>('전체');
   const [searchQuery, setSearchQuery] = useState('');
   const [showKoreanOnly, setShowKoreanOnly] = useState(false);
+
+  const FOOD_SUBCATEGORIES = ['전체', '종합한식', '고기구이', '치킨', '포차/호프', '분식', '백반/반찬', '족발/보쌈', '중화요리', '회/초밥', '국밥/찌개', '전골/샤브', '브런치/카페', '기타'];
+  const MEDICAL_SUBCATEGORIES = ['전체', '종합/국제병원', '내과/가정의학', '치과', '피부과', '안과', '이비인후과', '정형외과', '한의원', '기타'];
   const [tooltipId, setTooltipId] = useState<string | null>(null);
   const tooltipTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -89,6 +93,10 @@ export default function PhoneBook({ isDark, city }: Props) {
     let categoryFiltered = selectedCategory === '전체'
         ? businesses
         : businesses.filter((b) => b.category === selectedCategory);
+
+    if (selectedSubcategory !== '전체' && (selectedCategory === '음식점' || selectedCategory === '의료')) {
+        categoryFiltered = categoryFiltered.filter(b => (b as any).subcategory === selectedSubcategory);
+    }
 
     if (showKoreanOnly) {
         categoryFiltered = categoryFiltered.filter(b => (b as any).is_korean_run === true);
@@ -245,7 +253,7 @@ export default function PhoneBook({ isDark, city }: Props) {
             <button
               key={category}
               style={styles.categoryChip(selectedCategory === category, category)}
-              onClick={() => setSelectedCategory(category)}
+              onClick={() => { setSelectedCategory(category); setSelectedSubcategory('전체'); }}
             >
               {category}
             </button>
@@ -269,6 +277,24 @@ export default function PhoneBook({ isDark, city }: Props) {
           <img src={kimchiLogo} alt="한인 인증" style={{ width: '22px', height: '22px' }} />
         </button>
       </div>
+      {(selectedCategory === '음식점' || selectedCategory === '의료') && (
+        <div style={{ display: 'flex', overflowX: 'auto', padding: '0 16px 8px', gap: '6px', scrollbarWidth: 'none' }} className="no-scrollbar">
+          {(selectedCategory === '음식점' ? FOOD_SUBCATEGORIES : MEDICAL_SUBCATEGORIES).map(sub => (
+            <button
+              key={sub}
+              onClick={() => setSelectedSubcategory(sub)}
+              style={{
+                flexShrink: 0, padding: '4px 10px', borderRadius: '14px', border: 'none',
+                fontSize: '12px', cursor: 'pointer', whiteSpace: 'nowrap',
+                background: selectedSubcategory === sub ? getActiveColor(selectedCategory) : isDark ? '#2A2A2A' : '#E0E0E0',
+                color: selectedSubcategory === sub ? '#FFF' : isDark ? '#FFF' : '#333',
+              }}
+            >
+              {sub}
+            </button>
+          ))}
+        </div>
+      )}
       <input
         type="text"
         placeholder="업체명, 업종 검색..."
