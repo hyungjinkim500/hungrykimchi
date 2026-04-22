@@ -8,6 +8,9 @@ const ADMIN_PW = 'hj0105';
 const CATEGORIES = ['전체', '음식점', '택시', '의료', '관공·긴급', '기관', '마트/슈퍼', '기타'];
 const SORT_OPTIONS = [{ id: 'newest', label: '최신순' }, { id: 'abc', label: '가나다·ABC순' }];
 
+const FOOD_SUBCATEGORIES = ['종합한식', '고기구이', '치킨', '포차/호프', '분식', '백반/반찬', '족발/보쌈', '중화요리', '회/초밥', '국밥/찌개', '전골/샤브', '브런치/카페', '기타'];
+const MEDICAL_SUBCATEGORIES = ['종합/국제병원', '내과/가정의학', '치과', '피부과', '안과', '이비인후과', '정형외과', '한의원', '기타'];
+
 interface Props { isDark: boolean; city: string | null }
 
 export default function Admin({ isDark, city }: Props) {
