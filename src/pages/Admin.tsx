@@ -7,7 +7,6 @@ const ADMIN_PW = 'hj0105';
 
 const CATEGORIES = ['전체', '음식점', '택시', '의료', '관공·긴급', '기관', '마트/슈퍼', '기타'];
 const SORT_OPTIONS = [{ id: 'newest', label: '최신순' }, { id: 'abc', label: '가나다·ABC순' }];
-
 const FOOD_SUBCATEGORIES = ['종합한식', '고기구이', '치킨', '포차/호프', '분식', '백반/반찬', '족발/보쌈', '중화요리', '회/초밥', '국밥/찌개', '전골/샤브', '브런치/카페', '기타'];
 const MEDICAL_SUBCATEGORIES = ['종합/국제병원', '내과/가정의학', '치과', '피부과', '안과', '이비인후과', '정형외과', '한의원', '기타'];
 
@@ -25,7 +24,6 @@ export default function Admin({ isDark, city }: Props) {
   const [deletedPlaces, setDeletedPlaces] = useState<{google_place_id: string, name: string, deleted_at: string}[]>([]);
   const [inquiries, setInquiries] = useState<{id: string, name: string, company: string | null, email: string, contact: string | null, message: string, is_read: boolean, created_at: string}[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
-
   const [categoryFilter, setCategoryFilter] = useState('전체');
   const [sortOrder, setSortOrder] = useState('newest');
 
@@ -126,6 +124,12 @@ export default function Admin({ isDark, city }: Props) {
     setBusinesses(prev => prev.map(b => b.id === businessId ? { ...b, category: newCategory } as any : b));
   };
 
+  const handleSubcategoryChange = async (businessId: string, newSubcategory: string) => {
+    const { error } = await supabase.from('businesses').update({ subcategory: newSubcategory }).eq('id', businessId);
+    if (error) { alert('서브카테고리 변경 실패: ' + error.message); return; }
+    setBusinesses(prev => prev.map(b => b.id === businessId ? { ...b, subcategory: newSubcategory } as any : b));
+  };
+
   const getGoogleMapUrl = (b: Business) => {
     if (b.google_place_id) return `https://www.google.com/maps/place/?q=place_id:${b.google_place_id}`;
     if (b.lat && b.lng) return `https://www.google.com/maps?q=${b.lat},${b.lng}`;
@@ -150,7 +154,7 @@ export default function Admin({ isDark, city }: Props) {
         const nameB = (b as any).name_ko || b.name || '';
         return nameA.localeCompare(nameB, 'ko');
       });
-    } // 'newest' is the default order from the API
+    }
     return result;
   }, [businesses, categoryFilter, city, sortOrder, searchQuery]);
 
@@ -246,19 +250,28 @@ export default function Admin({ isDark, city }: Props) {
                     <p style={{ fontWeight: 'bold', fontSize: '15px', margin: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{b.name}</p>
                     {mapUrl && <button onClick={() => window.open(mapUrl, '_blank')} style={{ padding: '3px 8px', borderRadius: '6px', border: 'none', backgroundColor: isDark ? '#2A2A2A' : '#E0E0E0', color: text, fontSize: '12px', cursor: 'pointer', marginLeft: '8px' }}>📍</button>}
                   </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '2px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '2px', flexWrap: 'wrap' }}>
                     <select
                       value={b.category ?? '기타'}
                       onChange={e => handleCategoryChange(b.id, e.target.value)}
                       style={{ fontSize: '12px', color: muted, background: 'transparent', border: 'none', cursor: 'pointer', padding: 0 }}
                     >
-                      {[
-                        '음식점', '택시', '의료', '관공·긴급', '기관', '마트/슈퍼', '기타'
-                      ].map(c => (
+                      {['음식점', '택시', '의료', '관공·긴급', '기관', '마트/슈퍼', '기타'].map(c => (
                         <option key={c} value={c}>{c}</option>
                       ))}
                     </select>
-                    {b.subcategory && <span style={{ fontSize: '12px', color: muted }}>· {b.subcategory}</span>}
+                    {(b.category === '음식점' || b.category === '의료') && (
+                      <select
+                        value={(b as any).subcategory ?? ''}
+                        onChange={e => handleSubcategoryChange(b.id, e.target.value)}
+                        style={{ fontSize: '12px', color: muted, background: 'transparent', border: 'none', cursor: 'pointer', padding: 0 }}
+                      >
+                        <option value=''>서브카테고리 선택</option>
+                        {(b.category === '음식점' ? FOOD_SUBCATEGORIES : MEDICAL_SUBCATEGORIES).map(s => (
+                          <option key={s} value={s}>{s}</option>
+                        ))}
+                      </select>
+                    )}
                   </div>
                   <p style={{ fontSize: '12px', color: muted, margin: '0 0 2px' }}>{b.address}</p>
                   <p style={{ fontSize: '12px', color: muted, margin: '0 0 8px' }}>{b.phone ?? '전화번호 없음'}</p>
