@@ -2,7 +2,7 @@
   "relation": ["delegate_permission/common.handle_all_urls"],
   "target": {
     "namespace": "android_app",
-    "package_name": "com.pulsehouse.hungrykimchi",
-    "sha256_cert_fingerprints": ["C7:68:83:1E:8D:2E:42:2E:2B:1B:56:10:8D:18:BB:D4:86:79:22:F7:D1:C8:3F:E5:42:E3:DB:3F:1B:42:DE:4B"]
+    "package_name": "com.hungrykimchi.app",
+    "sha256_cert_fingerprints": ["B3:12:19:66:6E:E0:AD:B9:6A:E2:02:F4:0D:36:C0:0D:D9:BA:D3:99:85:9F:68:F2:F3:77:C2:7F:90:92:71:F4"]
   }
 }]
