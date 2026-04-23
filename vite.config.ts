@@ -19,6 +19,7 @@ export default defineConfig({
         scope: '/',
         start_url: '/',
         lang: 'ko',
+        id: 'com.hungrykimchi.app',
         icons: [
           {
             src: 'icon-192.png',
