@@ -7,6 +7,10 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
+      devOptions: {
+        enabled: true
+      },
+      filename: 'sw.js',
       includeAssets: ['kimchi_level5_nb.png', 'icon-192.png', 'icon-512.png'],
       manifest: {
         name: '헝그리김치',
