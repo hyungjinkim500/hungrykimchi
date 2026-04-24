@@ -60,6 +60,7 @@ export function useCity() {
     return (saved as City) ?? 'hanoi';
   });
   const [detecting, setDetecting] = useState(false);
+  const [pendingCity, setPendingCity] = useState<City>(null);
 
   useEffect(() => {
     const saved = localStorage.getItem('selected_city');
@@ -77,8 +78,7 @@ export function useCity() {
           }
         }
         if (detected) {
-          setCity(detected);
-          localStorage.setItem('selected_city', detected);
+          setPendingCity(detected);
         }
         setDetecting(false);
       },
@@ -87,10 +87,22 @@ export function useCity() {
     );
   }, []);
 
+  const confirmDetectedCity = () => {
+    if (pendingCity) {
+      setCity(pendingCity);
+      localStorage.setItem('selected_city', pendingCity);
+      setPendingCity(null);
+    }
+  };
+
+  const rejectDetectedCity = () => {
+    setPendingCity(null);
+  };
+
   const changeCity = (newCity: City) => {
     setCity(newCity);
     if (newCity) localStorage.setItem('selected_city', newCity);
   };
 
-  return { city, changeCity, detecting, CITY_CENTERS };
+  return { city, changeCity, detecting, CITY_CENTERS, pendingCity, confirmDetectedCity, rejectDetectedCity };
 }
