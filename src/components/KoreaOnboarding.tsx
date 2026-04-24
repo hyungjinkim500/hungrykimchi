@@ -106,9 +106,8 @@ export default function KoreaOnboarding({ onSelectCity, onOpenCityPicker }: Prop
           onClick={onOpenCityPicker}
           style={{
             width: '100%', padding: '16px',
-            borderRadius: '14px', border: 'none',
+            borderRadius: '14px',
             backgroundColor: '#FFFFFF',
-            border: '2px solid #C0392B',
             color: '#C0392B', fontWeight: 800,
             fontSize: '16px', cursor: 'pointer',
           }}
