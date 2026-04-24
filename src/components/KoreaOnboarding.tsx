@@ -61,8 +61,11 @@ export default function KoreaOnboarding({ onSelectCity, onOpenCityPicker }: Prop
       {/* 로고 */}
       <img src={kimchiLogoLight} alt="헝그리김치"
         style={{ width: '64px', height: '64px', objectFit: 'contain', marginBottom: '12px' }} />
-      <p style={{ color: '#C0392B', fontWeight: 800, fontSize: '22px', margin: '0 0 32px' }}>
+      <p style={{ color: '#C0392B', fontWeight: 800, fontSize: '22px', margin: '0 0 8px' }}>
         헝그리김치
+      </p>
+      <p style={{ color: '#888888', fontSize: '13px', margin: '0 0 32px' }}>
+        한국에 계신 사용자님 안녕하세요!
       </p>
 
       {/* 슬라이드 카드 */}
@@ -104,8 +107,9 @@ export default function KoreaOnboarding({ onSelectCity, onOpenCityPicker }: Prop
           style={{
             width: '100%', padding: '16px',
             borderRadius: '14px', border: 'none',
-            backgroundColor: '#C0392B',
-            color: '#FFFFFF', fontWeight: 800,
+            backgroundColor: '#FFFFFF',
+            border: '2px solid #C0392B',
+            color: '#C0392B', fontWeight: 800,
             fontSize: '16px', cursor: 'pointer',
           }}
         >
