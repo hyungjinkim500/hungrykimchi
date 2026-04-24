@@ -385,6 +385,30 @@ export default function Header({ isDark, setIsDark, city, changeCity, CITY_CENTE
           </div>
         </div>
         <div style={{ display: 'flex', alignItems: 'center' }}>
+          {(() => {
+            const currentCountryKey = CONTINENTS.flatMap(c => c.countries).find(c => c.cities.some(ci => ci.key === city))?.key;
+            return currentCountryKey && COUNTRY_EMERGENCY[currentCountryKey] ? (
+              <button
+                onClick={() => {
+                  const country = CONTINENTS.flatMap(c => c.countries).find(c => c.key === currentCountryKey);
+                  setEmergencyPopup({
+                    ambulance: COUNTRY_EMERGENCY[currentCountryKey].ambulance,
+                    police: COUNTRY_EMERGENCY[currentCountryKey].police,
+                    touristPolice: COUNTRY_EMERGENCY[currentCountryKey].touristPolice,
+                    embassy: COUNTRY_EMERGENCY[currentCountryKey].embassy,
+                    label: country?.label ?? currentCountryKey,
+                  });
+                }}
+                style={{
+                  background: 'none', border: 'none',
+                  fontSize: '20px', cursor: 'pointer',
+                  marginRight: '4px', padding: '0 4px',
+                }}
+              >
+                🚨
+              </button>
+            ) : null;
+          })()}
           <button
             onClick={openCityPicker}
             style={{
