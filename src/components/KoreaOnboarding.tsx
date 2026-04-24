@@ -30,10 +30,10 @@ const SLIDES = [
 interface Props {
   onSelectCity: (city: City) => void;
   onOpenCityPicker: () => void;
-  isDark: boolean;
+  isDark?: boolean;
 }
 
-export default function KoreaOnboarding({ onSelectCity, onOpenCityPicker, isDark }: Props) {
+export default function KoreaOnboarding({ onSelectCity, onOpenCityPicker }: Props) {
   const [slideIndex, setSlideIndex] = useState(0);
 
   useEffect(() => {
