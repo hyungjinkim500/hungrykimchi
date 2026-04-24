@@ -15,7 +15,8 @@ const pageTitles: Record<string, string> = {
   '/register': '신규 업체 등록/제보',
 };
 
-const COUNTRY_EMERGENCY: Record<string, { ambulance: string; police: string }> = {
+const COUNTRY_EMERGENCY: Record<string, { ambulance: string; police: string; touristPolice?: string }> = {
+  thailand:    { ambulance: '1669', police: '191', touristPolice: '1155' },
   malaysia:    { ambulance: '999', police: '999' },
   myanmar:     { ambulance: '192', police: '199' },
   singapore:   { ambulance: '995', police: '999' },
@@ -46,8 +47,8 @@ const CONTINENTS = [
         cities: [
           { key: 'bangkok', label: '방콕', active: true },
           { key: 'chiangmai', label: '치앙마이', active: true },
-          { key: 'pattaya', label: '파타야', active: true },
-          { key: 'phuket', label: '푸켓', active: true },
+          { key: 'pattaya', label: '파타야', active: false },
+          { key: 'phuket', label: '푸켓', active: false },
           { key: 'huahin', label: '후아힌', active: false },
           { key: 'thailand-other', label: '기타지역', active: false },
         ],
@@ -192,17 +193,26 @@ export default function Header({ isDark, setIsDark, city, changeCity, CITY_CENTE
     }
   };
 
-  const handleCitySelect = (cityKey: string, active: boolean) => {
+  const asiaContinent = CONTINENTS[0];
+  const handleCitySelect = (cityKey: string, active: boolean, countryKey?: string) => {
     if (!active) {
-      setComingSoon(true);
-      setTimeout(() => setComingSoon(false), 2000);
+      if (countryKey && COUNTRY_EMERGENCY[countryKey]) {
+        const country = asiaContinent.countries.find(c => c.key === countryKey);
+        setEmergencyPopup({
+          ambulance: COUNTRY_EMERGENCY[countryKey].ambulance,
+          police: COUNTRY_EMERGENCY[countryKey].police,
+          label: country?.label ?? countryKey,
+        });
+      } else {
+        setComingSoon(true);
+        setTimeout(() => setComingSoon(false), 2000);
+      }
       return;
     }
     changeCity(cityKey as City);
     closePicker();
   };
 
-  const asiaContinent = CONTINENTS[0];
   const currentCountry = asiaContinent.countries.find(c => c.key === selectedCountry);
 
   const filteredCountries = asiaContinent.countries.filter(c =>
@@ -346,14 +356,18 @@ export default function Header({ isDark, setIsDark, city, changeCity, CITY_CENTE
                   <div
                     key={country.key}
                     onClick={() => {
-                      if (COUNTRY_EMERGENCY[country.key]) {
+                      const hasCities = country.cities.some(c => c.active);
+                      if (hasCities) {
+                        setSelectedCountry(country.key); setStep('city'); setSearch('');
+                      } else if (COUNTRY_EMERGENCY[country.key]) {
                         setEmergencyPopup({
                           ambulance: COUNTRY_EMERGENCY[country.key].ambulance,
                           police: COUNTRY_EMERGENCY[country.key].police,
                           label: country.label,
                         });
                       } else {
-                        setSelectedCountry(country.key); setStep('city'); setSearch('');
+                        setComingSoon(true);
+                        setTimeout(() => setComingSoon(false), 2000);
                       }
                     }}
                     style={{
@@ -377,7 +391,7 @@ export default function Header({ isDark, setIsDark, city, changeCity, CITY_CENTE
                   {filteredCities.map(c => (
                     <button
                       key={c.key}
-                      onClick={() => handleCitySelect(c.key, c.active)}
+                      onClick={() => handleCitySelect(c.key, c.active, selectedCountry ?? undefined)}
                       style={{
                         padding: '8px 16px', borderRadius: '20px', border: 'none',
                         fontSize: '14px', cursor: 'pointer',
