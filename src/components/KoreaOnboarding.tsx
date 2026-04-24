@@ -53,7 +53,7 @@ export default function KoreaOnboarding({ onSelectCity, onOpenCityPicker }: Prop
   return (
     <div style={{
       position: 'fixed', inset: 0, zIndex: 500,
-      backgroundColor: '#C0392B',
+      backgroundColor: '#FFFFFF',
       display: 'flex', flexDirection: 'column',
       alignItems: 'center', justifyContent: 'center',
       padding: '32px 24px',
@@ -61,14 +61,14 @@ export default function KoreaOnboarding({ onSelectCity, onOpenCityPicker }: Prop
       {/* 로고 */}
       <img src={kimchiLogoLight} alt="헝그리김치"
         style={{ width: '64px', height: '64px', objectFit: 'contain', marginBottom: '12px' }} />
-      <p style={{ color: '#FFFFFF', fontWeight: 800, fontSize: '22px', margin: '0 0 32px' }}>
+      <p style={{ color: '#C0392B', fontWeight: 800, fontSize: '22px', margin: '0 0 32px' }}>
         헝그리김치
       </p>
 
       {/* 슬라이드 카드 */}
       <div style={{
         width: '100%', maxWidth: '360px',
-        backgroundColor: 'rgba(255,255,255,0.15)',
+        backgroundColor: '#F8F8F8',
         borderRadius: '20px', padding: '28px 24px',
         minHeight: '180px',
         display: 'flex', flexDirection: 'column', alignItems: 'center',
@@ -76,10 +76,10 @@ export default function KoreaOnboarding({ onSelectCity, onOpenCityPicker }: Prop
         transition: 'all 0.4s ease',
       }}>
         <span style={{ fontSize: '40px', marginBottom: '12px' }}>{slide.emoji}</span>
-        <p style={{ color: '#FFFFFF', fontWeight: 700, fontSize: '16px', margin: '0 0 10px', lineHeight: 1.4 }}>
+        <p style={{ color: '#1A1A1A', fontWeight: 700, fontSize: '16px', margin: '0 0 10px', lineHeight: 1.4 }}>
           {slide.title}
         </p>
-        <p style={{ color: 'rgba(255,255,255,0.85)', fontSize: '13px', lineHeight: 1.7, margin: 0, whiteSpace: 'pre-line' }}>
+        <p style={{ color: '#555555', fontSize: '13px', lineHeight: 1.7, margin: 0, whiteSpace: 'pre-line' }}>
           {slide.desc}
         </p>
       </div>
@@ -90,7 +90,7 @@ export default function KoreaOnboarding({ onSelectCity, onOpenCityPicker }: Prop
           <div key={i} onClick={() => setSlideIndex(i)} style={{
             width: i === slideIndex ? '20px' : '8px', height: '8px',
             borderRadius: '4px',
-            backgroundColor: i === slideIndex ? '#FFFFFF' : 'rgba(255,255,255,0.4)',
+            backgroundColor: i === slideIndex ? '#C0392B' : '#E0E0E0',
             cursor: 'pointer',
             transition: 'all 0.3s ease',
           }} />
@@ -104,8 +104,8 @@ export default function KoreaOnboarding({ onSelectCity, onOpenCityPicker }: Prop
           style={{
             width: '100%', padding: '16px',
             borderRadius: '14px', border: 'none',
-            backgroundColor: '#FFFFFF',
-            color: '#C0392B', fontWeight: 800,
+            backgroundColor: '#C0392B',
+            color: '#FFFFFF', fontWeight: 800,
             fontSize: '16px', cursor: 'pointer',
           }}
         >
@@ -116,9 +116,9 @@ export default function KoreaOnboarding({ onSelectCity, onOpenCityPicker }: Prop
           style={{
             width: '100%', padding: '16px',
             borderRadius: '14px',
-            border: '2px solid rgba(255,255,255,0.6)',
+            border: '2px solid #E0E0E0',
             backgroundColor: 'transparent',
-            color: '#FFFFFF', fontWeight: 700,
+            color: '#555555', fontWeight: 700,
             fontSize: '15px', cursor: 'pointer',
           }}
         >
