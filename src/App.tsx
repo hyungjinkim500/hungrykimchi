@@ -12,10 +12,12 @@ import Admin from './pages/Admin';
 import Inquiry from './pages/Inquiry';
 import Policy from './pages/Policy';
 import { useCity } from './hooks/useCity';
+import KoreaOnboarding from './components/KoreaOnboarding';
 
 export default function App() {
   const [isDark, setIsDark] = useState(false)
-  const { city, changeCity, CITY_CENTERS, pendingCity, confirmDetectedCity, rejectDetectedCity } = useCity();
+  const { city, changeCity, CITY_CENTERS, pendingCity, confirmDetectedCity, rejectDetectedCity, isInKorea, setIsInKorea } = useCity();
+  const [cityPickerOpen, setCityPickerOpen] = useState(false);
 
   useEffect(() => {
     document.body.style.backgroundColor = isDark ? '#111111' : '#F5F5F5'
@@ -25,7 +27,22 @@ export default function App() {
   return (
     <APIProvider apiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY} libraries={['places']}>
       <BrowserRouter>
-        <Header isDark={isDark} setIsDark={setIsDark} city={city} changeCity={changeCity} CITY_CENTERS={CITY_CENTERS} pendingCity={pendingCity} confirmDetectedCity={confirmDetectedCity} rejectDetectedCity={rejectDetectedCity} />
+        <Header isDark={isDark} setIsDark={setIsDark} city={city} changeCity={changeCity} CITY_CENTERS={CITY_CENTERS} pendingCity={pendingCity} confirmDetectedCity={confirmDetectedCity} rejectDetectedCity={rejectDetectedCity} externalCityPickerOpen={cityPickerOpen} onExternalCityPickerClose={() => setCityPickerOpen(false)} />
+        {isInKorea && (
+          <KoreaOnboarding
+            isDark={isDark}
+            onSelectCity={(c) => {
+              changeCity(c);
+              setIsInKorea(false);
+              localStorage.setItem('onboarding_done', 'true');
+            }}
+            onOpenCityPicker={() => {
+              setIsInKorea(false);
+              localStorage.setItem('onboarding_done', 'true');
+              setCityPickerOpen(true);
+            }}
+          />
+        )}
         <div style={{ paddingTop: '65px', paddingBottom: '65px' }}>
           <Routes>
             <Route path="/" element={<PhoneBook isDark={isDark} city={city} />} />

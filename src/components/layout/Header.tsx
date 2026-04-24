@@ -228,12 +228,14 @@ interface HeaderProps {
   city: City;
   changeCity: (city: City) => void;
   CITY_CENTERS: Record<string, { lat: number; lng: number; radius: number; label: string }>;
-  pendingCity: City;
+  pendingCity: City | null;
   confirmDetectedCity: () => void;
   rejectDetectedCity: () => void;
+  externalCityPickerOpen?: boolean;
+  onExternalCityPickerClose?: () => void;
 }
 
-export default function Header({ isDark, setIsDark, city, changeCity, CITY_CENTERS, pendingCity, confirmDetectedCity, rejectDetectedCity }: HeaderProps) {
+export default function Header({ isDark, setIsDark, city, changeCity, CITY_CENTERS, pendingCity, confirmDetectedCity, rejectDetectedCity, externalCityPickerOpen, onExternalCityPickerClose }: HeaderProps) {
   const location = useLocation();
   const navigate = useNavigate();
   const subtitle = pageTitles[location.pathname] ?? '';
@@ -256,6 +258,17 @@ export default function Header({ isDark, setIsDark, city, changeCity, CITY_CENTE
     });
     return () => subscription.unsubscribe();
   }, []);
+
+  useEffect(() => {
+    if (externalCityPickerOpen) {
+      setStep('continent');
+      setSelectedCountry(null);
+      setSelectedContinent(null);
+      setSearch('');
+      setCityPickerOpen(true);
+      onExternalCityPickerClose?.();
+    }
+  }, [externalCityPickerOpen]);
 
   const openCityPicker = () => {
     setStep('continent');

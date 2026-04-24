@@ -54,22 +54,34 @@ function getDistance(lat1: number, lng1: number, lat2: number, lng2: number): nu
   return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
 }
 
+const KOREA_CENTER = { lat: 36.5, lng: 127.5, radius: 400000 };
+
 export function useCity() {
   const [city, setCity] = useState<City>(() => {
     const saved = localStorage.getItem('selected_city');
     return (saved as City) ?? 'hanoi';
   });
   const [detecting, setDetecting] = useState(false);
-  const [pendingCity, setPendingCity] = useState<City>(null);
+  const [pendingCity, setPendingCity] = useState<City | null>(null);
+  const [isInKorea, setIsInKorea] = useState(false);
 
   useEffect(() => {
     const saved = localStorage.getItem('selected_city');
+    const onboardingDone = localStorage.getItem('onboarding_done');
     if (saved) return;
     setDetecting(true);
     navigator.geolocation.getCurrentPosition(
       (pos) => {
         const { latitude, longitude } = pos.coords;
-        let detected: City = null;
+        // 한국 감지
+        const distKorea = getDistance(latitude, longitude, KOREA_CENTER.lat, KOREA_CENTER.lng);
+        if (distKorea <= KOREA_CENTER.radius && !onboardingDone) {
+          setIsInKorea(true);
+          setDetecting(false);
+          return;
+        }
+        // 해외 도시 감지
+        let detected: City | null = null;
         for (const [key, center] of Object.entries(CITY_CENTERS)) {
           const dist = getDistance(latitude, longitude, center.lat, center.lng);
           if (dist <= center.radius) {
@@ -104,5 +116,5 @@ export function useCity() {
     if (newCity) localStorage.setItem('selected_city', newCity);
   };
 
-  return { city, changeCity, detecting, CITY_CENTERS, pendingCity, confirmDetectedCity, rejectDetectedCity };
+  return { city, changeCity, detecting, CITY_CENTERS, pendingCity, confirmDetectedCity, rejectDetectedCity, isInKorea, setIsInKorea };
 }
