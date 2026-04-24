@@ -14,17 +14,30 @@ const pageTitles: Record<string, string> = {
   '/register': '신규 업체 등록/제보',
 };
 
-const COUNTRY_EMERGENCY: Record<string, { ambulance: string; police: string; touristPolice?: string }> = {
-  thailand:    { ambulance: '1669', police: '191', touristPolice: '1155' },
-  malaysia:    { ambulance: '999', police: '999' },
-  myanmar:     { ambulance: '192', police: '199' },
-  singapore:   { ambulance: '995', police: '999' },
-  india:       { ambulance: '108', police: '100' },
-  indonesia:   { ambulance: '118', police: '110' },
-  japan:       { ambulance: '119', police: '110' },
-  cambodia:    { ambulance: '119', police: '117' },
-  philippines: { ambulance: '911', police: '911' },
-  hongkong:    { ambulance: '999', police: '999' },
+const COUNTRY_EMERGENCY: Record<string, { ambulance: string; police: string; touristPolice?: string; embassy?: string }> = {
+  vietnam:     { ambulance: '115', police: '113', embassy: '+84-90-402-6126' },
+  thailand:    { ambulance: '1669', police: '191', touristPolice: '1155', embassy: '+66-81-914-5803' },
+  taiwan:      { ambulance: '119', police: '110', embassy: '+886-912-069-230' },
+  japan:       { ambulance: '119', police: '110', embassy: '+81-70-2153-5454' },
+  malaysia:    { ambulance: '999', police: '999', embassy: '+60-17-623-8343' },
+  singapore:   { ambulance: '995', police: '999', embassy: '+65-9654-3528' },
+  indonesia:   { ambulance: '118', police: '110', embassy: '+62-811-852-446' },
+  philippines: { ambulance: '911', police: '911', embassy: '+63-917-817-5703' },
+  cambodia:    { ambulance: '119', police: '117', embassy: '+855-92-555-235' },
+  myanmar:     { ambulance: '192', police: '199', embassy: '+95-94-2115-8030' },
+  hongkong:    { ambulance: '999', police: '999', embassy: '+852-9731-0092' },
+  china:       { ambulance: '120', police: '110', embassy: '+86-186-1173-0089' },
+  india:       { ambulance: '108', police: '100', embassy: '+91-99-5359-6008' },
+  nepal:       { ambulance: '102', police: '100', embassy: '+977-98510-33178' },
+  srilanka:    { ambulance: '110', police: '119', embassy: '+94-77-332-5676' },
+  laos:        { ambulance: '1195', police: '191', embassy: '+856-20-5839-0080' },
+  mongolia:    { ambulance: '103', police: '102', embassy: '+976-9911-4119' },
+  uzbekistan:  { ambulance: '103', police: '102', embassy: '+998-90-029-6963' },
+  kazakhstan:  { ambulance: '103', police: '102', embassy: '+7-705-757-9922' },
+  kyrgyzstan:  { ambulance: '103', police: '102' },
+  bangladesh:  { ambulance: '199', police: '999' },
+  brunei:      { ambulance: '991', police: '993' },
+  timor:       { ambulance: '112', police: '112' },
 };
 
 const CONTINENTS = [
@@ -247,7 +260,7 @@ export default function Header({ isDark, setIsDark, city, changeCity, CITY_CENTE
   const [search, setSearch] = useState('');
   const [comingSoon, setComingSoon] = useState(false);
   const [user, setUser] = useState<User | null>(null);
-  const [emergencyPopup, setEmergencyPopup] = useState<{ ambulance: string; police: string; label: string } | null>(null);
+  const [emergencyPopup, setEmergencyPopup] = useState<{ ambulance: string; police: string; touristPolice?: string; embassy?: string; label: string } | null>(null);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -309,6 +322,8 @@ export default function Header({ isDark, setIsDark, city, changeCity, CITY_CENTE
         setEmergencyPopup({
           ambulance: COUNTRY_EMERGENCY[countryKey].ambulance,
           police: COUNTRY_EMERGENCY[countryKey].police,
+          touristPolice: COUNTRY_EMERGENCY[countryKey].touristPolice,
+          embassy: COUNTRY_EMERGENCY[countryKey].embassy,
           label: country?.label ?? countryKey,
         });
       } else {
@@ -496,6 +511,8 @@ export default function Header({ isDark, setIsDark, city, changeCity, CITY_CENTE
                         setEmergencyPopup({
                           ambulance: COUNTRY_EMERGENCY[country.key].ambulance,
                           police: COUNTRY_EMERGENCY[country.key].police,
+                          touristPolice: COUNTRY_EMERGENCY[country.key].touristPolice,
+                          embassy: COUNTRY_EMERGENCY[country.key].embassy,
                           label: country.label,
                         });
                       } else {
@@ -600,6 +617,34 @@ export default function Header({ isDark, setIsDark, city, changeCity, CITY_CENTE
               </button>
             </div>
 
+            {emergencyPopup.touristPolice && (
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+                <div>
+                  <span style={{ fontSize: '12px', color: '#27AE60', fontWeight: 'bold' }}>🚔 관광경찰</span>
+                  <p style={{ margin: '2px 0 0', fontWeight: 'bold', fontSize: '22px', color: '#1A1A1A' }}>{emergencyPopup.touristPolice}</p>
+                </div>
+                <button
+                  onClick={() => window.location.href = `tel:${emergencyPopup.touristPolice}`}
+                  style={{ background: 'transparent', color: '#C0392B', border: '1.5px solid #C0392B', borderRadius: '8px', padding: '7px 14px', fontSize: '13px', cursor: 'pointer' }}
+                >
+                  📞 전화
+                </button>
+              </div>
+            )}
+            {emergencyPopup.embassy && (
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                <div>
+                  <span style={{ fontSize: '12px', color: '#8E44AD', fontWeight: 'bold' }}>🏛️ 한국 대사관 당직</span>
+                  <p style={{ margin: '2px 0 0', fontWeight: 'bold', fontSize: '18px', color: '#1A1A1A' }}>{emergencyPopup.embassy}</p>
+                </div>
+                <button
+                  onClick={() => window.location.href = `tel:${emergencyPopup.embassy}`}
+                  style={{ background: 'transparent', color: '#C0392B', border: '1.5px solid #C0392B', borderRadius: '8px', padding: '7px 14px', fontSize: '13px', cursor: 'pointer' }}
+                >
+                  📞 전화
+                </button>
+              </div>
+            )}
             <p style={{ fontSize: '13px', color: '#888', textAlign: 'center', margin: '0 0 16px' }}>
               🌱 해당 지역 데이터를 수집하는 중입니다.
             </p>
