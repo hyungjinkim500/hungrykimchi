@@ -260,7 +260,7 @@ export default function Header({ isDark, setIsDark, city, changeCity, CITY_CENTE
   const [search, setSearch] = useState('');
   const [comingSoon, setComingSoon] = useState(false);
   const [user, setUser] = useState<User | null>(null);
-  const [emergencyPopup, setEmergencyPopup] = useState<{ ambulance: string; police: string; touristPolice?: string; embassy?: string; label: string } | null>(null);
+  const [emergencyPopup, setEmergencyPopup] = useState<{ ambulance: string; police: string; touristPolice?: string; embassy?: string; label: string; hideComingSoon?: boolean } | null>(null);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -397,6 +397,7 @@ export default function Header({ isDark, setIsDark, city, changeCity, CITY_CENTE
                     touristPolice: COUNTRY_EMERGENCY[currentCountryKey].touristPolice,
                     embassy: COUNTRY_EMERGENCY[currentCountryKey].embassy,
                     label: country?.label ?? currentCountryKey,
+                    hideComingSoon: true,
                   });
                 }}
                 style={{
@@ -669,9 +670,11 @@ export default function Header({ isDark, setIsDark, city, changeCity, CITY_CENTE
                 </button>
               </div>
             )}
-            <p style={{ fontSize: '13px', color: '#888', textAlign: 'center', margin: '0 0 16px' }}>
-              🌱 해당 지역 데이터를 수집하는 중입니다.
-            </p>
+            {!emergencyPopup.hideComingSoon && (
+              <p style={{ fontSize: '13px', color: '#888', textAlign: 'center', margin: '0 0 16px' }}>
+                🌱 해당 지역 데이터를 수집하는 중입니다.
+              </p>
+            )}
 
             <button
               onClick={() => setEmergencyPopup(null)}
