@@ -49,6 +49,8 @@ const CONTINENTS = [
         { key: 'hanoi', label: '하노이', active: true },
         { key: 'hochiminh', label: '호치민', active: true },
         { key: 'danang', label: '다낭', active: true },
+        { key: 'haiphong', label: '하이퐁', active: true },
+        { key: 'bacninh', label: '박닌', active: true },
         { key: 'vietnam-other', label: '기타지역', active: false },
       ]},
       { key: 'thailand', label: '🇹🇭 태국', cities: [

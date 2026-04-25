@@ -5,6 +5,8 @@ const CITY_CENTERS: Record<string, { lat: number; lng: number; radius: number; l
   hanoi:        { lat: 21.0285, lng: 105.8542, radius: 50000, label: '하노이' },
   hochiminh:    { lat: 10.7769, lng: 106.7009, radius: 50000, label: '호치민' },
   danang:       { lat: 16.0544, lng: 108.2022, radius: 50000, label: '다낭' },
+  haiphong:     { lat: 20.8449, lng: 106.6881, radius: 30000, label: '하이퐁' },
+  bacninh:      { lat: 21.1861, lng: 106.0763, radius: 20000, label: '박닌' },
   'vietnam-other': { lat: 16.0000, lng: 107.0000, radius: 999999, label: '베트남 기타' },
   bangkok:      { lat: 13.7563, lng: 100.5018, radius: 50000, label: '방콕' },
   chiangmai:    { lat: 18.7883, lng: 98.9853,  radius: 30000, label: '치앙마이' },

@@ -11,6 +11,8 @@ if (!SUPABASE_KEY || !GOOGLE_API_KEY) {
   process.exit(1);
 }
 
+const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+
 async function generateNameKo(name) {
   const hasKorean = /[가-힣]/.test(name);
   if (hasKorean) return name;
@@ -39,64 +41,31 @@ async function generateNameKo(name) {
   }
 }
 
-const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
-
 const ZONES = [
-  { name: '1군-중심',       lat: 10.7769, lng: 106.7009 },
-  { name: '1군-북',         lat: 10.7850, lng: 106.6980 },
-  { name: '1군-남',         lat: 10.7700, lng: 106.7050 },
-  { name: '3군-중심',       lat: 10.7820, lng: 106.6850 },
-  { name: '3군-북',         lat: 10.7900, lng: 106.6850 },
-  { name: '빈탄-중심',      lat: 10.8000, lng: 106.7150 },
-  { name: '빈탄-북',        lat: 10.8120, lng: 106.7150 },
-  { name: '빈탄-동',        lat: 10.8000, lng: 106.7300 },
-  { name: '푸뇬-중심',      lat: 10.7350, lng: 106.6950 },
-  { name: '푸뇬-북',        lat: 10.7480, lng: 106.6980 },
-  { name: '7군-중심',       lat: 10.7330, lng: 106.7220 },
-  { name: '7군-푸미흥',     lat: 10.7280, lng: 106.7100 },
-  { name: '7군-북',         lat: 10.7450, lng: 106.7200 },
-  { name: '2군(투득)-중심', lat: 10.7870, lng: 106.7470 },
-  { name: '2군(투득)-남',   lat: 10.7750, lng: 106.7500 },
-  { name: '고밥-중심',      lat: 10.8500, lng: 106.6700 },
-  { name: '고밥-동',        lat: 10.8500, lng: 106.6900 },
-  { name: '탄빈-중심',      lat: 10.7550, lng: 106.6650 },
-  { name: '탄빈-북',        lat: 10.7650, lng: 106.6680 },
-  { name: '빈짠-중심',      lat: 10.8150, lng: 106.6600 },
-  { name: '빈증-투안안',    lat: 10.8700, lng: 106.7200 },
-  { name: '빈증-중심',      lat: 11.0000, lng: 106.6500 },
-  { name: '빈증-북',        lat: 11.1500, lng: 106.6200 },
-  { name: '동나이-비엔호아', lat: 10.9500, lng: 106.8200 },
-  { name: '동나이-롱탄',    lat: 10.7900, lng: 107.0000 },
-  { name: '롱안-떤안',      lat: 10.5300, lng: 106.4100 },
-  { name: '롱안-벤룩',      lat: 10.6500, lng: 106.4800 },
-  { name: '붕따우-중심',    lat: 10.3460, lng: 107.0843 },
-  { name: '붕따우-북',      lat: 10.4000, lng: 107.0600 },
+  { name: '나트랑중심',   cityQuery: 'Nha Trang',   lat: 12.2388, lng: 109.1967 },
+  { name: '나트랑남부',   cityQuery: 'Nha Trang',   lat: 12.2100, lng: 109.1900 },
+  { name: '푸꾸옥중심',   cityQuery: 'Phu Quoc',    lat: 10.2899, lng: 103.9840 },
+  { name: '푸꾸옥남부',   cityQuery: 'Phu Quoc',    lat: 10.1833, lng: 103.9667 },
+  { name: '달랏중심',     cityQuery: 'Da Lat',       lat: 11.9465, lng: 108.4419 },
+  { name: '달랏외곽',     cityQuery: 'Da Lat',       lat: 11.9200, lng: 108.4200 },
+  { name: '하이퐁중심',   cityQuery: 'Hai Phong',   lat: 20.8449, lng: 106.6881 },
+  { name: '하이퐁외곽',   cityQuery: 'Hai Phong',   lat: 20.8100, lng: 106.7200 },
+  { name: '박닌중심',     cityQuery: 'Bac Ninh',    lat: 21.1861, lng: 106.0763 },
+  { name: '빈증중심',     cityQuery: 'Binh Duong',  lat: 10.9800, lng: 106.6520 },
+  { name: '빈증북부',     cityQuery: 'Binh Duong',  lat: 11.0667, lng: 106.6333 },
 ];
 
 const KEYWORDS = [
-  '한식당',
-  '한국 음식점',
-  'korean restaurant',
-  '삼겹살',
-  '치킨',
-  '순두부',
-  '냉면',
-  '고기구이',
-  '한국 BBQ',
-  'nhà hàng Hàn Quốc',
-  '곱창',
-  '부대찌개',
-  '족발',
-  '감자탕',
-  '떡볶이',
-  '김치찌개',
-  '된장찌개',
-  '한국 분식',
-  '소주',
-  '포차',
+  '한국식당', '한식', '고기집', '한국음식',
+  'korean restaurant', 'korean bbq', 'korean food',
+  '삼겹살', '치킨', '순두부', '김치찌개', '한국분식',
+  'nhà hàng Hàn Quốc', 'đồ ăn Hàn Quốc', 'thịt nướng Hàn Quốc',
+  'Korean fried chicken', 'Korean ramen',
+  '포장마차', '호프', '냉면', '비빔밥',
+  'quán ăn Hàn Quốc',
 ];
 
-async function searchPlaces(keyword, lat, lng) {
+async function searchPlaces(keyword, cityQuery, lat, lng) {
   const res = await fetch('https://places.googleapis.com/v1/places:searchText', {
     method: 'POST',
     headers: {
@@ -105,12 +74,12 @@ async function searchPlaces(keyword, lat, lng) {
       'X-Goog-FieldMask': 'places.id,places.displayName,places.location,places.formattedAddress,places.internationalPhoneNumber,places.rating,places.primaryTypeDisplayName',
     },
     body: JSON.stringify({
-      textQuery: `${keyword} 호치민`,
+      textQuery: `${keyword} ${cityQuery} Vietnam`,
       languageCode: 'ko',
       locationBias: {
         circle: {
           center: { latitude: lat, longitude: lng },
-          radius: 1500.0,
+          radius: 2000.0,
         },
       },
       maxResultCount: 20,
@@ -125,7 +94,7 @@ async function main() {
   const { data: deletedData } = await supabase.from('deleted_places').select('google_place_id');
   const deletedIds = new Set((deletedData || []).map(d => d.google_place_id));
 
-  const { data: existingData } = await supabase.from('businesses').select('google_place_id').not('google_place_id', 'is', null);
+  const { data: existingData } = await supabase.from('businesses').select('google_place_id').not('google_place_id', 'is', null).limit(10000);
   const existingIds = new Set((existingData || []).map(b => b.google_place_id));
 
   const seen = new Set();
@@ -135,7 +104,7 @@ async function main() {
     for (const keyword of KEYWORDS) {
       process.stdout.write(`검색중: [${zone.name}] ${keyword} ... `);
       try {
-        const places = await searchPlaces(keyword, zone.lat, zone.lng);
+        const places = await searchPlaces(keyword, zone.cityQuery, zone.lat, zone.lng);
         let newCount = 0;
         for (const p of places) {
           if (!p.id || seen.has(p.id) || deletedIds.has(p.id) || existingIds.has(p.id)) continue;
@@ -152,10 +121,11 @@ async function main() {
             phone: p.internationalPhoneNumber ?? null,
             lat: p.location?.latitude ?? null,
             lng: p.location?.longitude ?? null,
-            city: 'hochiminh',
+            city: 'vietnam-other',
             google_rating: p.rating ?? null,
             pending_approval: true,
             is_verified: false,
+            is_korean_run: false,
             registration_type: 'script',
           });
         }
@@ -172,15 +142,6 @@ async function main() {
   toInsert.forEach((b, i) => {
     console.log(`${i + 1}. [${b.google_place_id}] ${b.name} | ${b.name_ko} | ${b.primary_type_ko ?? ''} | ${b.address} | ${b.phone ?? '전화없음'} | ⭐${b.google_rating ?? '-'} | lat:${b.lat} lng:${b.lng}`);
   });
-
-  console.log('\nINSERT 시작...');
-  for (const item of toInsert) {
-    const { error } = await supabase.from('businesses').insert(item);
-    if (error) console.error(`insert 에러 [${item.google_place_id}]:`, error.message);
-    else console.log(`insert 완료: ${item.name}`);
-  }
-
-  console.log('완료!');
 }
 
 main().catch(console.error);
