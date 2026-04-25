@@ -61,6 +61,11 @@ const CONTINENTS = [
         { key: 'huahin', label: '후아힌', active: false },
         { key: 'thailand-other', label: '기타지역', active: false },
       ]},
+      { key: 'philippines', label: '🇵🇭 필리핀', cities: [
+        { key: 'manila', label: '마닐라', active: true },
+        { key: 'cebu', label: '세부', active: false },
+        { key: 'philippines-other', label: '기타지역', active: false },
+      ]},
       { key: 'taiwan', label: '🇹🇼 대만', cities: [
         { key: 'taipei', label: '타이베이', active: true },
         { key: 'kaohsiung', label: '가오슝', active: false },
@@ -90,11 +95,6 @@ const CONTINENTS = [
         { key: 'jakarta', label: '자카르타', active: false },
         { key: 'bali', label: '발리', active: false },
         { key: 'indonesia-other', label: '기타지역', active: false },
-      ]},
-      { key: 'philippines', label: '🇵🇭 필리핀', cities: [
-        { key: 'manila', label: '마닐라', active: false },
-        { key: 'cebu', label: '세부', active: false },
-        { key: 'philippines-other', label: '기타지역', active: false },
       ]},
       { key: 'cambodia', label: '🇰🇭 캄보디아', cities: [
         { key: 'phnompenh', label: '프놈펜', active: false },
