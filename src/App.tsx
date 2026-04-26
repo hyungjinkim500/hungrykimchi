@@ -13,6 +13,7 @@ import Inquiry from './pages/Inquiry';
 import Policy from './pages/Policy';
 import { useCity } from './hooks/useCity';
 import KoreaOnboarding from './components/KoreaOnboarding';
+import BusinessDetail from './pages/BusinessDetail';
 
 export default function App() {
   const [isDark, setIsDark] = useState(false)
@@ -46,6 +47,7 @@ export default function App() {
         <div style={{ paddingTop: '65px', paddingBottom: '65px' }}>
           <Routes>
             <Route path="/" element={<PhoneBook isDark={isDark} city={city} />} />
+            <Route path="/biz/:id" element={<BusinessDetail isDark={isDark} />} />
             <Route path="/map" element={<KimchiMap isDark={isDark} city={city} CITY_CENTERS={CITY_CENTERS} />} />
             <Route path="/news" element={<News isDark={isDark} />} />
             <Route path="/mypage" element={<MyPage isDark={isDark} />} />

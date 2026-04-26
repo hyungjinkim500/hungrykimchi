@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useMemo } from 'react';
 import { Map, AdvancedMarker, Pin, InfoWindow, useMap } from '@vis.gl/react-google-maps';
+import { useNavigate } from 'react-router-dom';
 import type { Business, City } from '../types/index';
 import { supabase } from '../lib/supabase';
 import kimchiLogo from "../assets/images/kimchi_level5_nb.webp";
@@ -20,6 +21,7 @@ const DEFAULT_PIN = { bg: '#C0392B', border: '#8B1A1A' };
 const FILTER_CATEGORIES = ['전체', '음식점', '마트/슈퍼', '의료', '관공·긴급'];
 
 function KimchiMapInner({ isDark: _isDark, city, CITY_CENTERS }: Props) {
+  const navigate = useNavigate();
   const [businesses, setBusinesses] = useState<Business[]>([]);
   const [selectedBusiness, setSelectedBusiness] = useState<Business | null>(null);
   const [activeCategory, setActiveCategory] = useState<string>('전체');
@@ -321,27 +323,35 @@ function KimchiMapInner({ isDark: _isDark, city, CITY_CENTERS }: Props) {
                 </p>
               )}
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '6px', gap: '8px' }}>
-                {getDirectionsUrl(selectedBusiness) && (
-                  <a
-                    href={getDirectionsUrl(selectedBusiness)!}
-                    onClick={(e) => { e.preventDefault(); window.location.href = getDirectionsUrl(selectedBusiness)!; }}
-                    style={{ fontSize: '12px', color: '#1A73E8', textDecoration: 'none', whiteSpace: 'nowrap' }}
-                  >
-                    📍 구글맵에서 보기
-                  </a>
-                )}
-                {selectedBusiness.phone && (
-                  <a
-                    href={`tel:${selectedBusiness.phone}`}
-                    style={{
-                      fontSize: '12px', color: '#C0392B', textDecoration: 'none',
-                      border: '1.5px solid #C0392B', borderRadius: '6px', 
-                      padding: '3px 8px', whiteSpace: 'nowrap',
-                    }}
-                  >
-                    📞 전화
-                  </a>
-                )}
+                <button
+                  onClick={() => navigate('/biz/' + selectedBusiness.google_place_id)}
+                  style={{ fontSize: '12px', color: '#C0392B', fontWeight: 600, textDecoration: 'none', background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}
+                >
+                  상세정보 보기 →
+                </button>
+                <div style={{ display: 'flex', gap: '8px' }}>
+                  {getDirectionsUrl(selectedBusiness) && (
+                    <a
+                      href={getDirectionsUrl(selectedBusiness)!}
+                      onClick={(e) => { e.preventDefault(); window.location.href = getDirectionsUrl(selectedBusiness)!; }}
+                      style={{ fontSize: '12px', color: '#1A73E8', textDecoration: 'none', whiteSpace: 'nowrap' }}
+                    >
+                      📍 길찾기
+                    </a>
+                  )}
+                  {selectedBusiness.phone && (
+                    <a
+                      href={`tel:${selectedBusiness.phone}`}
+                      style={{
+                        fontSize: '12px', color: '#1B5E20', textDecoration: 'none',
+                        border: '1.5px solid #1B5E20', borderRadius: '6px', 
+                        padding: '3px 8px', whiteSpace: 'nowrap',
+                      }}
+                    >
+                      📞 전화
+                    </a>
+                  )}
+                </div>
               </div>
             </div>
           </InfoWindow>

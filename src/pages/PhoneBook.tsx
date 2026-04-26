@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Fuse from 'fuse.js';
 import type { Business, City } from '../types/index';
 import { CATEGORIES } from '../constants/categories';
@@ -54,6 +55,7 @@ const EMERGENCY_NUMBERS: Record<string, { ambulance: string; police: string; tou
 };
 
 export default function PhoneBook({ isDark, city }: Props) {
+  const navigate = useNavigate();
   const [businesses, setBusinesses] = useState<Business[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -468,6 +470,14 @@ export default function PhoneBook({ isDark, city }: Props) {
             </p>
 
             <div style={styles.buttonContainer}>
+              {(b as any).google_place_id && (
+                <button
+                  style={styles.button(false)}
+                  onClick={() => navigate('/biz/' + (b as any).google_place_id)}
+                >
+                  리뷰 보기 →
+                </button>
+              )}
               {((b as any).google_place_id || (b.lat && b.lng)) && (
                 <button
                   style={styles.button(false)}
@@ -475,10 +485,10 @@ export default function PhoneBook({ isDark, city }: Props) {
                     const name = encodeURIComponent((b as any).name_ko || b.name || '');
                     const placeId = (b as any).google_place_id;
                     const url = placeId
-                      ? `https://www.google.com/maps/search/?api=1&query=${name}&query_place_id=${placeId}`
+                      ? 'https://www.google.com/maps/search/?api=1&query=' + name + '&query_place_id=' + placeId
                       : b.lat && b.lng
-                      ? `https://www.google.com/maps/search/?api=1&query=${b.lat},${b.lng}`
-                      : `https://www.google.com/maps/search/?api=1&query=${name}`;
+                      ? 'https://www.google.com/maps/search/?api=1&query=' + b.lat + ',' + b.lng
+                      : 'https://www.google.com/maps/search/?api=1&query=' + name;
                     window.location.href = url;
                   }}
                 >
@@ -488,7 +498,7 @@ export default function PhoneBook({ isDark, city }: Props) {
               {b.phone ? (
                 <button
                   style={styles.button(true)}
-                  onClick={() => window.location.href = `tel:${b.phone}`}
+                  onClick={() => window.location.href = 'tel:' + b.phone}
                 >
                   📞 전화
                 </button>
