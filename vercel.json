@@ -1,5 +1,6 @@
 {
   "rewrites": [
+    { "source": "/naver3b006e0ac50b38006d2001f6fd8a379c.html", "destination": "/naver3b006e0ac50b38006d2001f6fd8a379c.html" },
     { "source": "/(.*)", "destination": "/index.html" }
   ],
   "headers": [
