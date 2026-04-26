@@ -1,0 +1,275 @@
+import { createClient } from '@supabase/supabase-js';
+
+const SUPABASE_URL = 'https://altdvxekugatmewftlus.supabase.co';
+const SUPABASE_KEY = process.env.SUPABASE_KEY;
+
+if (!SUPABASE_KEY) {
+  console.error('환경변수 누락: SUPABASE_KEY 필요');
+  process.exit(1);
+}
+
+const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+const DATA = [
+  {
+    google_place_id: 'ChIJz6aJHevIlzMRDHypWhlOGKg',
+    name: '주 필리핀 대한민국 대사관',
+    name_ko: '주 필리핀 대한민국 대사관',
+    category: '관공·긴급',
+    subcategory: null,
+    primary_type_ko: '대사관',
+    address: 'McKinley Town Center, 122 Upper McKinley Hl, Fort Bonifacio, Taguig, 1634 Metro Manila, 필리핀',
+    phone: '(02) 8856 9210',
+    lat: 14.5405265,
+    lng: 121.0545776,
+    city: 'manila',
+    google_rating: 4.2,
+    pending_approval: false,
+    is_verified: false,
+    is_korean_run: false,
+    registration_type: 'script',
+  },
+  {
+    google_place_id: 'ChIJ1X2zmQ7JlzMR1hxCgmrr314',
+    name: 'Korean Consulate in the Philippines',
+    name_ko: '주 필리핀 한국 영사관',
+    category: '관공·긴급',
+    subcategory: null,
+    primary_type_ko: '대사관',
+    address: '3rd Floor, One Marian Center, 106 Esteban Street, Legaspi Village, Makati City, Metro Manila, 필리핀',
+    phone: '(02) 8817 5703',
+    lat: 14.5573850,
+    lng: 121.0169120,
+    city: 'manila',
+    google_rating: 3.0,
+    pending_approval: false,
+    is_verified: false,
+    is_korean_run: false,
+    registration_type: 'script',
+  },
+  {
+    google_place_id: 'ChIJp1ej6trJlzMRZRqkANgtw9I',
+    name: '대한민국 비자신청센터 마닐라',
+    name_ko: '대한민국 비자신청센터 마닐라',
+    category: '관공·긴급',
+    subcategory: null,
+    primary_type_ko: '협회 또는 조직',
+    address: '9/F, Brittany Hotel BGC, Aura Complex, 6 McKinley Pkwy, Taguig, 1634 Metro Manila, 필리핀',
+    phone: '(02) 8248 5440',
+    lat: 14.5450551,
+    lng: 121.0529806,
+    city: 'manila',
+    google_rating: 4.8,
+    pending_approval: false,
+    is_verified: false,
+    is_korean_run: false,
+    registration_type: 'script',
+  },
+  {
+    google_place_id: 'ChIJgYgp68HLlzMRAHY1Q8ZaGiw',
+    name: '마닐라 폴리스 디스트릿 헤드쿼터스',
+    name_ko: '마닐라 경찰서 본부',
+    category: '관공·긴급',
+    subcategory: null,
+    primary_type_ko: '경찰서',
+    address: 'HXMP+CH6, Ermita, Manila, 1000 Metro Manila, 필리핀',
+    phone: null,
+    lat: 14.5835324,
+    lng: 120.9863863,
+    city: 'manila',
+    google_rating: null,
+    pending_approval: false,
+    is_verified: false,
+    is_korean_run: false,
+    registration_type: 'script',
+  },
+  {
+    google_place_id: 'ChIJ_S-dJwDJlzMRAsrBrx0Zefs',
+    name: 'New Makati Central Police Station',
+    name_ko: '마카티 중앙경찰서',
+    category: '관공·긴급',
+    subcategory: null,
+    primary_type_ko: '관공서',
+    address: '7274 Malugay, Makati, 1203 Kalakhang Maynila, 필리핀',
+    phone: '(02) 8887 1798',
+    lat: 14.5587270,
+    lng: 121.0081407,
+    city: 'manila',
+    google_rating: 4.3,
+    pending_approval: false,
+    is_verified: false,
+    is_korean_run: false,
+    registration_type: 'script',
+  },
+  {
+    google_place_id: 'ChIJZ0PU86TIlzMRuqvUu3hxqt0',
+    name: 'Taguig City Police Station',
+    name_ko: '타귀그 시 경찰서',
+    category: '관공·긴급',
+    subcategory: null,
+    primary_type_ko: '관공서',
+    address: 'City Hall Compound, Gen. Luna St, Taguig, 1637 Metro Manila, 필리핀',
+    phone: '(02) 8642 2062',
+    lat: 14.5290761,
+    lng: 121.0708397,
+    city: 'manila',
+    google_rating: null,
+    pending_approval: false,
+    is_verified: false,
+    is_korean_run: false,
+    registration_type: 'script',
+  },
+  {
+    google_place_id: 'ChIJnXing9bJlzMRVpczwHR9QYA',
+    name: 'Headquarters Pasay City Police Station (PS1)',
+    name_ko: '파사이 시 경찰서 본부',
+    category: '관공·긴급',
+    subcategory: null,
+    primary_type_ko: '관공서',
+    address: '70 F.B. Harrison St, Pasay City, 1304 Metro Manila, 필리핀',
+    phone: '0956 800 5277',
+    lat: 14.5442923,
+    lng: 120.9951366,
+    city: 'manila',
+    google_rating: 4.4,
+    pending_approval: false,
+    is_verified: false,
+    is_korean_run: false,
+    registration_type: 'script',
+  },
+  {
+    google_place_id: 'ChIJq0SZxZ23lzMRwy2k4p5FPOs',
+    name: '퀘존 시티 폴리스 디스트릿 헤드쿼터스 - 캠프 토마스 카린갈',
+    name_ko: '케손시티 경찰서 본부',
+    category: '관공·긴급',
+    subcategory: null,
+    primary_type_ko: '관공서',
+    address: '21 Makadios, Diliman, Quezon City, 1101 Kalakhang Maynila, 필리핀',
+    phone: null,
+    lat: 14.6374162,
+    lng: 121.0630010,
+    city: 'manila',
+    google_rating: null,
+    pending_approval: false,
+    is_verified: false,
+    is_korean_run: false,
+    registration_type: 'script',
+  },
+  {
+    google_place_id: 'ChIJ-X1FVs7JlzMR9u_guLwKHIc',
+    name: 'Mandaluyong City Police Station',
+    name_ko: '만달루용 시 경찰서',
+    category: '관공·긴급',
+    subcategory: null,
+    primary_type_ko: '관공서',
+    address: 'H2RG+G4P, New Panaderos, Mandaluyong City, 1550 Metro Manila, 필리핀',
+    phone: '0967 482 0165',
+    lat: 14.5913590,
+    lng: 121.0253877,
+    city: 'manila',
+    google_rating: null,
+    pending_approval: false,
+    is_verified: false,
+    is_korean_run: false,
+    registration_type: 'script',
+  },
+  {
+    google_place_id: 'ChIJFUfNMFq3lzMRi6qTznQB6bg',
+    name: 'San Juan City Police Station New Building',
+    name_ko: '산후안 시 경찰서',
+    category: '관공·긴급',
+    subcategory: null,
+    primary_type_ko: '관공서',
+    address: '필리핀 1500 Metro Manila, San Juan City, Col. 보니 세라노 애비뉴',
+    phone: '0917 773 7885',
+    lat: 14.6054344,
+    lng: 121.0323449,
+    city: 'manila',
+    google_rating: 3.5,
+    pending_approval: false,
+    is_verified: false,
+    is_korean_run: false,
+    registration_type: 'script',
+  },
+  {
+    google_place_id: 'ChIJsapHdi60lzMRNXWMFy6UxdY',
+    name: 'Caloocan City Police Station, South, Headquarters, CCPS',
+    name_ko: '칼로오칸 시 경찰서 본부',
+    category: '관공·긴급',
+    subcategory: null,
+    primary_type_ko: '관공서',
+    address: 'MX5F+3QV, Samson Rd, Caloocan, 1408 Metro Manila, 필리핀',
+    phone: '(02) 8365 7985',
+    lat: 14.6577389,
+    lng: 120.9744374,
+    city: 'manila',
+    google_rating: null,
+    pending_approval: false,
+    is_verified: false,
+    is_korean_run: false,
+    registration_type: 'script',
+  },
+  {
+    google_place_id: 'ChIJy4V_6YDOlzMRL38ruNQE1Bs',
+    name: 'Parañaque City Police Station',
+    name_ko: '파라냐케 시 경찰서',
+    category: '관공·긴급',
+    subcategory: null,
+    primary_type_ko: '관공서',
+    address: '696 Purok 4 Dr Arcadio Santos Ave, Parañaque, 1700 Metro Manila, 필리핀',
+    phone: '(02) 8286 2877',
+    lat: 14.4866018,
+    lng: 120.9917755,
+    city: 'manila',
+    google_rating: null,
+    pending_approval: false,
+    is_verified: false,
+    is_korean_run: false,
+    registration_type: 'script',
+  },
+  {
+    google_place_id: 'ChIJFwGKkCrKlzMRTWUF2IhwsrU',
+    name: '마닐라 한인자율 파출소',
+    name_ko: '마닐라 한인자율 파출소',
+    category: '관공·긴급',
+    subcategory: null,
+    primary_type_ko: '경찰서',
+    address: '필리핀 1004 마닐라 대도시 시티 오브 마닐라 말라테 HXCP+3QR',
+    phone: '0915 242 3926',
+    lat: 14.5702322,
+    lng: 120.9868795,
+    city: 'manila',
+    google_rating: null,
+    pending_approval: false,
+    is_verified: false,
+    is_korean_run: false,
+    registration_type: 'script',
+  },
+];
+
+async function main() {
+  console.log('=== 마닐라 관공서 insert 시작 ===');
+
+  for (const item of DATA) {
+    const { error } = await supabase
+      .from('businesses')
+      .insert(item)
+      .select();
+
+    if (error) {
+      if (error.code === '23505') {
+        console.log('중복 건너뜀: ' + item.name_ko);
+      } else {
+        console.log('에러 (' + item.name_ko + '): ' + error.message);
+      }
+    } else {
+      console.log('insert 완료: ' + item.name_ko);
+    }
+
+    await new Promise((r) => setTimeout(r, 200));
+  }
+
+  console.log('=== 완료 ===');
+}
+
+main().catch(console.error);

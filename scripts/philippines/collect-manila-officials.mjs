@@ -13,24 +13,34 @@ if (!SUPABASE_KEY || !GOOGLE_API_KEY) {
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 const ZONES = [
-  { lat: 14.5547, lng: 121.0244 },
-  { lat: 14.5502, lng: 121.0504 },
-  { lat: 14.5710, lng: 120.9836 },
-  { lat: 14.6760, lng: 121.0437 },
-  { lat: 14.5328, lng: 120.9912 },
-  { lat: 14.5794, lng: 121.0359 },
-  { lat: 14.4793, lng: 121.0198 },
-  { lat: 14.5924, lng: 120.9764 },
+  { lat: 14.5547, lng: 121.0244 }, // 마카티
+  { lat: 14.5502, lng: 121.0504 }, // BGC 타귀그
+  { lat: 14.5710, lng: 120.9836 }, // 에르미타/말라테
+  { lat: 14.6760, lng: 121.0437 }, // 케손시티
+  { lat: 14.5328, lng: 120.9912 }, // 파사이
+  { lat: 14.5794, lng: 121.0359 }, // 만달루용
+  { lat: 14.4793, lng: 121.0198 }, // 파라냐케
+  { lat: 14.5924, lng: 120.9764 }, // 인트라무로스
+  { lat: 14.6019, lng: 121.0355 }, // 산후안
+  { lat: 14.6500, lng: 121.0300 }, // 칼로오칸
 ];
 
 const KEYWORDS = [
-  '한인 병원', '한국 병원', '한국 클리닉', '한국인 의사',
-  'Korean clinic Manila', 'Korean doctor Manila', 'Korean medical',
-  'Korean dentist Manila', 'Korean dental clinic',
-  'Korean skin clinic Manila', 'Korean dermatology',
-  '한인 치과', '한국 치과', '한인 피부과',
-  'international clinic Manila', 'expat clinic Manila',
-  'Korean hospital Philippines',
+  'Korean Embassy Manila',
+  'Embassy of Korea Manila',
+  'Korean Consulate Manila',
+  'Consulate General of Korea',
+  'Bureau of Immigration Philippines',
+  'Bureau of Immigration Manila',
+  'Makati Police Station',
+  'Taguig Police Station',
+  'Pasay Police Station',
+  'Quezon City Police District',
+  'Manila Police District',
+  'Paranaque Police Station',
+  'Mandaluyong Police Station',
+  'San Juan Police Station',
+  'Caloocan Police Station',
 ];
 
 async function searchPlaces(keyword, zone) {
