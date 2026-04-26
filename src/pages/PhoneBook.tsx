@@ -472,10 +472,10 @@ export default function PhoneBook({ isDark, city }: Props) {
             <div style={styles.buttonContainer}>
               {(b as any).google_place_id && (
                 <button
-                  style={styles.button(false)}
+                  style={{ ...styles.button(false), marginLeft: 0, marginRight: 'auto', color: isDark ? '#FFFFFF' : '#1A1A1A', borderColor: isDark ? '#555' : '#CCCCCC' }}
                   onClick={() => navigate('/biz/' + (b as any).google_place_id)}
                 >
-                  리뷰 보기 →
+                  📝 리뷰
                 </button>
               )}
               {((b as any).google_place_id || (b.lat && b.lng)) && (

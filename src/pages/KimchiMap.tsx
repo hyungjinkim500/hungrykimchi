@@ -323,12 +323,12 @@ function KimchiMapInner({ isDark: _isDark, city, CITY_CENTERS }: Props) {
                 </p>
               )}
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '6px', gap: '8px' }}>
-                <button
-                  onClick={() => navigate('/biz/' + selectedBusiness.google_place_id)}
-                  style={{ fontSize: '12px', color: '#C0392B', fontWeight: 600, textDecoration: 'none', background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}
-                >
-                  상세정보 보기 →
-                </button>
+              <button
+                    onClick={() => navigate('/biz/' + selectedBusiness.google_place_id)}
+                    style={{ fontSize: '12px', color: '#1A1A1A', fontWeight: 600, background: 'none', border: '1.5px solid #CCCCCC', borderRadius: '6px', padding: '3px 8px', cursor: 'pointer' }}
+                  >
+                    📝 리뷰
+                  </button>
                 <div style={{ display: 'flex', gap: '8px' }}>
                   {getDirectionsUrl(selectedBusiness) && (
                     <a
