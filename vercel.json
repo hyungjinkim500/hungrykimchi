@@ -1,6 +1,8 @@
 {
   "rewrites": [
     { "source": "/naver3b006e0ac50b38006d2001f6fd8a379c.html", "destination": "/naver3b006e0ac50b38006d2001f6fd8a379c.html" },
+    { "source": "/naver4302d224cbbff59ef8361a8379a2a2ca.html", "destination": "/naver4302d224cbbff59ef8361a8379a2a2ca.html" },
+    { "source": "/sitemap.xml", "destination": "/sitemap.xml" },
     { "source": "/(.*)", "destination": "/index.html" }
   ],
   "headers": [
