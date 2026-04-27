@@ -4,8 +4,6 @@ import { supabase, signInWithKakao, signInWithGoogle, signOut, deleteUser } from
 import type { User } from '@supabase/supabase-js';
 
 const RED = '#E8302A';
-const RED_BG = '#FFF0EF';
-const OK_COLOR = '#2E7D32';
 const BORDER = '#EBEBEB';
 
 interface Props {
