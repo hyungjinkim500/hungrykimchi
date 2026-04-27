@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { Heart } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import type { Business } from '../types/index';
 import { useReviews } from '../hooks/useReviews';
@@ -410,7 +411,7 @@ export default function BusinessDetail({ isDark: _isDark }: { isDark: boolean })
               onClick={toggleFav}
               style={{ background: 'none', border: 'none', fontSize: 26, cursor: 'pointer', lineHeight: 1, padding: 0 }}
             >
-              {isFav ? '❤️' : '🤍'}
+              <Heart size={22} fill={isFav ? '#E8302A' : 'none'} color={isFav ? '#E8302A' : '#CCCCCC'} />
             </button>
           </div>
         </div>
