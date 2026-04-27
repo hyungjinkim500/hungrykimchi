@@ -325,18 +325,40 @@ export default function BusinessDetail({ isDark: _isDark }: { isDark: boolean })
           </div>
 
           {summary.count > 0 && !hasEnoughReviews ? (
-            <div style={{ background: OK_BG, borderRadius: 14, padding: '8px 14px', maxWidth: 160 }}>
-              <div style={{ fontSize: 11, fontWeight: 700, color: OK_MID, marginBottom: 2 }}>OK Score</div>
-              <div style={{ fontSize: 11, color: OK_COLOR, lineHeight: 1.4 }}>
-                리뷰 {remainingForScore}개 더 모이면<br />표시됩니다 🌱
+            <div style={{ position: 'relative' }}>
+              <div
+                style={{ background: OK_BG, borderRadius: 14, padding: '8px 14px', maxWidth: 160, cursor: 'pointer' }}
+                onClick={e => { e.currentTarget.querySelector('div[data-tip]') && ((e.currentTarget.querySelector('div[data-tip]') as HTMLElement).style.display = 'block'); }}
+                onMouseEnter={e => { const t = e.currentTarget.querySelector('div[data-tip]') as HTMLElement; if(t) t.style.display='block'; }}
+                onMouseLeave={e => { const t = e.currentTarget.querySelector('div[data-tip]') as HTMLElement; if(t) t.style.display='none'; }}
+              >
+                <div style={{ fontSize: 11, fontWeight: 700, color: OK_MID, marginBottom: 2 }}>진짜한식지수(OK Score)✱</div>
+                <div style={{ fontSize: 11, color: OK_COLOR, lineHeight: 1.4 }}>
+                  리뷰 {remainingForScore}개 더 모이면<br />표시됩니다 🌱
+                </div>
+                <div data-tip style={{ display: 'none', position: 'absolute', bottom: '110%', left: 0, background: '#333', color: '#fff', fontSize: 11, lineHeight: 1.5, padding: '8px 12px', borderRadius: 10, width: 200, zIndex: 50, boxShadow: '0 2px 8px rgba(0,0,0,0.2)' }}>
+                  맛과는 별개로, 이 업체의 음식이 얼마나 진짜 한식에 가까운지를 교민들이 직접 평가한 헝그리김치만의 독자 지표입니다.
+                  <div style={{ position: 'absolute', top: '100%', left: 16, width: 0, height: 0, borderLeft: '6px solid transparent', borderRight: '6px solid transparent', borderTop: '6px solid #333' }} />
+                </div>
               </div>
             </div>
           ) : hasEnoughReviews && summary.avgOk != null ? (
-            <div style={{ background: OK_BG, borderRadius: 14, padding: '8px 14px', display: 'flex', alignItems: 'center', gap: 8 }}>
-              <div style={{ fontSize: 26, fontWeight: 900, color: OK_COLOR, lineHeight: 1 }}>{summary.avgOk}</div>
-              <div>
-                <div style={{ fontSize: 11, fontWeight: 700, color: OK_MID }}>OK Score</div>
-                <div style={{ fontSize: 10, color: '#81C784' }}>Original Korean</div>
+            <div style={{ position: 'relative' }}>
+              <div
+                style={{ background: OK_BG, borderRadius: 14, padding: '8px 14px', display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}
+                onMouseEnter={e => { const t = e.currentTarget.querySelector('div[data-tip]') as HTMLElement; if(t) t.style.display='block'; }}
+                onMouseLeave={e => { const t = e.currentTarget.querySelector('div[data-tip]') as HTMLElement; if(t) t.style.display='none'; }}
+                onClick={e => { const t = e.currentTarget.querySelector('div[data-tip]') as HTMLElement; if(t) t.style.display = t.style.display==='block'?'none':'block'; }}
+              >
+                <div style={{ fontSize: 26, fontWeight: 900, color: OK_COLOR, lineHeight: 1 }}>{summary.avgOk}</div>
+                <div>
+                  <div style={{ fontSize: 11, fontWeight: 700, color: OK_MID }}>진짜한식지수(OK Score)✱</div>
+                  <div style={{ fontSize: 10, color: '#81C784' }}>Original Korean</div>
+                </div>
+                <div data-tip style={{ display: 'none', position: 'absolute', bottom: '110%', left: 0, background: '#333', color: '#fff', fontSize: 11, lineHeight: 1.5, padding: '8px 12px', borderRadius: 10, width: 200, zIndex: 50, boxShadow: '0 2px 8px rgba(0,0,0,0.2)' }}>
+                  맛과는 별개로, 이 업체의 음식이 얼마나 진짜 한식에 가까운지를 교민들이 직접 평가한 헝그리김치만의 독자 지표입니다.
+                  <div style={{ position: 'absolute', top: '100%', left: 16, width: 0, height: 0, borderLeft: '6px solid transparent', borderRight: '6px solid transparent', borderTop: '6px solid #333' }} />
+                </div>
               </div>
             </div>
           ) : null}
@@ -388,23 +410,7 @@ export default function BusinessDetail({ isDark: _isDark }: { isDark: boolean })
             )}
           </div>
 
-          {(summary.count > 0 || hasGoogleRating) && (
-            <div style={{ background: '#fff', marginTop: 8, padding: 16 }}>
-              <div style={{ fontSize: 15, fontWeight: 700, marginBottom: 14 }}>평가 요약</div>
-              <div style={{ display: 'flex', gap: 8, overflowX: 'auto', paddingBottom: 2 }}>
-                {[
-                  { val: displayScore ? displayScore.toFixed(1) : '—', lbl: hasGoogleRating ? '구글 평점' : '맛 점수', color: GOLD },
-                  ...(summary.avgOk != null ? [{ val: String(summary.avgOk), lbl: 'OK Score', color: OK_COLOR }] : []),
-                  ...(summary.koreanRunYesPct != null ? [{ val: summary.koreanRunYesPct + '%', lbl: '한국인 운영', color: '#555' }] : []),
-                ].map(({ val, lbl, color }) => (
-                  <div key={lbl} style={{ minWidth: 80, background: '#F5F5F5', borderRadius: 12, padding: '10px 8px', textAlign: 'center', flexShrink: 0 }}>
-                    <div style={{ fontSize: 17, fontWeight: 800, color }}>{val}</div>
-                    <div style={{ fontSize: 10, color: '#999', marginTop: 2 }}>{lbl}</div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
+          {null}
 
           <div style={{ background: '#fff', marginTop: 8, padding: '16px 16px 8px' }}>
             <div style={{ fontSize: 15, fontWeight: 700, marginBottom: reviews.length ? 14 : 0 }}>
