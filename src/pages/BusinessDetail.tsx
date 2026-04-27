@@ -5,6 +5,106 @@ import type { Business } from '../types/index';
 import { useReviews } from '../hooks/useReviews';
 import kimchiLogo from '../assets/images/kimchi_level5_nb.webp';
 
+function useFavorite(placeId: string | null) {
+  const [isFav, setIsFav] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (!placeId) return;
+    (async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+      const { data } = await supabase
+        .from('favorites')
+        .select('id')
+        .eq('user_id', user.id)
+        .eq('business_place_id', placeId)
+        .single();
+      setIsFav(!!data);
+    })();
+  }, [placeId]);
+
+  const toggle = async () => {
+    if (!placeId || loading) return;
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) { alert('로그인이 필요합니다.'); return; }
+    setLoading(true);
+    if (isFav) {
+      await supabase.from('favorites').delete()
+        .eq('user_id', user.id).eq('business_place_id', placeId);
+      setIsFav(false);
+    } else {
+      await supabase.from('favorites').insert({ user_id: user.id, business_place_id: placeId });
+      setIsFav(true);
+    }
+    setLoading(false);
+  };
+
+  return { isFav, toggle };
+}
+
+function useComments(placeId: string | null) {
+  const [comments, setComments] = useState<any[]>([]);
+  const [myComment, setMyComment] = useState<any | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (!placeId) return;
+    fetchComments();
+  }, [placeId]);
+
+  const fetchComments = async () => {
+    setLoading(true);
+    const { data } = await supabase
+      .from('comments')
+      .select('*')
+      .eq('business_place_id', placeId)
+      .order('created_at', { ascending: false })
+      .limit(50);
+    if (data) {
+      setComments(data);
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) setMyComment(data.find((c: any) => c.user_id === user.id) ?? null);
+    }
+    setLoading(false);
+  };
+
+  const addComment = async (content: string) => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) { alert('로그인이 필요합니다.'); return { error: 'no user' }; }
+
+    const today = new Date().toISOString().slice(0, 10);
+    const alreadyToday = comments.find((c: any) =>
+      c.user_id === user.id && c.created_at?.slice(0, 10) === today
+    );
+    if (alreadyToday) { alert('하루에 한 번만 댓글을 남길 수 있어요.'); return { error: 'limit' }; }
+
+    const { error } = await supabase.from('comments').insert({
+      user_id: user.id,
+      business_place_id: placeId,
+      content,
+    });
+    if (!error) await fetchComments();
+    return { error };
+  };
+
+  const updateComment = async (id: string, content: string) => {
+    const { error } = await supabase.from('comments')
+      .update({ content, updated_at: new Date().toISOString() })
+      .eq('id', id);
+    if (!error) await fetchComments();
+    return { error };
+  };
+
+  const deleteComment = async (id: string) => {
+    const { error } = await supabase.from('comments').delete().eq('id', id);
+    if (!error) await fetchComments();
+    return { error };
+  };
+
+  return { comments, myComment, loading, addComment, updateComment, deleteComment };
+}
+
 const RED = '#E8302A';
 const RED_BG = '#FFF0EF';
 const OK_COLOR = '#2E7D32';
@@ -229,8 +329,14 @@ export default function BusinessDetail({ isDark: _isDark }: { isDark: boolean })
   const [showReviewFlow, setShowReviewFlow] = useState(false);
   const [visitAnswer, setVisitAnswer] = useState<'none' | 'yes' | 'no'>('none');
   const [showShare, setShowShare] = useState(false);
+  const [commentInput, setCommentInput] = useState('');
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editContent, setEditContent] = useState('');
 
   const { reviews, summary, submitting, userReview, submitReview } = useReviews(id ?? null);
+  const { isFav, toggle: toggleFav } = useFavorite(id ?? null);
+  const { comments, myComment, addComment, updateComment, deleteComment } = useComments(id ?? null);
+  void myComment;
 
   useEffect(() => {
     if (!id) return;
@@ -296,9 +402,17 @@ export default function BusinessDetail({ isDark: _isDark }: { isDark: boolean })
 
         <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 4 }}>
           <div style={{ fontSize: 22, fontWeight: 800, lineHeight: 1.2, flex: 1 }}>{bizName}</div>
-          {business.is_korean_run && (
-            <img src={kimchiLogo} alt="한국인 운영" style={{ width: 32, height: 32, objectFit: 'contain', marginLeft: 10, flexShrink: 0 }} />
-          )}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0, marginLeft: 10 }}>
+            {business.is_korean_run && (
+              <img src={kimchiLogo} alt="한국인 운영" style={{ width: 32, height: 32, objectFit: 'contain' }} />
+            )}
+            <button
+              onClick={toggleFav}
+              style={{ background: 'none', border: 'none', fontSize: 26, cursor: 'pointer', lineHeight: 1, padding: 0 }}
+            >
+              {isFav ? '❤️' : '🤍'}
+            </button>
+          </div>
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 12 }}>
@@ -485,6 +599,78 @@ export default function BusinessDetail({ isDark: _isDark }: { isDark: boolean })
             style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, width: '100%', marginTop: 8, padding: 12, background: '#fff', color: '#555', border: '1.5px solid ' + BORDER, borderRadius: 10, fontSize: 14, fontWeight: 700, cursor: 'pointer' }}>
             🔗 이 업체 공유하기
           </button>
+        </div>
+      )}
+
+      {tab === 'review' && (
+        <div style={{ background: '#fff', marginTop: 8, padding: '16px 16px 24px' }}>
+          <div style={{ fontSize: 15, fontWeight: 700, marginBottom: 14 }}>댓글</div>
+
+          {/* 댓글 입력 */}
+          {!myComment && (
+            <div style={{ marginBottom: 16 }}>
+              <textarea
+                value={commentInput}
+                onChange={e => setCommentInput(e.target.value)}
+                placeholder="이 업체에 대한 댓글을 남겨주세요. (하루 1회)"
+                style={{
+                  width: '100%', border: '1.5px solid ' + BORDER, borderRadius: 10,
+                  padding: 12, fontSize: 13, lineHeight: 1.6, resize: 'none', height: 80,
+                  color: '#1A1A1A', fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box', marginBottom: 8,
+                }}
+                onFocus={e => { e.target.style.borderColor = RED; }}
+                onBlur={e => { e.target.style.borderColor = BORDER; }}
+              />
+              <button
+                onClick={async () => { if (!commentInput.trim()) return; const { error } = await addComment(commentInput.trim()); if (!error) setCommentInput(''); }}
+                style={{ padding: '8px 18px', background: RED, color: '#fff', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: 'pointer' }}
+              >
+                댓글 등록
+              </button>
+            </div>
+          )}
+
+          {/* 댓글 목록 */}
+          {comments.length === 0 && (
+            <div style={{ textAlign: 'center', padding: '16px 0', color: '#bbb', fontSize: 13 }}>첫 번째 댓글을 남겨보세요 💬</div>
+          )}
+          {comments.map((c, i) => {
+            const ac = AVATAR_COLORS[i % AVATAR_COLORS.length];
+            const isEditing = editingId === c.id;
+            const isMine = myComment?.id === c.id;
+            return (
+              <div key={c.id} style={{ padding: '12px 0', borderBottom: '0.5px solid ' + BORDER }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
+                  <div style={{ width: 30, height: 30, borderRadius: '50%', background: ac.bg, color: ac.color, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 700, flexShrink: 0 }}>익</div>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontSize: 12, fontWeight: 600 }}>익명{isMine ? ' (나)' : ''}</div>
+                    <div style={{ fontSize: 11, color: '#999' }}>{formatDate(c.created_at)}</div>
+                  </div>
+                  {isMine && !isEditing && (
+                    <div style={{ display: 'flex', gap: 6 }}>
+                      <button onClick={() => { setEditingId(c.id); setEditContent(c.content); }} style={{ fontSize: 11, color: '#999', background: 'none', border: 'none', cursor: 'pointer', padding: '2px 6px' }}>수정</button>
+                      <button onClick={async () => { if (window.confirm('댓글을 삭제할까요?')) await deleteComment(c.id); }} style={{ fontSize: 11, color: RED, background: 'none', border: 'none', cursor: 'pointer', padding: '2px 6px' }}>삭제</button>
+                    </div>
+                  )}
+                </div>
+                {isEditing ? (
+                  <div>
+                    <textarea
+                      value={editContent}
+                      onChange={e => setEditContent(e.target.value)}
+                      style={{ width: '100%', border: '1.5px solid ' + RED, borderRadius: 8, padding: 10, fontSize: 13, lineHeight: 1.6, resize: 'none', height: 70, fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box', marginBottom: 6 }}
+                    />
+                    <div style={{ display: 'flex', gap: 6 }}>
+                      <button onClick={async () => { await updateComment(c.id, editContent); setEditingId(null); }} style={{ padding: '6px 14px', background: RED, color: '#fff', border: 'none', borderRadius: 6, fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>저장</button>
+                      <button onClick={() => setEditingId(null)} style={{ padding: '6px 14px', background: '#F5F5F5', color: '#555', border: 'none', borderRadius: 6, fontSize: 12, cursor: 'pointer' }}>취소</button>
+                    </div>
+                  </div>
+                ) : (
+                  <div style={{ fontSize: 13, lineHeight: 1.6, color: '#555' }}>{c.content}</div>
+                )}
+              </div>
+            );
+          })}
         </div>
       )}
 
