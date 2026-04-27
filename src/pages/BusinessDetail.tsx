@@ -121,11 +121,11 @@ function ReviewFlow({ bizName, onClose, onSubmit, submitting }: {
             <div style={{ fontSize: 20, fontWeight: 800, lineHeight: 1.35, marginBottom: 6 }}>한국인이 운영하거나 근무하나요?</div>
             <div style={{ fontSize: 13, color: '#999', marginBottom: 26, lineHeight: 1.5 }}>다른 교민분들에게 도움이 됩니다.</div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-              {([
+              {[
                 { val: 'yes' as const, icon: '🇰🇷', label: '네, 한국인이에요', v: 'ok' as const },
                 { val: 'no' as const, icon: '🌏', label: '아니요, 현지인이에요', v: 'red' as const },
                 { val: 'unknown' as const, icon: '🤔', label: '잘 모르겠어요', v: 'red' as const },
-              ]).map(({ val, icon, label, v }) => (
+              ].map(({ val, icon, label, v }) => (
                 <button key={val} style={ch(korean === val, v)} onClick={() => setKorean(val)}>
                   <span style={{ fontSize: 22, width: 28, textAlign: 'center', flexShrink: 0 }}>{icon}</span>{label}
                 </button>
@@ -267,8 +267,11 @@ export default function BusinessDetail({ isDark: _isDark }: { isDark: boolean })
     ? 'https://www.google.com/maps/search/?api=1&query=' + business.lat + ',' + business.lng
     : null;
 
-  const displayScore = summary.avgTaste ?? business.google_rating;
-  const hasGoogleRating = !summary.avgTaste && business.google_rating;
+  const MIN_REVIEWS = 3;
+  const hasEnoughReviews = summary.count >= MIN_REVIEWS;
+  const displayScore = hasEnoughReviews ? summary.avgTaste : (business.google_rating ?? null);
+  const hasGoogleRating = !hasEnoughReviews && business.google_rating;
+  const remainingForScore = MIN_REVIEWS - summary.count;
 
   if (showReviewFlow) return (
     <div style={{ position: 'fixed', inset: 0, zIndex: 150, overflowY: 'auto', background: '#fff' }}>
