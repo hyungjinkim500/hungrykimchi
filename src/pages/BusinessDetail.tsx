@@ -324,7 +324,14 @@ export default function BusinessDetail({ isDark: _isDark }: { isDark: boolean })
             </div>
           </div>
 
-          {summary.avgOk != null && (
+          {summary.count > 0 && !hasEnoughReviews ? (
+            <div style={{ background: OK_BG, borderRadius: 14, padding: '8px 14px', maxWidth: 160 }}>
+              <div style={{ fontSize: 11, fontWeight: 700, color: OK_MID, marginBottom: 2 }}>OK Score</div>
+              <div style={{ fontSize: 11, color: OK_COLOR, lineHeight: 1.4 }}>
+                리뷰 {remainingForScore}개 더 모이면<br />표시됩니다 🌱
+              </div>
+            </div>
+          ) : hasEnoughReviews && summary.avgOk != null ? (
             <div style={{ background: OK_BG, borderRadius: 14, padding: '8px 14px', display: 'flex', alignItems: 'center', gap: 8 }}>
               <div style={{ fontSize: 26, fontWeight: 900, color: OK_COLOR, lineHeight: 1 }}>{summary.avgOk}</div>
               <div>
@@ -332,7 +339,7 @@ export default function BusinessDetail({ isDark: _isDark }: { isDark: boolean })
                 <div style={{ fontSize: 10, color: '#81C784' }}>Original Korean</div>
               </div>
             </div>
-          )}
+          ) : null}
 
           {summary.koreanRunYesPct != null && (
             <div style={{ marginLeft: 'auto', textAlign: 'center' }}>
