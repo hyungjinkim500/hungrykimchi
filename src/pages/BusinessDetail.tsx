@@ -590,7 +590,7 @@ export default function BusinessDetail({ isDark: _isDark }: { isDark: boolean })
     </div>
   );
 
-  const bizName = business.name_ko || business.name;
+  const bizName = business.name_ko || business.name || '';
   const categoryType = getCategoryType(business.category);
   const isOfficial = categoryType === 'official';
 
