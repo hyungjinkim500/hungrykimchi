@@ -13,6 +13,12 @@ export type Review = {
   taste_score: number | null;
   ok_score: number | null;
   is_korean_run: 'yes' | 'no' | 'unknown' | null;
+  store_size: string | null;
+  korean_product_ratio: number | null;
+  lang_korean: boolean | null;
+  lang_english: boolean | null;
+  fee_transparency: number | null;
+  treatment_score: number | null;
 };
 
 export type ReviewSummary = {
@@ -20,12 +26,16 @@ export type ReviewSummary = {
   avgTaste: number | null;
   avgOk: number | null;
   koreanRunYesPct: number | null;
+  avgKoreanProductRatio: number | null;
+  langKoreanPct: number | null;
+  langEnglishPct: number | null;
 };
 
 export function useReviews(placeId: string | null) {
   const [reviews, setReviews] = useState<Review[]>([]);
   const [summary, setSummary] = useState<ReviewSummary>({
     count: 0, avgTaste: null, avgOk: null, koreanRunYesPct: null,
+    avgKoreanProductRatio: null, langKoreanPct: null, langEnglishPct: null,
   });
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -58,10 +68,11 @@ export function useReviews(placeId: string | null) {
 
   const computeSummary = (data: Review[]) => {
     if (!data.length) {
-      setSummary({ count: 0, avgTaste: null, avgOk: null, koreanRunYesPct: null });
+      setSummary({ count: 0, avgTaste: null, avgOk: null, koreanRunYesPct: null, avgKoreanProductRatio: null, langKoreanPct: null, langEnglishPct: null });
       return;
     }
-    const withTaste = data.filter(r => r.taste_score != null);
+
+    const withTaste = data.filter(r => r.taste_score != null && r.taste_score > 0);
     const withRating = data.filter(r => r.rating != null);
     let avgTaste: number | null = null;
     if (withTaste.length) {
@@ -70,7 +81,7 @@ export function useReviews(placeId: string | null) {
       avgTaste = withRating.reduce((a, r) => a + r.rating!, 0) / withRating.length;
     }
 
-    const withOk = data.filter(r => r.ok_score != null);
+    const withOk = data.filter(r => r.ok_score != null && r.ok_score > 0);
     const avgOk = withOk.length
       ? Math.round(withOk.reduce((a, r) => a + r.ok_score!, 0) / withOk.length)
       : null;
@@ -84,7 +95,20 @@ export function useReviews(placeId: string | null) {
       koreanRunYesPct = Math.round((withKrOld.filter(r => r.is_korean === true).length / withKrOld.length) * 100);
     }
 
-    setSummary({ count: data.length, avgTaste, avgOk, koreanRunYesPct });
+    const withRatio = data.filter(r => r.korean_product_ratio != null);
+    const avgKoreanProductRatio = withRatio.length
+      ? Math.round(withRatio.reduce((a, r) => a + r.korean_product_ratio!, 0) / withRatio.length)
+      : null;
+
+    const withLang = data.filter(r => r.lang_korean != null);
+    const langKoreanPct = withLang.length
+      ? Math.round((withLang.filter(r => r.lang_korean === true).length / withLang.length) * 100)
+      : null;
+    const langEnglishPct = withLang.length
+      ? Math.round((withLang.filter(r => r.lang_english === true).length / withLang.length) * 100)
+      : null;
+
+    setSummary({ count: data.length, avgTaste, avgOk, koreanRunYesPct, avgKoreanProductRatio, langKoreanPct, langEnglishPct });
   };
 
   const submitReview = async (payload: {
@@ -92,6 +116,12 @@ export function useReviews(placeId: string | null) {
     taste_score: number;
     ok_score: number;
     comment: string;
+    store_size?: string;
+    korean_product_ratio?: number;
+    lang_korean?: boolean;
+    lang_english?: boolean;
+    fee_transparency?: number;
+    treatment_score?: number;
   }) => {
     if (!placeId) return { error: 'no placeId' };
     setSubmitting(true);
@@ -105,6 +135,12 @@ export function useReviews(placeId: string | null) {
       comment: payload.comment || null,
       rating: Math.round(payload.taste_score),
       is_korean: payload.is_korean_run === 'yes',
+      store_size: payload.store_size ?? null,
+      korean_product_ratio: payload.korean_product_ratio ?? null,
+      lang_korean: payload.lang_korean ?? null,
+      lang_english: payload.lang_english ?? null,
+      fee_transparency: payload.fee_transparency ?? null,
+      treatment_score: payload.treatment_score ?? null,
     });
     setSubmitting(false);
     if (!error) await fetchReviews();
