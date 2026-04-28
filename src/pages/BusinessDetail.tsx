@@ -591,7 +591,7 @@ export default function BusinessDetail({ isDark: _isDark }: { isDark: boolean })
   );
 
   const bizName = business.name_ko || business.name || '';
-  const categoryType = getCategoryType(business.category);
+  const categoryType = getCategoryType(business.category ?? '');
   const isOfficial = categoryType === 'official';
 
   const dirUrl = business.google_place_id
