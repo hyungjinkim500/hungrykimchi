@@ -121,7 +121,7 @@ function ShareSheet({ bizName, placeId, onClose }: { bizName: string; placeId: s
         <div style={{ fontSize: 15, fontWeight: 700, textAlign: 'center', marginBottom: 20 }}>{bizName} 공유하기</div>
         <div style={{ display: 'flex', justifyContent: 'space-around' }}>
           {[
-            { icon: '💬', label: '카카오톡', bg: '#FEE500', fn: () => { alert('카카오 SDK 연동 필요'); onClose(); } },
+            { icon: '💬', label: 'SNS 공유', bg: '#FEE500', fn: () => { navigator.share?.({ title: bizName + ' - 헝그리김치', url }); onClose(); } },
             { icon: '🔗', label: '링크 복사', bg: '#F0F0F0', fn: () => { navigator.clipboard?.writeText(url); alert('링크가 복사됐어요!'); onClose(); } },
             { icon: '↗', label: '더 보기', bg: '#E8F0FE', fn: () => { navigator.share?.({ title: bizName + ' - 헝그리김치', url }); onClose(); } },
           ].map(({ icon, label, bg, fn }) => (
