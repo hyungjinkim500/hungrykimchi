@@ -59,7 +59,7 @@ function SignupFlow({ onBack, mutedColor, containerStyle }: {
     setLoading(false);
   };
 
-  const nextBtn = (label: string, onClick: () => void, disabled = false): React.CSSProperties => ({
+  const nextBtn = (_label: string, _onClick: () => void, disabled = false): React.CSSProperties => ({
     width: '100%', padding: '14px', borderRadius: '12px', border: 'none',
     background: disabled ? '#EBEBEB' : '#E8302A', color: disabled ? '#999' : '#fff',
     fontSize: '16px', fontWeight: 800, cursor: disabled ? 'not-allowed' : 'pointer', marginTop: 'auto',
