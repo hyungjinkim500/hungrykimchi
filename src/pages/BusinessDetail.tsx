@@ -170,11 +170,11 @@ function ReportModal({ business, onClose }: { business: Business; onClose: () =>
           <>
             <div style={{ fontSize: 15, fontWeight: 700, marginBottom: 16 }}>정보 제보하기</div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 14 }}>
-              {([
+              {[
                 { val: 'closed' as const, label: '🚪 폐업했어요' },
                 { val: 'info_error' as const, label: '✏️ 정보가 틀렸어요 (주소, 전화번호 등)' },
                 { val: 'other' as const, label: '💬 기타 제보' },
-              ]).map(({ val, label }) => (
+              ].map(({ val, label }) => (
                 <button key={val} onClick={() => setReportType(val)} style={{
                   padding: '12px 14px', border: '1.5px solid ' + (reportType === val ? RED : BORDER),
                   borderRadius: 10, background: reportType === val ? RED_BG : '#fff',
@@ -204,10 +204,11 @@ function ReportModal({ business, onClose }: { business: Business; onClose: () =>
 // ─── 음식점 리뷰 플로우 ──────────────────────────────────
 type FoodStep = 'korean' | 'taste' | 'ok' | 'comment' | 'done';
 
-function ReviewFlowFood({ bizName, onClose, onSubmit, submitting }: {
+function ReviewFlowFood({ bizName, onClose, onSubmit, submitting, showOkScore }: {
   bizName: string; onClose: () => void;
   onSubmit: (p: { is_korean_run: 'yes' | 'no' | 'unknown'; taste_score: number; ok_score: number; comment: string }) => Promise<{ error: unknown }>;
   submitting: boolean;
+  showOkScore: boolean;
 }) {
   const [step, setStep] = useState<FoodStep>('korean');
   const [korean, setKorean] = useState<'yes' | 'no' | 'unknown' | null>(null);
@@ -215,11 +216,11 @@ function ReviewFlowFood({ bizName, onClose, onSubmit, submitting }: {
   const [ok, setOk] = useState(50);
   const [comment, setComment] = useState('');
 
-  const STEPS: FoodStep[] = ['korean', 'taste', 'ok', 'comment'];
+  const STEPS: FoodStep[] = showOkScore ? ['korean', 'taste', 'ok', 'comment'] : ['korean', 'taste', 'comment'];
   const pct = step === 'done' ? 100 : Math.round(((STEPS.indexOf(step) + 1) / (STEPS.length + 1)) * 100);
 
   const handleSubmit = async () => {
-    const { error } = await onSubmit({ is_korean_run: korean!, taste_score: taste, ok_score: ok, comment });
+    const { error } = await onSubmit({ is_korean_run: korean!, taste_score: taste, ok_score: showOkScore ? ok : 0, comment });
     if (!error) setStep('done');
   };
 
@@ -273,7 +274,7 @@ function ReviewFlowFood({ bizName, onClose, onSubmit, submitting }: {
               ))}
             </div>
             <div style={{ textAlign: 'center', fontSize: 15, fontWeight: 700, color: GOLD, minHeight: 22, marginBottom: 24 }}>{taste ? TASTE_LABELS[taste] : '별을 눌러 평가해 주세요'}</div>
-            <button style={nbtn(taste > 0)} disabled={taste === 0} onClick={() => setStep('ok')}>다음 →</button>
+            <button style={nbtn(taste > 0)} disabled={taste === 0} onClick={() => setStep(showOkScore ? 'ok' : 'comment')}>다음 →</button>
           </>
         )}
         {step === 'ok' && (
@@ -429,19 +430,20 @@ function ReviewFlowMart({ bizName, onClose, onSubmit, submitting }: {
 // ─── 의료 리뷰 플로우 ────────────────────────────────────
 type MedStep = 'lang' | 'fee' | 'satisfaction' | 'comment' | 'done';
 
-function ReviewFlowMedical({ bizName, onClose, onSubmit, submitting }: {
+function ReviewFlowMedical({ bizName, onClose, onSubmit, submitting, showLang }: {
   bizName: string; onClose: () => void;
   onSubmit: (p: { is_korean_run: 'yes' | 'no' | 'unknown'; lang_korean: boolean; lang_english: boolean; fee_transparency: number; treatment_score: number; comment: string }) => Promise<{ error: unknown }>;
   submitting: boolean;
+  showLang: boolean;
 }) {
-  const [step, setStep] = useState<MedStep>('lang');
+  const [step, setStep] = useState<MedStep>(showLang ? 'lang' : 'fee');
   const [langKo, setLangKo] = useState(false);
   const [langEn, setLangEn] = useState(false);
   const [fee, setFee] = useState(0);
   const [satisfaction, setSatisfaction] = useState(0);
   const [comment, setComment] = useState('');
 
-  const STEPS: MedStep[] = ['lang', 'fee', 'satisfaction', 'comment'];
+  const STEPS: MedStep[] = showLang ? ['lang', 'fee', 'satisfaction', 'comment'] : ['fee', 'satisfaction', 'comment'];
   const pct = step === 'done' ? 100 : Math.round(((STEPS.indexOf(step) + 1) / (STEPS.length + 1)) * 100);
 
   const handleSubmit = async () => {
@@ -562,6 +564,13 @@ export default function BusinessDetail({ isDark: _isDark }: { isDark: boolean })
   const [commentInput, setCommentInput] = useState('');
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editContent, setEditContent] = useState('');
+  const [isKakaoUser, setIsKakaoUser] = useState(false);
+
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      setIsKakaoUser(user?.app_metadata?.provider === 'kakao');
+    });
+  }, []);
 
   const { reviews, summary, submitting, userReview, submitReview } = useReviews(id ?? null);
   const { isFav, toggle: toggleFav } = useFavorite(id ?? null);
@@ -618,13 +627,13 @@ export default function BusinessDetail({ isDark: _isDark }: { isDark: boolean })
   if (showReviewFlow && !isOfficial) return (
     <div style={{ position: 'fixed', top: 0, bottom: 0, left: '50%', transform: 'translateX(-50%)', width: '100%', maxWidth: '430px', zIndex: 150, overflowY: 'auto', background: '#fff' }}>
       {categoryType === 'food' && (
-        <ReviewFlowFood bizName={bizName} onClose={() => { setShowReviewFlow(false); setVisitAnswer('none'); }} onSubmit={submitReview} submitting={submitting} />
+        <ReviewFlowFood bizName={bizName} onClose={() => { setShowReviewFlow(false); setVisitAnswer('none'); }} onSubmit={submitReview} submitting={submitting} showOkScore={isKakaoUser} />
       )}
       {categoryType === 'mart' && (
         <ReviewFlowMart bizName={bizName} onClose={() => { setShowReviewFlow(false); setVisitAnswer('none'); }} onSubmit={submitMart} submitting={submitting} />
       )}
       {categoryType === 'medical' && (
-        <ReviewFlowMedical bizName={bizName} onClose={() => { setShowReviewFlow(false); setVisitAnswer('none'); }} onSubmit={submitMedical} submitting={submitting} />
+        <ReviewFlowMedical bizName={bizName} onClose={() => { setShowReviewFlow(false); setVisitAnswer('none'); }} onSubmit={submitMedical} submitting={submitting} showLang={isKakaoUser} />
       )}
     </div>
   );

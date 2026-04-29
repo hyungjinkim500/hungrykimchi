@@ -31,6 +31,30 @@ export const signOut = async () => {
   if (error) throw error
 }
 
+export const signUpWithEmail = async (email: string, password: string) => {
+  const { error } = await supabase.auth.signUp({
+    email,
+    password,
+    options: { emailRedirectTo: 'https://hungrykimchi.com' },
+  })
+  if (error) throw error
+}
+
+export const signInWithEmail = async (email: string, password: string) => {
+  const { data, error } = await supabase.auth.signInWithPassword({ email, password })
+  if (error) throw error
+  return data
+}
+
+export const resendVerificationEmail = async (email: string) => {
+  const { error } = await supabase.auth.resend({
+    type: 'signup',
+    email,
+    options: { emailRedirectTo: 'https://hungrykimchi.com' },
+  })
+  if (error) throw error
+}
+
 export const deleteUser = async () => {
   const { data: { session } } = await supabase.auth.getSession()
   if (!session) throw new Error('로그인 상태가 아닙니다')
