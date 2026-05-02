@@ -416,7 +416,11 @@ export default function PhoneBook({ isDark, city }: Props) {
           </>
         )}
         {filteredBusinesses.map((b) => (
-          <div key={b.id} style={styles.card}>
+          <div
+            key={b.id}
+            style={{ ...styles.card, cursor: (b as any).google_place_id ? 'pointer' : 'default' }}
+            onClick={() => { if ((b as any).google_place_id) navigate('/biz/' + (b as any).google_place_id); }}
+          >
             <div style={styles.cardHeader}>
               <span style={styles.businessName}>{(b as any).name_ko || b.name}</span>
               {(b as any).is_korean_run && (
@@ -468,43 +472,50 @@ export default function PhoneBook({ isDark, city }: Props) {
             <p style={{...styles.addressText, margin: '4px 0 0'}}>
                 {b.address}
             </p>
-
-            <div style={styles.buttonContainer}>
-              {(b as any).google_place_id && (
-                <button
-                  style={{ ...styles.button(false), marginLeft: 0, marginRight: 'auto', color: isDark ? '#FFFFFF' : '#1A1A1A', borderColor: isDark ? '#555' : '#CCCCCC' }}
-                  onClick={() => navigate('/biz/' + (b as any).google_place_id)}
-                >
-                  📝 리뷰
-                </button>
-              )}
-              {((b as any).google_place_id || (b.lat && b.lng)) && (
-                <button
-                  style={styles.button(false)}
-                  onClick={() => {
-                    const name = encodeURIComponent((b as any).name_ko || b.name || '');
-                    const placeId = (b as any).google_place_id;
-                    const url = placeId
-                      ? 'https://www.google.com/maps/search/?api=1&query=' + name + '&query_place_id=' + placeId
-                      : b.lat && b.lng
-                      ? 'https://www.google.com/maps/search/?api=1&query=' + b.lat + ',' + b.lng
-                      : 'https://www.google.com/maps/search/?api=1&query=' + name;
-                    window.location.href = url;
-                  }}
-                >
-                  🗺️ 지도
-                </button>
-              )}
-              {b.phone ? (
-                <button
-                  style={styles.button(true)}
-                  onClick={() => window.location.href = 'tel:' + b.phone}
-                >
-                  📞 전화
-                </button>
-              ) : (
-                <span style={styles.noPhoneText}>전화번호 없음</span>
-              )}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '8px', gap: '8px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                {(b as any).google_rating && (
+                  <span style={{ fontSize: '12px', color: '#E65100', display: 'flex', alignItems: 'center', gap: '2px' }}>
+                    ⭐ 구글 {((b as any).google_rating as number).toFixed(1)}
+                  </span>
+                )}
+                {(b as any).ok_score_avg && (
+                  <span style={{ fontSize: '12px', color: '#2E7D32', display: 'flex', alignItems: 'center', gap: '3px' }}>
+                    <img src={kimchiLogo} alt="OK" style={{ width: '14px', height: '14px', objectFit: 'contain' }} />
+                    OK {(b as any).ok_score_avg}
+                  </span>
+                )}
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0 }}>
+                {((b as any).google_place_id || (b.lat && b.lng)) && (
+                  <button
+                    style={styles.button(false)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      const name = encodeURIComponent((b as any).name_ko || b.name || '');
+                      const placeId = (b as any).google_place_id;
+                      const url = placeId
+                        ? 'https://www.google.com/maps/search/?api=1&query=' + name + '&query_place_id=' + placeId
+                        : b.lat && b.lng
+                        ? 'https://www.google.com/maps/search/?api=1&query=' + b.lat + ',' + b.lng
+                        : 'https://www.google.com/maps/search/?api=1&query=' + name;
+                      window.location.href = url;
+                    }}
+                  >
+                    🗺️ 지도
+                  </button>
+                )}
+                {b.phone ? (
+                  <button
+                    style={{ ...styles.button(true), marginLeft: 0 }}
+                    onClick={(e) => { e.stopPropagation(); window.location.href = 'tel:' + b.phone; }}
+                  >
+                    📞 전화
+                  </button>
+                ) : (
+                  <span style={styles.noPhoneText}>전화번호 없음</span>
+                )}
+              </div>
             </div>
           </div>
         ))}
