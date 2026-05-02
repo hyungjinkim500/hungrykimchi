@@ -44,6 +44,7 @@ const CITY_CENTERS: Record<string, { lat: number; lng: number; radius: number; l
   newdelhi:     { lat: 28.6139, lng: 77.2090,  radius: 30000, label: '뉴델리' },
   mumbai:       { lat: 19.0760, lng: 72.8777,  radius: 30000, label: '뭄바이' },
   'india-other': { lat: 20.0000, lng: 77.0000,  radius: 999999, label: '인도 기타' },
+  auckland:     { lat: -36.8485, lng: 174.7633, radius: 50000, label: '오클랜드' },
 };
 
 function getDistance(lat1: number, lng1: number, lat2: number, lng2: number): number {

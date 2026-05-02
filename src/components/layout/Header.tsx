@@ -286,7 +286,7 @@ const CONTINENTS = [
     label: '🌊 오세아니아',
     countries: [
       { key: 'australia', label: '🇦🇺 호주', cities: [{ key: 'sydney', label: '시드니', active: false }, { key: 'melbourne', label: '멜버른', active: false }, { key: 'brisbane', label: '브리즈번', active: false }, { key: 'perth', label: '퍼스', active: false }] },
-      { key: 'newzealand', label: '🇳🇿 뉴질랜드', cities: [{ key: 'auckland', label: '오클랜드', active: false }, { key: 'queenstown', label: '퀸스타운', active: false }] },
+      { key: 'newzealand', label: '🇳🇿 뉴질랜드', cities: [{ key: 'auckland', label: '오클랜드', active: true }, { key: 'queenstown', label: '퀸스타운', active: false }] },
       { key: 'fiji', label: '🇫🇯 피지', cities: [{ key: 'suva', label: '수바', active: false }] },
       { key: 'guam', label: '🇬🇺 괌', cities: [{ key: 'hagatna', label: '하갓냐', active: false }] },
       { key: 'saipan', label: '🇲🇵 사이판', cities: [{ key: 'garapan', label: '가라판', active: false }] },
