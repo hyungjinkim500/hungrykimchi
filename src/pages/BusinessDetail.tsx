@@ -683,9 +683,11 @@ export default function BusinessDetail({ isDark: _isDark }: { isDark: boolean })
                   <span style={{ fontSize: 10, color: '#999', background: '#F5F5F5', padding: '2px 6px', borderRadius: 6 }}>구글</span>
                 )}
               </div>
-              <div style={{ color: GOLD, fontSize: 13, letterSpacing: 1, marginTop: 2 }}>
-                {displayScore ? renderStars(displayScore) : '☆☆☆☆☆'}
-              </div>
+              {!hasGoogleRating && (
+                <div style={{ color: GOLD, fontSize: 13, letterSpacing: 1, marginTop: 2 }}>
+                  {displayScore ? renderStars(displayScore) : '☆☆☆☆☆'}
+                </div>
+              )}
               <div style={{ fontSize: 11, color: '#999', marginTop: 2 }}>
                 {summary.count > 0 ? '교민 리뷰 ' + summary.count + '개' : hasGoogleRating ? '구글 평점 기준' : '리뷰 없음'}
               </div>
