@@ -471,12 +471,16 @@ export default function MyPage({ isDark }: Props) {
             : favorites.map((fav: any) => {
               const biz = fav.businesses;
               return (
-                <div key={fav.id} onClick={() => navigate('/biz/' + fav.business_place_id)} style={{ background: cardBg, borderRadius: 12, padding: '14px', marginBottom: 10, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 12 }}>
-                  <div style={{ fontSize: 28, flexShrink: 0 }}>❤️</div>
-                  <div>
+                <div key={fav.id} onClick={() => navigate('/biz/' + fav.business_place_id)} style={{ background: cardBg, borderRadius: 12, padding: '14px', marginBottom: 10, cursor: 'pointer' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
                     <div style={{ fontSize: 14, fontWeight: 700 }}>{biz?.name_ko || biz?.name || '업체'}</div>
-                    <div style={{ fontSize: 12, color: mutedColor, marginTop: 2 }}>{biz?.category}{biz?.subcategory ? ' · ' + biz.subcategory : ''}</div>
+                    {biz?.city && (
+                      <span style={{ fontSize: 11, fontWeight: 600, color: RED, background: '#FFF0EF', border: '1px solid #FFCDD2', borderRadius: 20, padding: '2px 8px', flexShrink: 0, marginLeft: 8 }}>
+                        {biz.city}
+                      </span>
+                    )}
                   </div>
+                  <div style={{ fontSize: 12, color: mutedColor }}>{biz?.category}{biz?.subcategory ? ' · ' + biz.subcategory : ''}</div>
                 </div>
               );
             })

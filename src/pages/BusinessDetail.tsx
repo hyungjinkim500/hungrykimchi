@@ -779,7 +779,7 @@ export default function BusinessDetail({ isDark: _isDark }: { isDark: boolean })
 
           <div style={{ background: '#fff', marginTop: 8, padding: '16px 16px 8px' }}>
             <div style={{ fontSize: 15, fontWeight: 700, marginBottom: reviews.length ? 14 : 0 }}>
-              {reviews.length > 0 ? '최신 리뷰' : '아직 리뷰가 없어요'}
+              {reviews.length > 0 ? '리뷰' : '아직 리뷰가 없어요'}
             </div>
             {reviews.length === 0 && (
               <div style={{ textAlign: 'center', padding: '24px 0', color: '#bbb', fontSize: 14 }}>
@@ -877,8 +877,8 @@ export default function BusinessDetail({ isDark: _isDark }: { isDark: boolean })
         </div>
       )}
 
-      {/* ── 댓글 (리뷰 탭 하단, 관공서 포함 전체 노출) ── */}
-      {tab === 'review' && (
+      {/* ── 댓글 비활성화 ── */}
+      {false && tab === 'review' && (
         <div style={{ background: '#fff', marginTop: 8, padding: '16px 16px 24px' }}>
           <div style={{ fontSize: 15, fontWeight: 700, marginBottom: 14 }}>댓글</div>
           {!myComment && (
@@ -931,8 +931,8 @@ export default function BusinessDetail({ isDark: _isDark }: { isDark: boolean })
         </div>
       )}
 
-      {/* 관공서: 리뷰 탭 선택 시 댓글만 표시 */}
-      {isOfficial && tab === 'info' && (
+      {/* 관공서 댓글 비활성화 */}
+      {false && isOfficial && tab === 'info' && (
         <div style={{ background: '#fff', marginTop: 8, padding: '16px 16px 24px' }}>
           <div style={{ fontSize: 15, fontWeight: 700, marginBottom: 14 }}>댓글</div>
           {!myComment && (
