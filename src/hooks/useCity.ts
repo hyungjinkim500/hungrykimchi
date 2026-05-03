@@ -24,7 +24,7 @@ const CITY_CENTERS: Record<string, { lat: number; lng: number; radius: number; l
   bali:         { lat: -8.3405, lng: 115.0920, radius: 30000, label: '발리' },
   'indonesia-other': { lat: -5.0000, lng: 117.0000, radius: 999999, label: '인도네시아 기타' },
   manila:       { lat: 14.5995, lng: 120.9842, radius: 30000, label: '마닐라' },
-  cebu:         { lat: 10.3157, lng: 123.8854, radius: 20000, label: '세부' },
+  cebu:         { lat: 10.3157, lng: 123.8854, radius: 50000, label: '세부' },
   'philippines-other': { lat: 12.0000, lng: 122.0000, radius: 999999, label: '필리핀 기타' },
   phnompenh:    { lat: 11.5564, lng: 104.9282, radius: 30000, label: '프놈펜' },
   siemreap:     { lat: 13.3633, lng: 103.8564, radius: 20000, label: '시엠립' },

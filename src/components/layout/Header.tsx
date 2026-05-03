@@ -120,7 +120,7 @@ const CONTINENTS = [
       ]},
       { key: 'philippines', label: '🇵🇭 필리핀', cities: [
         { key: 'manila', label: '마닐라', active: true },
-        { key: 'cebu', label: '세부', active: false },
+        { key: 'cebu', label: '세부', active: true },
         { key: 'philippines-other', label: '기타지역', active: false },
       ]},
       { key: 'taiwan', label: '🇹🇼 대만', cities: [
