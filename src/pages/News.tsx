@@ -2,11 +2,14 @@ import { useState } from 'react';
 import YoutubeTab from '../components/ui/YoutubeTab';
 import NewsTab from '../components/ui/NewsTab';
 
+import type { City } from '../types/index';
+
 interface Props {
   isDark: boolean;
+  city: City;
 }
 
-export default function News({ isDark }: Props) {
+export default function News({ isDark, city }: Props) {
   const [activeTab, setActiveTab] = useState<'youtube' | 'news'>('youtube');
 
   const containerStyle: React.CSSProperties = {
@@ -57,7 +60,7 @@ export default function News({ isDark }: Props) {
       </div>
       <div style={{ flex: 1, overflowY: 'auto' }}>
         {activeTab === 'youtube' ? (
-          <YoutubeTab isDark={isDark} />
+          <YoutubeTab isDark={isDark} city={city} />
         ) : (
           <NewsTab isDark={isDark} />
         )}

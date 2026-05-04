@@ -63,6 +63,8 @@ export default function PhoneBook({ isDark, city }: Props) {
   const [selectedSubcategory, setSelectedSubcategory] = useState<string>('전체');
   const [searchQuery, setSearchQuery] = useState('');
   const [showKoreanOnly, setShowKoreanOnly] = useState(false);
+  const koreanRunCount = businesses.filter((b) => (b as any).is_korean_run === true).length;
+  const [sortOrder, setSortOrder] = useState<'name' | 'rating'>('rating');
 
   const FOOD_SUBCATEGORIES = ['전체', '종합한식', '고기구이', '치킨', '포차/호프', '분식', '백반/반찬', '족발/보쌈', '중화요리', '회/초밥', '국밥/찌개', '전골/샤브', '브런치/카페', '기타'];
   const MEDICAL_SUBCATEGORIES = ['전체', '종합/국제병원', '내과/가정의학', '치과', '피부과', '안과', '이비인후과', '정형외과', '한의원', '약국', '기타'];
@@ -114,9 +116,17 @@ export default function PhoneBook({ isDark, city }: Props) {
         return nameA.localeCompare(nameB, 'ko');
     });
 
-    if (!searchQuery.trim()) return sortByName(categoryFiltered);
+    const sortByRating = (arr: Business[]) => [...arr].sort((a, b) => {
+        const rA = (a as any).google_rating ?? 0;
+        const rB = (b as any).google_rating ?? 0;
+        return rB - rA;
+    });
+
+    const sorted = sortOrder === 'rating' ? sortByRating : sortByName;
+
+    if (!searchQuery.trim()) return sorted(categoryFiltered);
     const fuseCat = new Fuse(categoryFiltered, fuseOptions);
-    return sortByName(fuseCat.search(searchQuery).map((r) => r.item));
+    return sorted(fuseCat.search(searchQuery).map((r) => r.item));
   })();
 
   const getActiveColor = (category: string) => {
@@ -251,7 +261,7 @@ export default function PhoneBook({ isDark, city }: Props) {
       <style>{customStyles}</style>
       <div style={{ display: 'flex', height: '48px', alignItems: 'center' }}>
         <div style={{ ...styles.categoryContainer, flex: 1 }} className="no-scrollbar">
-          {CATEGORIES.filter(c => c !== '전체' && c !== '택시' && c !== '기관').map((category) => (
+          {CATEGORIES.filter(c => c !== '전체' && c !== '택시' && c !== '기관' && c !== '기타').map((category) => (
             <button
               key={category}
               style={styles.categoryChip(selectedCategory === category, category)}
@@ -261,42 +271,53 @@ export default function PhoneBook({ isDark, city }: Props) {
             </button>
           ))}
         </div>
-        <button
+        {koreanRunCount >= 2 && (<button
           onClick={() => setShowKoreanOnly(!showKoreanOnly)}
           style={{
             flexShrink: 0,
-            marginLeft: '8px',
-            marginRight: '16px',
-            padding: '3px 6px',
+            marginLeft: 'auto',
+            padding: '3px 10px',
             borderRadius: '10px',
-            background: showKoreanOnly ? (isDark ? '#2A2A2A' : '#FFE8E8') : 'transparent',
-            border: showKoreanOnly ? `2px solid ${isDark ? '#7DBA31' : '#C0392B'}` : '2px solid transparent',
+            background: showKoreanOnly ? (isDark ? '#2A2A2A' : '#FFE8E8') : isDark ? '#2A2A2A' : '#E0E0E0',
+            border: showKoreanOnly ? `2px solid ${isDark ? '#7DBA31' : '#C0392B'}` : `1.5px solid ${isDark ? '#555' : '#1A1A1A'}`,
+            color: showKoreanOnly ? (isDark ? '#7DBA31' : '#C0392B') : isDark ? '#FFF' : '#333',
             cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
+            fontSize: '12px',
+            whiteSpace: 'nowrap',
           }}
-        >
-          <img src={kimchiLogo} alt="한인 인증" style={{ width: '22px', height: '22px' }} />
-        </button>
+          >한인인증</button>)}
+          <button
+            onClick={() => setSortOrder(sortOrder === 'rating' ? 'name' : 'rating')}
+          style={{
+            flexShrink: 0,
+            marginLeft: '6px',
+            marginRight: '4px',
+            padding: '3px 10px',
+            borderRadius: '10px',
+            background: isDark ? '#2A2A2A' : '#E0E0E0',
+            color: isDark ? '#FFF' : '#333',
+            border: `1.5px solid ${isDark ? '#555' : '#1A1A1A'}`,
+            fontSize: '12px',
+            cursor: 'pointer',
+            whiteSpace: 'nowrap',
+          }}
+        >{sortOrder === 'rating' ? '평점순' : '가나다순'}</button>
       </div>
-      {(selectedCategory === '음식점' || selectedCategory === '의료') && (
-        <div style={{ display: 'flex', overflowX: 'auto', padding: '0 16px 8px', gap: '6px', scrollbarWidth: 'none' }} className="no-scrollbar">
-          {(selectedCategory === '음식점' ? FOOD_SUBCATEGORIES : MEDICAL_SUBCATEGORIES).map(sub => (
-            <button
-              key={sub}
-              onClick={() => setSelectedSubcategory(sub)}
-              style={{
-                flexShrink: 0, padding: '4px 10px', borderRadius: '14px', border: 'none',
-                fontSize: '12px', cursor: 'pointer', whiteSpace: 'nowrap',
-                background: selectedSubcategory === sub ? getActiveColor(selectedCategory) : isDark ? '#2A2A2A' : '#E0E0E0',
-                color: selectedSubcategory === sub ? '#FFF' : isDark ? '#FFF' : '#333',
-              }}
-            >
-              {sub}
-            </button>
-          ))}
-        </div>
-      )}
+      <div style={{ display: 'flex', overflowX: 'auto', padding: '0 16px 8px', gap: '6px', scrollbarWidth: 'none' }} className="no-scrollbar">
+        
+        {(selectedCategory === '음식점' || selectedCategory === '의료') && (selectedCategory === '음식점' ? FOOD_SUBCATEGORIES : MEDICAL_SUBCATEGORIES).map(sub => (
+          <button
+            key={sub}
+            onClick={() => setSelectedSubcategory(sub)}
+            style={{
+              flexShrink: 0, padding: '4px 10px', borderRadius: '14px', border: 'none',
+              fontSize: '12px', cursor: 'pointer', whiteSpace: 'nowrap',
+              background: selectedSubcategory === sub ? getActiveColor(selectedCategory) : isDark ? '#2A2A2A' : '#E0E0E0',
+              color: selectedSubcategory === sub ? '#FFF' : isDark ? '#FFF' : '#333',
+            }}
+          >{sub}</button>
+        ))}
+      </div>
       <input
         type="text"
         placeholder="업체명, 업종 검색..."

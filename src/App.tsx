@@ -49,7 +49,7 @@ export default function App() {
             <Route path="/" element={<PhoneBook isDark={isDark} city={city} />} />
             <Route path="/biz/:id" element={<BusinessDetail isDark={isDark} />} />
             <Route path="/map" element={<KimchiMap isDark={isDark} city={city} CITY_CENTERS={CITY_CENTERS} />} />
-            <Route path="/news" element={<News isDark={isDark} />} />
+            <Route path="/news" element={<News isDark={isDark} city={city} />} />
             <Route path="/mypage" element={<MyPage isDark={isDark} />} />
             <Route path="/register" element={<Register isDark={isDark} />} />
             <Route path="/admin" element={<Admin isDark={isDark} city={city} />} />

@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
+import type { City } from '../../types/index';
 
 interface Props {
   isDark: boolean;
+  city: City;
 }
 
 interface Video {
@@ -15,7 +17,22 @@ interface Video {
 const YOUTUBE_API_KEY = import.meta.env.VITE_YOUTUBE_API_KEY;
 const MYDINH_CHANNEL_ID = 'UC3qXp8R4YFMVW8K8cAjsQYw';
 
-export default function YoutubeTab({ isDark }: Props) {
+const CITY_QUERIES: Record<string, string> = {
+  hanoi: '하노이 한식 맛집',
+  hochiminh: '호치민 한식 맛집',
+  danang: '다낭 한식 맛집',
+  haiphong: '하이퐁 한식 맛집',
+  bacninh: '박닌 한식 맛집',
+  'vietnam-other': '베트남 한식 맛집',
+  bangkok: '방콕 한식 맛집',
+  chiangmai: '치앙마이 한식 맛집',
+  taipei: '타이베이 한식 맛집',
+  manila: '마닐라 한식 맛집',
+  cebu: '세부 한식 맛집',
+  auckland: '오클랜드 한식 맛집',
+};
+
+export default function YoutubeTab({ isDark, city }: Props) {
   const [videos, setVideos] = useState<Video[]>([]);
   const [nextPageToken, setNextPageToken] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -25,7 +42,7 @@ export default function YoutubeTab({ isDark }: Props) {
 
   const fetchMydinhShorts = async () => {
     try {
-      const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${MYDINH_CHANNEL_ID}&type=video&videoDuration=short&maxResults=10&order=date&key=${YOUTUBE_API_KEY}`;
+      const url = 'https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=' + MYDINH_CHANNEL_ID + '&type=video&videoDuration=short&maxResults=10&order=date&key=' + YOUTUBE_API_KEY;
       const res = await fetch(url);
       const data = await res.json();
       if (data.items) {
@@ -51,9 +68,10 @@ export default function YoutubeTab({ isDark }: Props) {
 
   const fetchVideos = async (pageToken?: string) => {
     try {
-      const query = encodeURIComponent('하노이 한식 맛집');
-      let url = `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${query}&type=video&maxResults=10&order=date&key=${YOUTUBE_API_KEY}`;
-      if (pageToken) url += `&pageToken=${pageToken}`;
+      const queryStr = CITY_QUERIES[city ?? ''] ?? '한식 맛집 해외';
+      const query = encodeURIComponent(queryStr);
+      let url = 'https://www.googleapis.com/youtube/v3/search?part=snippet&q=' + query + '&type=video&maxResults=10&order=date&key=' + YOUTUBE_API_KEY;
+      if (pageToken) url += '&pageToken=' + pageToken;
       const res = await fetch(url);
       const data = await res.json();
       if (data.items) {
@@ -75,6 +93,8 @@ export default function YoutubeTab({ isDark }: Props) {
   useEffect(() => {
     const init = async () => {
       setLoading(true);
+      setVideos([]);
+      setNextPageToken(null);
       await fetchMydinhShorts();
       const result = await fetchVideos();
       setVideos(result.videos);
@@ -82,21 +102,19 @@ export default function YoutubeTab({ isDark }: Props) {
       setLoading(false);
     };
     init();
-  }, []);
+  }, [city]);
 
   const handleLoadMore = async () => {
     if (!nextPageToken) return;
     setLoadingMore(true);
     const result = await fetchVideos(nextPageToken);
     const newVideos = [...videos, ...result.videos];
-
     const randomMydinh = getRandomMydinhVideo(newVideos, usedMydinhIds);
     if (randomMydinh) {
       const insertIdx = newVideos.length - result.videos.length + Math.floor(Math.random() * result.videos.length);
       newVideos.splice(insertIdx, 0, randomMydinh);
       setUsedMydinhIds(prev => new Set([...prev, randomMydinh.id]));
     }
-
     setVideos(newVideos);
     setNextPageToken(result.nextPageToken);
     setLoadingMore(false);
@@ -118,7 +136,7 @@ export default function YoutubeTab({ isDark }: Props) {
         <div
           key={video.id}
           style={cardStyle}
-          onClick={() => window.open(`https://www.youtube.com/watch?v=${video.id}`, '_blank')}
+          onClick={() => window.open('https://www.youtube.com/watch?v=' + video.id, '_blank')}
         >
           <img src={video.thumbnail} alt={video.title} style={{ width: '100%', display: 'block' }} />
           <div style={{ padding: '10px 12px' }}>

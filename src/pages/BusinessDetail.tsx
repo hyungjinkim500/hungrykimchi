@@ -611,8 +611,8 @@ export default function BusinessDetail({ isDark: _isDark }: { isDark: boolean })
 
   const MIN_REVIEWS = 3;
   const hasEnoughReviews = summary.count >= MIN_REVIEWS;
-  const displayScore = hasEnoughReviews ? summary.avgTaste : (business.google_rating ?? null);
-  const hasGoogleRating = !hasEnoughReviews && business.google_rating;
+  const displayScore = summary.avgTaste ?? (business.google_rating ?? null);
+  const hasGoogleRating = summary.count === 0 && business.google_rating;
   const remainingForScore = MIN_REVIEWS - summary.count;
 
   // 마트/의료용 submit 래퍼
@@ -693,13 +693,7 @@ export default function BusinessDetail({ isDark: _isDark }: { isDark: boolean })
               </div>
             </div>
 
-            {categoryType === 'food' && summary.count > 0 && !hasEnoughReviews && (
-              <div style={{ background: OK_BG, borderRadius: 14, padding: '8px 14px', maxWidth: 160 }}>
-                <div style={{ fontSize: 11, fontWeight: 700, color: OK_MID, marginBottom: 2 }}>진짜한식지수(OK Score)✱</div>
-                <div style={{ fontSize: 11, color: OK_COLOR, lineHeight: 1.4 }}>리뷰 {remainingForScore}개 더 모이면<br />표시됩니다 🌱</div>
-              </div>
-            )}
-            {categoryType === 'food' && hasEnoughReviews && summary.avgOk != null && (
+            {categoryType === 'food' && summary.avgOk != null && (
               <div style={{ background: OK_BG, borderRadius: 14, padding: '8px 14px', display: 'flex', alignItems: 'center', gap: 8 }}>
                 <div style={{ fontSize: 26, fontWeight: 900, color: OK_COLOR, lineHeight: 1 }}>{summary.avgOk}</div>
                 <div>
