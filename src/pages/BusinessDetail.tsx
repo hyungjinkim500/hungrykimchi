@@ -609,11 +609,8 @@ export default function BusinessDetail({ isDark: _isDark }: { isDark: boolean })
     ? 'https://www.google.com/maps/search/?api=1&query=' + business.lat + ',' + business.lng
     : null;
 
-  const MIN_REVIEWS = 3;
-  const hasEnoughReviews = summary.count >= MIN_REVIEWS;
-  const displayScore = summary.avgTaste ?? (business.google_rating ?? null);
-  const hasGoogleRating = summary.count === 0 && business.google_rating;
-  const remainingForScore = MIN_REVIEWS - summary.count;
+    const displayScore = summary.avgTaste ?? (business.google_rating ?? null);
+    const hasGoogleRating = summary.count === 0 && business.google_rating;
 
   // 마트/의료용 submit 래퍼
   const submitMart = async (p: { is_korean_run: 'yes' | 'no' | 'unknown'; store_size: string; korean_product_ratio: number; comment: string }) => {
@@ -703,14 +700,14 @@ export default function BusinessDetail({ isDark: _isDark }: { isDark: boolean })
               </div>
             )}
 
-            {categoryType === 'mart' && summary.count >= MIN_REVIEWS && (
+            {categoryType === 'mart' && summary.count >= 1 && (
               <div style={{ background: RED_BG, borderRadius: 14, padding: '8px 14px' }}>
                 <div style={{ fontSize: 11, fontWeight: 700, color: RED, marginBottom: 2 }}>한국상품 비율</div>
                 <div style={{ fontSize: 22, fontWeight: 900, color: RED }}>{summary.avgKoreanProductRatio != null ? summary.avgKoreanProductRatio + '%' : '—'}</div>
               </div>
             )}
 
-            {categoryType === 'medical' && summary.count >= MIN_REVIEWS && (
+            {categoryType === 'medical' && summary.count >= 1 && (
               <div style={{ background: BLUE_BG, borderRadius: 14, padding: '8px 14px' }}>
                 <div style={{ fontSize: 11, fontWeight: 700, color: BLUE, marginBottom: 4 }}>언어</div>
                 <div style={{ fontSize: 12, color: BLUE, lineHeight: 1.5 }}>
