@@ -50,7 +50,7 @@ const content: Record<MainTab, Record<LangTab, { title: string; intro: string; s
         ]},
         { heading: '7. 개인정보 보호 책임자 및 문의처', items: [
           '• 서비스명: 헝그리김치 (HungryKimchi)',
-          '• 이메일: hyungjinkim500@gmail.com',
+          '• 이메일: hungrykimchi.official@gmail.com',
           '• 문의 접수 후 영업일 기준 3일 이내 답변드립니다.',
         ]},
         { heading: '8. 개정 이력', items: [
@@ -102,7 +102,7 @@ const content: Record<MainTab, Record<LangTab, { title: string; intro: string; s
         ]},
         { heading: '7. Contact', items: [
           '• Service: HungryKimchi',
-          '• Email: hyungjinkim500@gmail.com',
+          '• Email: hungrykimchi.official@gmail.com',
           '• We will respond within 3 business days of receiving your inquiry.',
         ]},
         { heading: '8. Revision History', items: [
@@ -157,7 +157,7 @@ const content: Record<MainTab, Record<LangTab, { title: string; intro: string; s
           '• 서비스 이용과 관련한 분쟁은 관련 법령이 정한 절차에 따릅니다.',
         ]},
         { heading: '제9조 (문의처)', items: [
-          '• 이메일: hyungjinkim500@gmail.com',
+          '• 이메일: hungrykimchi.official@gmail.com',
           '• 문의 접수 후 영업일 기준 3일 이내 답변드립니다.',
         ]},
         { heading: '부칙', items: [
@@ -209,7 +209,7 @@ const content: Record<MainTab, Record<LangTab, { title: string; intro: string; s
           '• Disputes shall be resolved in accordance with applicable legal procedures.',
         ]},
         { heading: 'Article 9 (Contact)', items: [
-          '• Email: hyungjinkim500@gmail.com',
+          '• Email: hungrykimchi.official@gmail.com',
           '• We will respond within 3 business days.',
         ]},
         { heading: 'Addendum', items: [

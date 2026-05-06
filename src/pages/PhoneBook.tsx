@@ -5,6 +5,8 @@ import type { Business, City } from '../types/index';
 import { CATEGORIES } from '../constants/categories';
 import { supabase } from '../lib/supabase';
 import kimchiLogo from "../assets/images/kimchi_level5_nb.webp";
+import { useLanguage } from '../contexts/LanguageContext';
+import { t } from '../lib/i18n';
 
 interface Props {
   isDark: boolean;
@@ -56,20 +58,38 @@ const EMERGENCY_NUMBERS: Record<string, { ambulance: string; police: string; tou
 
 export default function PhoneBook({ isDark, city }: Props) {
   const navigate = useNavigate();
+  const { lang } = useLanguage();
   const [businesses, setBusinesses] = useState<Business[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [selectedCategory, setSelectedCategory] = useState<string>('음식점');
-  const [selectedSubcategory, setSelectedSubcategory] = useState<string>('전체');
+  const [selectedCategory, setSelectedCategory] = useState<string>(() => sessionStorage.getItem('pb_category') || '음식점');
+  const [selectedSubcategory, setSelectedSubcategory] = useState<string>(() => {
+    const isBack = sessionStorage.getItem('pb_is_back') === 'true';
+    sessionStorage.removeItem('pb_is_back');
+    return isBack ? (sessionStorage.getItem('pb_subcategory') || '전체') : '전체';
+  });
   const [searchQuery, setSearchQuery] = useState('');
   const [showKoreanOnly, setShowKoreanOnly] = useState(false);
   const koreanRunCount = businesses.filter((b) => (b as any).is_korean_run === true).length;
-  const [sortOrder, setSortOrder] = useState<'name' | 'rating'>('rating');
+  const [sortOrder, setSortOrder] = useState<'name' | 'rating'>(() => (sessionStorage.getItem('pb_sort') as 'name' | 'rating') || 'rating');
+  const listRef = useRef<HTMLDivElement>(null);
 
-  const FOOD_SUBCATEGORIES = ['전체', '종합한식', '고기구이', '치킨', '포차/호프', '분식', '백반/반찬', '족발/보쌈', '중화요리', '회/초밥', '국밥/찌개', '전골/샤브', '브런치/카페', '기타'];
-  const MEDICAL_SUBCATEGORIES = ['전체', '종합/국제병원', '내과/가정의학', '치과', '피부과', '안과', '이비인후과', '정형외과', '한의원', '약국', '기타'];
+  const ALL_LABEL = lang === 'en' ? 'All' : '전체';
+  const FOOD_SUBCATEGORIES = lang === 'en'
+    ? ['All', 'Korean Cuisine', 'Korean BBQ', 'Fried Chicken', 'Bar & Pocha', 'Street Food', 'Rice & Sides', 'Jokbal & Bossam', 'Korean-Chinese', 'Sashimi & Sushi', 'Soup & Stew', 'Hot Pot', 'Café & Brunch', 'Other']
+    : ['전체', '종합한식', '고기구이', '치킨', '포차/호프', '분식', '백반/반찬', '족발/보쌈', '중화요리', '회/초밥', '국밥/찌개', '전골/샤브', '브런치/카페', '기타'];
+  const MEDICAL_SUBCATEGORIES = lang === 'en'
+    ? ['All', 'General Hospital', 'Internal Medicine', 'Dental', 'Dermatology', 'Ophthalmology', 'ENT', 'Orthopedics', 'Korean Medicine', 'Pharmacy', 'Other']
+    : ['전체', '종합/국제병원', '내과/가정의학', '치과', '피부과', '안과', '이비인후과', '정형외과', '한의원', '약국', '기타'];
   const [tooltipId, setTooltipId] = useState<string | null>(null);
   const tooltipTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    const saved = sessionStorage.getItem('pb_scroll');
+    if (saved && listRef.current) {
+      listRef.current.scrollTop = parseInt(saved);
+    }
+  }, [businesses]);
 
   useEffect(() => {
     const fetchBusinesses = async () => {
@@ -98,8 +118,20 @@ export default function PhoneBook({ isDark, city }: Props) {
         ? businesses
         : businesses.filter((b) => b.category === selectedCategory);
 
-    if (selectedSubcategory !== '전체' && (selectedCategory === '음식점' || selectedCategory === '의료')) {
-        categoryFiltered = categoryFiltered.filter(b => (b as any).subcategory === selectedSubcategory);
+    if (selectedSubcategory !== ALL_LABEL && (selectedCategory === '음식점' || selectedCategory === '의료')) {
+        categoryFiltered = categoryFiltered.filter(b => {
+          const subMap: Record<string, string> = {
+            'Korean Cuisine': '종합한식', 'Korean BBQ': '고기구이', 'Fried Chicken': '치킨',
+            'Bar & Pocha': '포차/호프', 'Street Food': '분식', 'Rice & Sides': '백반/반찬',
+            'Jokbal & Bossam': '족발/보쌈', 'Korean-Chinese': '중화요리', 'Sashimi & Sushi': '회/초밥',
+            'Soup & Stew': '국밥/찌개', 'Hot Pot': '전골/샤브', 'Café & Brunch': '브런치/카페', 'Other': '기타',
+            'General Hospital': '종합/국제병원', 'Internal Medicine': '내과/가정의학', 'Dental': '치과',
+            'Dermatology': '피부과', 'Ophthalmology': '안과', 'ENT': '이비인후과',
+            'Orthopedics': '정형외과', 'Korean Medicine': '한의원', 'Pharmacy': '약국',
+          };
+          const dbValue = subMap[selectedSubcategory] ?? selectedSubcategory;
+          return (b as any).subcategory === dbValue;
+        });
     }
 
     if (showKoreanOnly) {
@@ -261,15 +293,23 @@ export default function PhoneBook({ isDark, city }: Props) {
       <style>{customStyles}</style>
       <div style={{ display: 'flex', height: '48px', alignItems: 'center' }}>
         <div style={{ ...styles.categoryContainer, flex: 1 }} className="no-scrollbar">
-          {CATEGORIES.filter(c => c !== '전체' && c !== '택시' && c !== '기관' && c !== '기타').map((category) => (
-            <button
-              key={category}
-              style={styles.categoryChip(selectedCategory === category, category)}
-              onClick={() => { setSelectedCategory(category); setSelectedSubcategory('전체'); }}
-            >
-              {category}
-            </button>
-          ))}
+          {CATEGORIES.filter(c => c !== '전체' && c !== '택시' && c !== '기관' && c !== '기타').map((category) => {
+            const categoryLabel: Record<string, string> = {
+              '음식점': t(lang, 'category_restaurant'),
+              '마트/슈퍼': t(lang, 'category_grocery'),
+              '의료': t(lang, 'category_medical'),
+              '관공·긴급': t(lang, 'category_office'),
+            };
+            return (
+              <button
+                key={category}
+                style={styles.categoryChip(selectedCategory === category, category)}
+                onClick={() => { setSelectedCategory(category); sessionStorage.setItem('pb_category', category); setSelectedSubcategory(ALL_LABEL); sessionStorage.setItem('pb_subcategory', ALL_LABEL); sessionStorage.setItem('pb_scroll', '0'); if (listRef.current) listRef.current.scrollTop = 0; }}
+              >
+                {categoryLabel[category] ?? category}
+              </button>
+            );
+          })}
         </div>
         {koreanRunCount >= 2 && (<button
           onClick={() => setShowKoreanOnly(!showKoreanOnly)}
@@ -285,7 +325,7 @@ export default function PhoneBook({ isDark, city }: Props) {
             fontSize: '12px',
             whiteSpace: 'nowrap',
           }}
-          >한인인증</button>)}
+          >{t(lang, 'verified_korean_run_only')}</button>)}
           <button
             onClick={() => setSortOrder(sortOrder === 'rating' ? 'name' : 'rating')}
           style={{
@@ -301,14 +341,14 @@ export default function PhoneBook({ isDark, city }: Props) {
             cursor: 'pointer',
             whiteSpace: 'nowrap',
           }}
-        >{sortOrder === 'rating' ? '평점순' : '가나다순'}</button>
+        >{sortOrder === 'rating' ? t(lang, 'top_rated') : t(lang, 'sort_az')}</button>
       </div>
       <div style={{ display: 'flex', overflowX: 'auto', padding: '0 16px 8px', gap: '6px', scrollbarWidth: 'none' }} className="no-scrollbar">
         
         {(selectedCategory === '음식점' || selectedCategory === '의료') && (selectedCategory === '음식점' ? FOOD_SUBCATEGORIES : MEDICAL_SUBCATEGORIES).map(sub => (
           <button
             key={sub}
-            onClick={() => setSelectedSubcategory(sub)}
+            onClick={() => { setSelectedSubcategory(sub); sessionStorage.setItem('pb_subcategory', sub); sessionStorage.setItem('pb_scroll', '0'); if (listRef.current) listRef.current.scrollTop = 0; }}
             style={{
               flexShrink: 0, padding: '4px 10px', borderRadius: '14px', border: 'none',
               fontSize: '12px', cursor: 'pointer', whiteSpace: 'nowrap',
@@ -320,7 +360,7 @@ export default function PhoneBook({ isDark, city }: Props) {
       </div>
       <input
         type="text"
-        placeholder="업체명, 업종 검색..."
+        placeholder={t(lang, 'search_placeholder')}
         value={searchQuery}
         onChange={(e) => setSearchQuery(e.target.value)}
         style={{
@@ -336,7 +376,11 @@ export default function PhoneBook({ isDark, city }: Props) {
           outline: 'none',
         }}
       />
-      <div style={styles.listContainer}>
+      <div
+        ref={listRef}
+        style={styles.listContainer}
+        onScroll={() => sessionStorage.setItem('pb_scroll', String(listRef.current?.scrollTop ?? 0))}
+      >
         {selectedCategory === '의료' && (
           <div style={{
             background: isDark ? '#1A1A1A' : '#FFFFFF',
@@ -349,7 +393,7 @@ export default function PhoneBook({ isDark, city }: Props) {
             alignItems: 'center',
           }}>
             <div>
-              <span style={{ fontSize: '12px', color: '#2980B9', fontWeight: 'bold' }}>🚑 구급·응급신고</span>
+              <span style={{ fontSize: '12px', color: '#2980B9', fontWeight: 'bold' }}>🚑 {lang === 'en' ? 'Ambulance' : '구급·응급신고'}</span>
               <p style={{ margin: '2px 0 0', fontWeight: 'bold', fontSize: '16px', color: isDark ? '#FFFFFF' : '#1A1A1A' }}>{EMERGENCY_NUMBERS[city ?? '']?.ambulance ?? '115'}</p>
             </div>
             <button
@@ -364,7 +408,7 @@ export default function PhoneBook({ isDark, city }: Props) {
               }}
               onClick={() => window.location.href = `tel:${EMERGENCY_NUMBERS[city ?? '']?.ambulance ?? '115'}`}
             >
-              📞 전화
+              📞 {t(lang, 'call')}
             </button>
           </div>
         )}
@@ -440,10 +484,10 @@ export default function PhoneBook({ isDark, city }: Props) {
           <div
             key={b.id}
             style={{ ...styles.card, cursor: (b as any).google_place_id ? 'pointer' : 'default' }}
-            onClick={() => { if ((b as any).google_place_id) navigate('/biz/' + (b as any).google_place_id); }}
+            onClick={() => { if ((b as any).google_place_id) { sessionStorage.setItem('pb_is_back', 'true'); navigate('/biz/' + (b as any).google_place_id); } }}
           >
             <div style={styles.cardHeader}>
-              <span style={styles.businessName}>{(b as any).name_ko || b.name}</span>
+              <span style={styles.businessName}>{lang === 'en' ? ((b as any).name_en || (b as any).name_ko || b.name) : ((b as any).name_ko || b.name)}</span>
               {(b as any).is_korean_run && (
                 <div style={{ position: 'relative', display: 'inline-block' }}>
                   <img
@@ -490,9 +534,7 @@ export default function PhoneBook({ isDark, city }: Props) {
               ) : null;
             })()}
             
-            <p style={{...styles.addressText, margin: '4px 0 0'}}>
-                {b.address}
-            </p>
+            <p style={{...styles.addressText, margin: '4px 0 0'}}>{b.address}</p>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '8px', gap: '8px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
                 {(b as any).google_rating && (
@@ -523,7 +565,7 @@ export default function PhoneBook({ isDark, city }: Props) {
                       window.location.href = url;
                     }}
                   >
-                    🗺️ 지도
+                    🗺️ {t(lang, 'map')}
                   </button>
                 )}
                 {b.phone ? (
@@ -531,10 +573,10 @@ export default function PhoneBook({ isDark, city }: Props) {
                     style={{ ...styles.button(true), marginLeft: 0 }}
                     onClick={(e) => { e.stopPropagation(); window.location.href = 'tel:' + b.phone; }}
                   >
-                    📞 전화
+                    📞 {t(lang, 'call')}
                   </button>
                 ) : (
-                  <span style={styles.noPhoneText}>전화번호 없음</span>
+                  <span style={styles.noPhoneText}>{lang === 'en' ? 'No phone number' : '전화번호 없음'}</span>
                 )}
               </div>
             </div>

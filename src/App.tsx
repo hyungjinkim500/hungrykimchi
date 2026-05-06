@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { LanguageProvider } from './contexts/LanguageContext'
 import { useState, useEffect } from 'react'
 import { APIProvider } from '@vis.gl/react-google-maps';
 import Header from './components/layout/Header'
@@ -26,6 +27,7 @@ export default function App() {
   }, [isDark])
 
   return (
+    <LanguageProvider>
     <APIProvider apiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY} libraries={['places']}>
       <BrowserRouter>
         <Header isDark={isDark} setIsDark={setIsDark} city={city} changeCity={changeCity} CITY_CENTERS={CITY_CENTERS} pendingCity={pendingCity} confirmDetectedCity={confirmDetectedCity} rejectDetectedCity={rejectDetectedCity} externalCityPickerOpen={cityPickerOpen} onExternalCityPickerClose={() => setCityPickerOpen(false)} />
@@ -60,5 +62,6 @@ export default function App() {
         <BottomNav isDark={isDark} />
       </BrowserRouter>
     </APIProvider>
+    </LanguageProvider>
   )
 }

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { supabase, signOut } from '../../lib/supabase';
 import type { User } from '@supabase/supabase-js';
+import { useLanguage } from '../../contexts/LanguageContext';
 import kimchiLogoLight from "../../assets/images/kimchi_level5_nb.webp";
 import kimchiLogoDark from "../../assets/images/kimchi_level2_nb.webp";
 import type { City } from '../../types/index';
@@ -319,6 +320,7 @@ export default function Header({ isDark, setIsDark, city, changeCity, CITY_CENTE
   const [search, setSearch] = useState('');
   const [comingSoon, setComingSoon] = useState(false);
   const [user, setUser] = useState<User | null>(null);
+  const { lang, setLang } = useLanguage();
   const [emergencyPopup, setEmergencyPopup] = useState<{ ambulance: string; police: string; touristPolice?: string; embassy?: string; label: string; hideComingSoon?: boolean } | null>(null);
 
   useEffect(() => {
@@ -501,13 +503,43 @@ export default function Header({ isDark, setIsDark, city, changeCity, CITY_CENTE
                 onClick={() => { item.action(); setMenuOpen(false); }}
                 style={{
                   padding: '14px 16px', fontSize: '14px', cursor: 'pointer',
-                  borderBottom: index < menuItems.length - 1 ? `1px solid ${isDark ? '#333' : '#E0E0E0'}` : 'none',
+                  borderBottom: `1px solid ${isDark ? '#333' : '#E0E0E0'}`,
                   color: isDark ? '#FFFFFF' : '#1A1A1A',
                 }}
               >
                 {item.label}
               </div>
             ))}
+            <div style={{
+              padding: '12px 16px',
+              display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+            }}>
+              <span style={{ fontSize: '14px', color: isDark ? '#FFFFFF' : '#1A1A1A' }}>🌐 언어</span>
+              <div style={{ display: 'flex', gap: '6px' }}>
+                <button
+                  onClick={() => { setLang('ko'); setMenuOpen(false); }}
+                  style={{
+                    padding: '5px 12px', borderRadius: '14px', border: 'none',
+                    fontSize: '13px', fontWeight: 'bold', cursor: 'pointer',
+                    background: lang === 'ko' ? '#C0392B' : (isDark ? '#2A2A2A' : '#F0F0F0'),
+                    color: lang === 'ko' ? '#FFFFFF' : (isDark ? '#FFFFFF' : '#1A1A1A'),
+                  }}
+                >
+                  KO
+                </button>
+                <button
+                  onClick={() => { setLang('en'); setMenuOpen(false); }}
+                  style={{
+                    padding: '5px 12px', borderRadius: '14px', border: 'none',
+                    fontSize: '13px', fontWeight: 'bold', cursor: 'pointer',
+                    background: lang === 'en' ? '#C0392B' : (isDark ? '#2A2A2A' : '#F0F0F0'),
+                    color: lang === 'en' ? '#FFFFFF' : (isDark ? '#FFFFFF' : '#1A1A1A'),
+                  }}
+                >
+                  EN
+                </button>
+              </div>
+            </div>
           </div>
         )}
       </header>
