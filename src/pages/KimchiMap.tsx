@@ -32,8 +32,6 @@ function KimchiMapInner({ isDark: _isDark, city, CITY_CENTERS }: Props) {
   const MEDICAL_SUBCATEGORIES = ['전체', '종합/국제병원', '내과/가정의학', '치과', '피부과', '안과', '이비인후과', '정형외과', '한의원', '약국', '기타'];
   const map = useMap();
   const [myLocation, setMyLocation] = useState<{ lat: number; lng: number } | null>(null);
-  const _mapCenterRef = useRef<{ lat: number; lng: number } | null>(null);
-  const _mapZoomRef = useRef<number>(13);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const searchInputRef = useRef<HTMLInputElement>(null);
