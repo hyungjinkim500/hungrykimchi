@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { supabase, signOut } from '../../lib/supabase';
 import type { User } from '@supabase/supabase-js';
@@ -313,6 +313,22 @@ export default function Header({ isDark, setIsDark, city, changeCity, CITY_CENTE
   const navigate = useNavigate();
   const subtitle = pageTitles[location.pathname] ?? '';
   const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+  const menuButtonRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (
+        menuRef.current && !menuRef.current.contains(e.target as Node) &&
+        menuButtonRef.current && !menuButtonRef.current.contains(e.target as Node)
+      ) {
+        setMenuOpen(false);
+      }
+    };
+    if (menuOpen) document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [menuOpen]);
+
   const [cityPickerOpen, setCityPickerOpen] = useState(false);
   const [step, setStep] = useState<'continent' | 'country' | 'city'>('continent');
   const [selectedCountry, setSelectedCountry] = useState<string | null>(null);
@@ -484,14 +500,15 @@ export default function Header({ isDark, setIsDark, city, changeCity, CITY_CENTE
             📍 {currentLabel}
           </button>
           <button
-            onClick={() => setMenuOpen(!menuOpen)}
+            ref={menuButtonRef}
+            onClick={(e) => { e.stopPropagation(); setMenuOpen(!menuOpen); }}
             style={{ background: 'none', border: 'none', fontSize: '22px', cursor: 'pointer', color: isDark ? '#FFFFFF' : '#1A1A1A' }}
           >
             ☰
           </button>
         </div>
         {menuOpen && (
-          <div style={{
+          <div ref={menuRef} style={{
             position: 'absolute', top: '60px', right: '0', width: '200px',
             backgroundColor: isDark ? '#1A1A1A' : '#FFFFFF',
             border: `1px solid ${isDark ? '#333' : '#E0E0E0'}`,

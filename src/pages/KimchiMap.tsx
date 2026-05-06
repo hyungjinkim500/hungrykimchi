@@ -24,13 +24,16 @@ function KimchiMapInner({ isDark: _isDark, city, CITY_CENTERS }: Props) {
   const navigate = useNavigate();
   const [businesses, setBusinesses] = useState<Business[]>([]);
   const [selectedBusiness, setSelectedBusiness] = useState<Business | null>(null);
-  const [activeCategory, setActiveCategory] = useState<string>('전체');
+  const selectedBusinessIdRef = useRef<string | null>(sessionStorage.getItem('map_selected_id'));
+  const [activeCategory, setActiveCategory] = useState<string>(() => sessionStorage.getItem('map_category') || '전체');
   const [activeSubcategory, setActiveSubcategory] = useState<string>('전체');
 
   const FOOD_SUBCATEGORIES = ['전체', '종합한식', '고기구이', '치킨', '포차/호프', '분식', '백반/반찬', '족발/보쌈', '중화요리', '회/초밥', '국밥/찌개', '전골/샤브', '브런치/카페', '기타'];
   const MEDICAL_SUBCATEGORIES = ['전체', '종합/국제병원', '내과/가정의학', '치과', '피부과', '안과', '이비인후과', '정형외과', '한의원', '약국', '기타'];
   const map = useMap();
   const [myLocation, setMyLocation] = useState<{ lat: number; lng: number } | null>(null);
+  const mapCenterRef = useRef<{ lat: number; lng: number } | null>(null);
+  const mapZoomRef = useRef<number>(13);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const searchInputRef = useRef<HTMLInputElement>(null);
@@ -79,6 +82,9 @@ function KimchiMapInner({ isDark: _isDark, city, CITY_CENTERS }: Props) {
     if (map && city && CITY_CENTERS[city]) {
       map.panTo({ lat: CITY_CENTERS[city].lat, lng: CITY_CENTERS[city].lng });
       map.setZoom(13);
+      sessionStorage.removeItem('map_center');
+      sessionStorage.removeItem('map_zoom');
+      sessionStorage.removeItem('map_selected_id');
     }
   }, [city, map]);
 
@@ -92,7 +98,15 @@ function KimchiMapInner({ isDark: _isDark, city, CITY_CENTERS }: Props) {
         .eq('pending_approval', false)
         .eq('city', city)
         .limit(10000);
-      if (data) setBusinesses(data as Business[]);
+      if (data) {
+        setBusinesses(data as Business[]);
+        if (selectedBusinessIdRef.current) {
+          const found = (data as Business[]).find(b => b.google_place_id === selectedBusinessIdRef.current);
+          if (found) setSelectedBusiness(found);
+          selectedBusinessIdRef.current = null;
+          sessionStorage.removeItem('map_selected_id');
+        }
+      }
     };
     fetchBusinesses();
   }, [city]);
@@ -134,7 +148,7 @@ function KimchiMapInner({ isDark: _isDark, city, CITY_CENTERS }: Props) {
         {FILTER_CATEGORIES.map(cat => (
           <button
             key={cat}
-            onClick={() => { setActiveCategory(cat); setActiveSubcategory('전체'); }}
+            onClick={() => { setActiveCategory(cat); sessionStorage.setItem('map_category', cat); setActiveSubcategory('전체'); setSelectedBusiness(null); sessionStorage.removeItem('map_selected_id'); }}
             style={{
               padding: '4px 10px', borderRadius: '14px', border: 'none',
               fontSize: '12px', cursor: 'pointer', whiteSpace: 'nowrap',
@@ -257,9 +271,19 @@ function KimchiMapInner({ isDark: _isDark, city, CITY_CENTERS }: Props) {
       </button>
       <Map
         mapId="3c0c11535be505e82aed68f4"
-        defaultCenter={defaultCenter}
-        defaultZoom={13}
+        defaultCenter={(() => {
+          const saved = sessionStorage.getItem('map_center');
+          return saved ? JSON.parse(saved) : defaultCenter;
+        })()}
+        defaultZoom={(() => {
+          const saved = sessionStorage.getItem('map_zoom');
+          return saved ? parseInt(saved) : 13;
+        })()}
         gestureHandling="greedy"
+        onCameraChanged={(e) => {
+          sessionStorage.setItem('map_center', JSON.stringify(e.detail.center));
+          sessionStorage.setItem('map_zoom', String(e.detail.zoom));
+        }}
         disableDefaultUI={true}
         zoomControl={true}
         mapTypeControl={false}
@@ -274,6 +298,7 @@ function KimchiMapInner({ isDark: _isDark, city, CITY_CENTERS }: Props) {
             position={{ lat: business.lat!, lng: business.lng! }}
             onClick={() => {
               setSelectedBusiness(business);
+              sessionStorage.setItem('map_selected_id', business.google_place_id!);
             }}
           >
             <Pin
@@ -293,7 +318,10 @@ function KimchiMapInner({ isDark: _isDark, city, CITY_CENTERS }: Props) {
         {selectedBusiness && (
           <InfoWindow
             position={{ lat: selectedBusiness.lat!, lng: selectedBusiness.lng! }}
-            onCloseClick={() => setSelectedBusiness(null)}
+            onCloseClick={() => {
+              setSelectedBusiness(null);
+              sessionStorage.removeItem('map_selected_id');
+            }}
           >
             <div style={{ padding: '4px', minWidth: '160px' }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '4px' }}>
