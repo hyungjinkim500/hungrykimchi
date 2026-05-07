@@ -123,8 +123,8 @@ export default function PhoneBook({ isDark, city, changeCity, CITY_CENTERS }: Pr
 
   // 도시선택 피커 단계
   const [, setPickerStep] = useState<'continent' | 'country' | 'city'>('continent');
-  const [pickerContinent, setPickerContinent] = useState<string | null>(null);
-  const [pickerCountry, setPickerCountry] = useState<string | null>(null);
+  const [, setPickerContinent] = useState<string | null>(null);
+  const [, setPickerCountry] = useState<string | null>(null);
   const [, setPickerSearch] = useState('');
 
   // 거리순 정렬용 사용자 위치
@@ -376,8 +376,6 @@ export default function PhoneBook({ isDark, city, changeCity, CITY_CENTERS }: Pr
   const currentCategoryLabel = categoryLabel[selectedCategory] ?? selectedCategory;
   const currentSubLabel = (selectedCategory === '음식점' || selectedCategory === '의료') && selectedSubcategory !== ALL_LABEL ? selectedSubcategory : null;
   const currentSortLabel = sortLabels[sortOrder];
-
-  const pickerContinentData = CONTINENTS.find(c => c.key === pickerContinent);
 
   const handleCitySelect = (cityKey: string, active: boolean) => {
     if (!active) return;
