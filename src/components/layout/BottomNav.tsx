@@ -1,18 +1,22 @@
 import { Link, useLocation } from 'react-router-dom';
 
-const tabs = [
-  { path: '/', label: '전화번호부', icon: '📋' },
-  { path: '/map', label: '김치맵', icon: '🗺️' },
-  { path: '/news', label: '소식', icon: '📰' },
-  { path: '/mypage', label: '내정보', icon: '👤' },
-];
-
 interface BottomNavProps {
   isDark: boolean;
+  onEmergency: () => void;
 }
 
-export default function BottomNav({ isDark }: BottomNavProps) {
+export default function BottomNav({ isDark, onEmergency }: BottomNavProps) {
   const location = useLocation();
+
+  const tabStyle = (path: string) => ({
+    textDecoration: 'none' as const,
+    color: location.pathname === path ? (isDark ? '#7DBA31' : '#C0392B') : '#888888',
+    display: 'flex' as const,
+    flexDirection: 'column' as const,
+    alignItems: 'center' as const,
+    fontSize: '11px',
+    fontWeight: location.pathname === path ? 700 : 400,
+  });
 
   return (
     <nav style={{
@@ -30,24 +34,33 @@ export default function BottomNav({ isDark }: BottomNavProps) {
       padding: '8px 0',
       zIndex: 100,
     }}>
-      {tabs.map(tab => (
-        <Link
-          to={tab.path}
-          key={tab.path}
-          style={{
-            textDecoration: 'none',
-            color: location.pathname === tab.path ? (isDark ? '#7DBA31' : '#C0392B') : '#888888',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            fontSize: '11px',
-            fontWeight: location.pathname === tab.path ? 700 : 400,
-          }}
-        >
-          <span style={{ fontSize: '24px' }}>{tab.icon}</span>
-          {tab.label}
-        </Link>
-      ))}
+      <Link to="/" style={tabStyle('/')}>
+        <span style={{ fontSize: '24px' }}>📋</span>
+        전화번호부
+      </Link>
+      <Link to="/map" style={tabStyle('/map')}>
+        <span style={{ fontSize: '24px' }}>🗺️</span>
+        김치맵
+      </Link>
+      <button
+        onClick={onEmergency}
+        style={{
+          background: 'none', border: 'none', cursor: 'pointer',
+          display: 'flex', flexDirection: 'column', alignItems: 'center',
+          fontSize: '11px', color: '#888888', padding: 0,
+        }}
+      >
+        <span style={{ fontSize: '24px' }}>🚨</span>
+        긴급번호
+      </button>
+      <Link to="/news" style={tabStyle('/news')}>
+        <span style={{ fontSize: '24px' }}>📰</span>
+        소식
+      </Link>
+      <Link to="/mypage" style={tabStyle('/mypage')}>
+        <span style={{ fontSize: '24px' }}>👤</span>
+        내정보
+      </Link>
     </nav>
   );
 }

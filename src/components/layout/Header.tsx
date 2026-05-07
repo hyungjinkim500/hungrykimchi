@@ -306,9 +306,11 @@ interface HeaderProps {
   rejectDetectedCity: () => void;
   externalCityPickerOpen?: boolean;
   onExternalCityPickerClose?: () => void;
+  emergencyMode?: boolean;
+  onEmergencyModeCity?: (cityKey: string) => void;
 }
 
-export default function Header({ isDark, setIsDark, city, changeCity, CITY_CENTERS, pendingCity, confirmDetectedCity, rejectDetectedCity, externalCityPickerOpen, onExternalCityPickerClose }: HeaderProps) {
+export default function Header({ isDark, setIsDark, city, changeCity, CITY_CENTERS, pendingCity, confirmDetectedCity, rejectDetectedCity, externalCityPickerOpen, onExternalCityPickerClose, emergencyMode, onEmergencyModeCity }: HeaderProps) {
   const location = useLocation();
   const navigate = useNavigate();
   const subtitle = pageTitles[location.pathname] ?? '';
@@ -409,6 +411,11 @@ export default function Header({ isDark, setIsDark, city, changeCity, CITY_CENTE
       }
       return;
     }
+    if (emergencyMode && onEmergencyModeCity) {
+      onEmergencyModeCity(cityKey);
+      closePicker();
+      return;
+    }
     changeCity(cityKey as City);
     closePicker();
   };
@@ -463,31 +470,6 @@ export default function Header({ isDark, setIsDark, city, changeCity, CITY_CENTE
           </div>
         </div>
         <div style={{ display: 'flex', alignItems: 'center' }}>
-          {(() => {
-            const currentCountryKey = CONTINENTS.flatMap(c => c.countries).find(c => c.cities.some(ci => ci.key === city))?.key;
-            return currentCountryKey && COUNTRY_EMERGENCY[currentCountryKey] ? (
-              <button
-                onClick={() => {
-                  const country = CONTINENTS.flatMap(c => c.countries).find(c => c.key === currentCountryKey);
-                  setEmergencyPopup({
-                    ambulance: COUNTRY_EMERGENCY[currentCountryKey].ambulance,
-                    police: COUNTRY_EMERGENCY[currentCountryKey].police,
-                    touristPolice: COUNTRY_EMERGENCY[currentCountryKey].touristPolice,
-                    embassy: COUNTRY_EMERGENCY[currentCountryKey].embassy,
-                    label: country?.label ?? currentCountryKey,
-                    hideComingSoon: true,
-                  });
-                }}
-                style={{
-                  background: 'none', border: 'none',
-                  fontSize: '20px', cursor: 'pointer',
-                  marginRight: '4px', padding: '0 4px',
-                }}
-              >
-                🚨
-              </button>
-            ) : null;
-          })()}
           {!isPhoneBook && (
             <button
               onClick={openCityPicker}
@@ -640,6 +622,15 @@ export default function Header({ isDark, setIsDark, city, changeCity, CITY_CENTE
                   <div
                     key={country.key}
                     onClick={() => {
+                      console.log('emergencyMode: ' + emergencyMode);
+                      if (emergencyMode && onEmergencyModeCity) {
+                        const repCity = country.cities.find(c => c.active)?.key ?? country.cities[0]?.key;
+                        if (repCity) { onEmergencyModeCity(repCity); closePicker(); return; }
+                        if (COUNTRY_EMERGENCY[country.key]) {
+                          onEmergencyModeCity(country.key); closePicker(); return;
+                        }
+                        return;
+                      }
                       const hasCities = country.cities.some(c => c.active);
                       if (hasCities) {
                         setSelectedCountry(country.key); setStep('city'); setSearch('');
@@ -715,9 +706,27 @@ export default function Header({ isDark, setIsDark, city, changeCity, CITY_CENTE
               boxShadow: '0 8px 32px rgba(0,0,0,0.3)',
             }}
           >
-            <p style={{ fontWeight: 'bold', fontSize: '16px', margin: '0 0 16px', color: '#1A1A1A' }}>
-              {emergencyPopup.label} 비상연락
-            </p>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
+              <p style={{ fontWeight: 'bold', fontSize: '16px', margin: 0, color: '#1A1A1A' }}>
+                비상연락
+              </p>
+              <button
+                onClick={() => { setEmergencyPopup(null); openCityPicker(); }}
+                style={{
+                  background: isDark ? '#2A2A2A' : '#F0F0F0',
+                  border: 'none',
+                  borderRadius: '20px',
+                  padding: '4px 12px',
+                  fontSize: '13px',
+                  fontWeight: 600,
+                  color: isDark ? '#FFF' : '#1A1A1A',
+                  cursor: 'pointer',
+                  display: 'flex', alignItems: 'center', gap: '4px',
+                }}
+              >
+                📍 {emergencyPopup.label} <span style={{ fontSize: '10px', opacity: 0.6 }}>▾</span>
+              </button>
+            </div>
 
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
               <div>
