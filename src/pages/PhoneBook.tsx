@@ -419,7 +419,7 @@ export default function PhoneBook({ isDark, city, changeCity, CITY_CENTERS }: Pr
         display: 'flex', alignItems: 'center', gap: '8px',
         padding: '8px 12px', flexShrink: 0,
       }}>
-        <button ref={cityBtnRef} style={{ ...chipBase, ...chipActive(activeDropdown === 'city'), flexShrink: 0 }}
+        <button ref={cityBtnRef} style={{ ...chipBase, ...chipActive(activeDropdown === 'city'), flexShrink: 0, paddingTop: '7px', paddingBottom: '7px' }}
           onClick={() => openDropdown('city', cityBtnRef)}>
           📍 {currentCityLabel} <span style={{ fontSize: '10px', opacity: 0.6 }}>▾</span>
         </button>
