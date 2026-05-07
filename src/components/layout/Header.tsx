@@ -429,6 +429,7 @@ export default function Header({ isDark, setIsDark, city, changeCity, CITY_CENTE
 
   const stepTitle = step === 'continent' ? '지역 선택' : step === 'country' ? (selectedContinentData?.label ?? '국가 선택') : (currentCountry?.label ?? '도시 선택');
   const currentLabel = city ? (CITY_CENTERS[city]?.label ?? '도시선택') : '도시선택';
+  const isPhoneBook = location.pathname === '/';
 
   const menuItems = [
     { label: isDark ? '☀️ 라이트 모드' : '🌙 다크 모드', action: () => setIsDark(!isDark) },
@@ -487,18 +488,20 @@ export default function Header({ isDark, setIsDark, city, changeCity, CITY_CENTE
               </button>
             ) : null;
           })()}
-          <button
-            onClick={openCityPicker}
-            style={{
-              background: isDark ? '#2A2A2A' : '#E8E8E8', border: 'none',
-              borderRadius: '8px', padding: '5px 10px',
-              fontSize: '12px', fontWeight: 'bold',
-              color: isDark ? '#FFFFFF' : '#1A1A1A',
-              cursor: 'pointer', marginRight: '8px',
-            }}
-          >
-            📍 {currentLabel}
-          </button>
+          {!isPhoneBook && (
+            <button
+              onClick={openCityPicker}
+              style={{
+                background: isDark ? '#2A2A2A' : '#E8E8E8', border: 'none',
+                borderRadius: '8px', padding: '5px 10px',
+                fontSize: '12px', fontWeight: 'bold',
+                color: isDark ? '#FFFFFF' : '#1A1A1A',
+                cursor: 'pointer', marginRight: '8px',
+              }}
+            >
+              📍 {currentLabel}
+            </button>
+          )}
           <button
             ref={menuButtonRef}
             onClick={(e) => { e.stopPropagation(); setMenuOpen(!menuOpen); }}

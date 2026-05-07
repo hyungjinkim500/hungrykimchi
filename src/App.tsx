@@ -48,7 +48,7 @@ export default function App() {
         )}
         <div style={{ paddingTop: '65px', paddingBottom: '65px' }}>
           <Routes>
-            <Route path="/" element={<PhoneBook isDark={isDark} city={city} />} />
+            <Route path="/" element={<PhoneBook isDark={isDark} city={city} changeCity={changeCity} CITY_CENTERS={CITY_CENTERS} />} />
             <Route path="/biz/:id" element={<BusinessDetail isDark={isDark} />} />
             <Route path="/map" element={<KimchiMap isDark={isDark} city={city} CITY_CENTERS={CITY_CENTERS} />} />
             <Route path="/news" element={<News isDark={isDark} city={city} />} />
