@@ -98,7 +98,7 @@ export default function PhoneBook({ isDark, city, changeCity, CITY_CENTERS }: Pr
   const [selectedSubcategory, setSelectedSubcategory] = useState<string>(() => {
     const isBack = sessionStorage.getItem('pb_is_back') === 'true';
     sessionStorage.removeItem('pb_is_back');
-    return isBack ? (sessionStorage.getItem('pb_subcategory') || '전체') : '전체';
+    return isBack ? (sessionStorage.getItem('pb_subcategory') || 'ALL') : 'ALL';
   });
   const [searchQuery, setSearchQuery] = useState('');
   const [showKoreanOnly, setShowKoreanOnly] = useState(false);
@@ -150,13 +150,22 @@ export default function PhoneBook({ isDark, city, changeCity, CITY_CENTERS }: Pr
     );
   }, []);
 
-  const ALL_LABEL = lang === 'en' ? 'All' : '전체';
-  const FOOD_SUBCATEGORIES = lang === 'en'
-    ? ['All', 'Korean Cuisine', 'Korean BBQ', 'Fried Chicken', 'Bar & Pocha', 'Street Food', 'Rice & Sides', 'Jokbal & Bossam', 'Korean-Chinese', 'Sashimi & Sushi', 'Soup & Stew', 'Hot Pot', 'Café & Brunch', 'Other']
-    : ['전체', '종합한식', '고기구이', '치킨', '포차/호프', '분식', '백반/반찬', '족발/보쌈', '중화요리', '회/초밥', '국밥/찌개', '전골/샤브', '브런치/카페', '기타'];
-  const MEDICAL_SUBCATEGORIES = lang === 'en'
-    ? ['All', 'General Hospital', 'Internal Medicine', 'Dental', 'Dermatology', 'Ophthalmology', 'ENT', 'Orthopedics', 'Korean Medicine', 'Pharmacy', 'Other']
-    : ['전체', '종합/국제병원', '내과/가정의학', '치과', '피부과', '안과', '이비인후과', '정형외과', '한의원', '약국', '기타'];
+  const ALL_LABEL = 'ALL';
+  const FOOD_SUBCATEGORIES_KO = ['종합한식', '고기구이', '치킨', '포차/호프', '분식', '백반/반찬', '족발/보쌈', '중화요리', '회/초밥', '국밥/찌개', '전골/샤브', '브런치/카페', '기타'];
+  const FOOD_SUBCATEGORIES_EN = ['Korean Cuisine', 'Korean BBQ', 'Fried Chicken', 'Bar & Pocha', 'Street Food', 'Rice & Sides', 'Jokbal & Bossam', 'Korean-Chinese', 'Sashimi & Sushi', 'Soup & Stew', 'Hot Pot', 'Café & Brunch', 'Other'];
+  const MEDICAL_SUBCATEGORIES_KO = ['종합/국제병원', '내과/가정의학', '치과', '피부과', '안과', '이비인후과', '정형외과', '한의원', '약국', '기타'];
+  const MEDICAL_SUBCATEGORIES_EN = ['General Hospital', 'Internal Medicine', 'Dental', 'Dermatology', 'Ophthalmology', 'ENT', 'Orthopedics', 'Korean Medicine', 'Pharmacy', 'Other'];
+  const subEnToKo: Record<string, string> = {
+    'Korean Cuisine': '종합한식', 'Korean BBQ': '고기구이', 'Fried Chicken': '치킨',
+    'Bar & Pocha': '포차/호프', 'Street Food': '분식', 'Rice & Sides': '백반/반찬',
+    'Jokbal & Bossam': '족발/보쌈', 'Korean-Chinese': '중화요리', 'Sashimi & Sushi': '회/초밥',
+    'Soup & Stew': '국밥/찌개', 'Hot Pot': '전골/샤브', 'Café & Brunch': '브런치/카페', 'Other': '기타',
+    'General Hospital': '종합/국제병원', 'Internal Medicine': '내과/가정의학', 'Dental': '치과',
+    'Dermatology': '피부과', 'Ophthalmology': '안과', 'ENT': '이비인후과',
+    'Orthopedics': '정형외과', 'Korean Medicine': '한의원', 'Pharmacy': '약국',
+  };
+  const FOOD_SUBCATEGORIES = lang === 'en' ? FOOD_SUBCATEGORIES_EN : FOOD_SUBCATEGORIES_KO;
+  const MEDICAL_SUBCATEGORIES = lang === 'en' ? MEDICAL_SUBCATEGORIES_EN : MEDICAL_SUBCATEGORIES_KO;
   const [tooltipId, setTooltipId] = useState<string | null>(null);
   const tooltipTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -194,21 +203,12 @@ export default function PhoneBook({ isDark, city, changeCity, CITY_CENTERS }: Pr
         ? businesses
         : businesses.filter((b) => b.category === selectedCategory);
 
-    if (selectedSubcategory !== ALL_LABEL && (selectedCategory === '음식점' || selectedCategory === '의료')) {
-        categoryFiltered = categoryFiltered.filter(b => {
-          const subMap: Record<string, string> = {
-            'Korean Cuisine': '종합한식', 'Korean BBQ': '고기구이', 'Fried Chicken': '치킨',
-            'Bar & Pocha': '포차/호프', 'Street Food': '분식', 'Rice & Sides': '백반/반찬',
-            'Jokbal & Bossam': '족발/보쌈', 'Korean-Chinese': '중화요리', 'Sashimi & Sushi': '회/초밥',
-            'Soup & Stew': '국밥/찌개', 'Hot Pot': '전골/샤브', 'Café & Brunch': '브런치/카페', 'Other': '기타',
-            'General Hospital': '종합/국제병원', 'Internal Medicine': '내과/가정의학', 'Dental': '치과',
-            'Dermatology': '피부과', 'Ophthalmology': '안과', 'ENT': '이비인후과',
-            'Orthopedics': '정형외과', 'Korean Medicine': '한의원', 'Pharmacy': '약국',
-          };
-          const dbValue = subMap[selectedSubcategory] ?? selectedSubcategory;
-          return (b as any).subcategory === dbValue;
-        });
-    }
+        if (selectedSubcategory !== ALL_LABEL && (selectedCategory === '음식점' || selectedCategory === '의료')) {
+          categoryFiltered = categoryFiltered.filter(b => {
+            const dbValue = subEnToKo[selectedSubcategory] ?? selectedSubcategory;
+            return (b as any).subcategory === dbValue;
+          });
+      }
 
     if (showKoreanOnly) {
         categoryFiltered = categoryFiltered.filter(b => (b as any).is_korean_run === true);
@@ -374,7 +374,9 @@ export default function PhoneBook({ isDark, city, changeCity, CITY_CENTERS }: Pr
   };
   const currentCityLabel = city ? (CITY_CENTERS[city]?.label ?? '도시') : '도시';
   const currentCategoryLabel = categoryLabel[selectedCategory] ?? selectedCategory;
-  const currentSubLabel = (selectedCategory === '음식점' || selectedCategory === '의료') && selectedSubcategory !== ALL_LABEL ? selectedSubcategory : null;
+  const currentSubLabel = (selectedCategory === '음식점' || selectedCategory === '의료') && selectedSubcategory !== ALL_LABEL
+    ? (lang === 'en' ? (Object.entries(subEnToKo).find(([, v]) => v === selectedSubcategory)?.[0] ?? selectedSubcategory) : selectedSubcategory)
+    : null;
   const currentSortLabel = sortLabels[sortOrder];
 
   const handleCitySelect = (cityKey: string, active: boolean) => {
@@ -513,19 +515,24 @@ export default function PhoneBook({ isDark, city, changeCity, CITY_CENTERS }: Pr
           )}
           {activeDropdown === 'subcategory' && (
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-              {(selectedCategory === '음식점' ? FOOD_SUBCATEGORIES : MEDICAL_SUBCATEGORIES).map(sub => (
-                <button key={sub} style={{
-                  ...chipBase,
-                  background: selectedSubcategory === sub ? getActiveColor(selectedCategory) : (isDark ? '#2A2A2A' : '#F0F0F0'),
-                  color: selectedSubcategory === sub ? '#FFF' : (isDark ? '#CCC' : '#555'),
-                }} onClick={() => {
-                  setSelectedSubcategory(sub);
-                  sessionStorage.setItem('pb_subcategory', sub);
-                  sessionStorage.setItem('pb_scroll', '0');
-                  if (listRef.current) listRef.current.scrollTop = 0;
-                  setActiveDropdown(null);
-                }}>{sub}</button>
-              ))}
+              {[ALL_LABEL, ...(selectedCategory === '음식점' ? FOOD_SUBCATEGORIES : MEDICAL_SUBCATEGORIES)].map((sub, idx) => {
+                const displayLabel = sub === ALL_LABEL ? (lang === 'en' ? 'All' : '전체') : sub;
+                const koValue = sub === ALL_LABEL ? ALL_LABEL : (subEnToKo[sub] ?? sub);
+                const isActive = selectedSubcategory === ALL_LABEL ? sub === ALL_LABEL : (subEnToKo[selectedSubcategory] ?? selectedSubcategory) === (subEnToKo[sub] ?? sub);
+                return (
+                  <button key={idx} style={{
+                    ...chipBase,
+                    background: isActive ? getActiveColor(selectedCategory) : (isDark ? '#2A2A2A' : '#F0F0F0'),
+                    color: isActive ? '#FFF' : (isDark ? '#CCC' : '#555'),
+                  }} onClick={() => {
+                    setSelectedSubcategory(koValue);
+                    sessionStorage.setItem('pb_subcategory', koValue);
+                    sessionStorage.setItem('pb_scroll', '0');
+                    if (listRef.current) listRef.current.scrollTop = 0;
+                    setActiveDropdown(null);
+                  }}>{displayLabel}</button>
+                );
+              })}
             </div>
           )}
           {activeDropdown === 'sort' && (
