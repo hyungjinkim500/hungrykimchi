@@ -3,16 +3,17 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { supabase, signOut } from '../../lib/supabase';
 import type { User } from '@supabase/supabase-js';
 import { useLanguage } from '../../contexts/LanguageContext';
+import { t } from '../../lib/i18n';
 import kimchiLogoLight from "../../assets/images/kimchi_level5_nb.webp";
 import kimchiLogoDark from "../../assets/images/kimchi_level2_nb.webp";
 import type { City } from '../../types/index';
 
-const pageTitles: Record<string, string> = {
-  '/': '한인업체 전화번호부',
-  '/map': '김치맵',
-  '/news': '소식',
-  '/mypage': '내 정보',
-  '/register': '신규 업체 등록/제보',
+const pageTitleKeys: Record<string, 'page_phonebook' | 'page_map' | 'page_news' | 'page_mypage' | 'page_register'> = {
+  '/': 'page_phonebook',
+  '/map': 'page_map',
+  '/news': 'page_news',
+  '/mypage': 'page_mypage',
+  '/register': 'page_register',
 };
 
 const COUNTRY_EMERGENCY: Record<string, { ambulance: string; police: string; touristPolice?: string; embassy?: string }> = {
@@ -313,7 +314,10 @@ interface HeaderProps {
 export default function Header({ isDark, setIsDark, city, changeCity, CITY_CENTERS, pendingCity, confirmDetectedCity, rejectDetectedCity, externalCityPickerOpen, onExternalCityPickerClose, emergencyMode, onEmergencyModeCity }: HeaderProps) {
   const location = useLocation();
   const navigate = useNavigate();
-  const subtitle = pageTitles[location.pathname] ?? '';
+  const { lang, setLang } = useLanguage();
+  const titleKey = pageTitleKeys[location.pathname];
+  const subtitle = titleKey ? t(lang, titleKey) : '';
+
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const menuButtonRef = useRef<HTMLButtonElement>(null);
@@ -338,7 +342,6 @@ export default function Header({ isDark, setIsDark, city, changeCity, CITY_CENTE
   const [search, setSearch] = useState('');
   const [comingSoon, setComingSoon] = useState(false);
   const [user, setUser] = useState<User | null>(null);
-  const { lang, setLang } = useLanguage();
   const [emergencyPopup, setEmergencyPopup] = useState<{ ambulance: string; police: string; touristPolice?: string; embassy?: string; label: string; hideComingSoon?: boolean } | null>(null);
 
   useEffect(() => {
@@ -434,19 +437,19 @@ export default function Header({ isDark, setIsDark, city, changeCity, CITY_CENTE
     search === '' || c.label.toLowerCase().includes(search.toLowerCase())
   );
 
-  const stepTitle = step === 'continent' ? '지역 선택' : step === 'country' ? (selectedContinentData?.label ?? '국가 선택') : (currentCountry?.label ?? '도시 선택');
-  const currentLabel = city ? (CITY_CENTERS[city]?.label ?? '도시선택') : '도시선택';
+  const stepTitle = step === 'continent' ? (lang === 'en' ? 'Region' : '지역 선택') : step === 'country' ? (selectedContinentData?.label ?? (lang === 'en' ? 'Country' : '국가 선택')) : (currentCountry?.label ?? (lang === 'en' ? 'City' : '도시 선택'));
+  const currentLabel = city ? (CITY_CENTERS[city]?.label ?? (lang === 'en' ? 'City' : '도시선택')) : (lang === 'en' ? 'City' : '도시선택');
   const isPhoneBook = location.pathname === '/';
 
   const menuItems = [
-    { label: isDark ? '☀️ 라이트 모드' : '🌙 다크 모드', action: () => setIsDark(!isDark) },
-    { label: '📝 업체 제보', action: () => navigate('/register?type=suggestion') },
-    { label: '🏪 업체 등록/수정 (사장님)', action: () => navigate('/register?type=owner') },
+    { label: isDark ? t(lang, 'menu_light_mode') : t(lang, 'menu_dark_mode'), action: () => setIsDark(!isDark) },
+    { label: t(lang, 'menu_suggest'), action: () => navigate('/register?type=suggestion') },
+    { label: t(lang, 'menu_register'), action: () => navigate('/register?type=owner') },
     user
-      ? { label: '로그아웃', action: async () => { try { await signOut(); } catch (e) {} } }
-      : { label: '🔑 로그인', action: () => navigate('/mypage') },
-    { label: '공지사항', action: () => alert('준비 중입니다') },
-    { label: '📣 광고·제휴 문의', action: () => navigate('/inquiry') },
+      ? { label: t(lang, 'menu_logout'), action: async () => { try { await signOut(); } catch (e) {} } }
+      : { label: t(lang, 'menu_login'), action: () => navigate('/mypage') },
+    { label: t(lang, 'menu_notice'), action: () => alert(lang === 'en' ? 'Coming soon' : '준비 중입니다') },
+    { label: t(lang, 'menu_contact'), action: () => navigate('/inquiry') },
   ];
 
   return (
@@ -516,7 +519,7 @@ export default function Header({ isDark, setIsDark, city, changeCity, CITY_CENTE
               padding: '12px 16px',
               display: 'flex', alignItems: 'center', justifyContent: 'space-between',
             }}>
-              <span style={{ fontSize: '14px', color: isDark ? '#FFFFFF' : '#1A1A1A' }}>🌐 언어</span>
+              <span style={{ fontSize: '14px', color: isDark ? '#FFFFFF' : '#1A1A1A' }}>{t(lang, 'menu_language')}</span>
               <div style={{ display: 'flex', gap: '6px' }}>
                 <button
                   onClick={() => { setLang('ko'); setMenuOpen(false); }}
@@ -708,7 +711,7 @@ export default function Header({ isDark, setIsDark, city, changeCity, CITY_CENTE
           >
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
               <p style={{ fontWeight: 'bold', fontSize: '16px', margin: 0, color: '#1A1A1A' }}>
-                비상연락
+                {t(lang, 'emergency_title')}
               </p>
               <button
                 onClick={() => { setEmergencyPopup(null); openCityPicker(); }}
@@ -730,7 +733,7 @@ export default function Header({ isDark, setIsDark, city, changeCity, CITY_CENTE
 
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
               <div>
-                <span style={{ fontSize: '12px', color: '#2980B9', fontWeight: 'bold' }}>🚑 구급·응급신고</span>
+                <span style={{ fontSize: '12px', color: '#2980B9', fontWeight: 'bold' }}>{t(lang, 'emergency_ambulance')}</span>
                 <p style={{ margin: '2px 0 0', fontWeight: 'bold', fontSize: '22px', color: '#1A1A1A' }}>{emergencyPopup.ambulance}</p>
               </div>
               <button
@@ -741,13 +744,13 @@ export default function Header({ isDark, setIsDark, city, changeCity, CITY_CENTE
                   padding: '7px 14px', fontSize: '13px', cursor: 'pointer',
                 }}
               >
-                📞 전화
+                📞 {t(lang, 'emergency_call')}
               </button>
             </div>
 
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
               <div>
-                <span style={{ fontSize: '12px', color: '#FF6B35', fontWeight: 'bold' }}>🚔 경찰신고</span>
+                <span style={{ fontSize: '12px', color: '#FF6B35', fontWeight: 'bold' }}>{t(lang, 'emergency_police')}</span>
                 <p style={{ margin: '2px 0 0', fontWeight: 'bold', fontSize: '22px', color: '#1A1A1A' }}>{emergencyPopup.police}</p>
               </div>
               <button
@@ -758,41 +761,41 @@ export default function Header({ isDark, setIsDark, city, changeCity, CITY_CENTE
                   padding: '7px 14px', fontSize: '13px', cursor: 'pointer',
                 }}
               >
-                📞 전화
+                📞 {t(lang, 'emergency_call')}
               </button>
             </div>
 
             {emergencyPopup.touristPolice && (
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
                 <div>
-                  <span style={{ fontSize: '12px', color: '#27AE60', fontWeight: 'bold' }}>🚔 관광경찰</span>
+                  <span style={{ fontSize: '12px', color: '#27AE60', fontWeight: 'bold' }}>{t(lang, 'emergency_tourist_police')}</span>
                   <p style={{ margin: '2px 0 0', fontWeight: 'bold', fontSize: '22px', color: '#1A1A1A' }}>{emergencyPopup.touristPolice}</p>
                 </div>
                 <button
                   onClick={() => window.location.href = `tel:${emergencyPopup.touristPolice}`}
                   style={{ background: 'transparent', color: '#C0392B', border: '1.5px solid #C0392B', borderRadius: '8px', padding: '7px 14px', fontSize: '13px', cursor: 'pointer' }}
                 >
-                  📞 전화
+                  📞 {t(lang, 'emergency_call')}
                 </button>
               </div>
             )}
             {emergencyPopup.embassy && (
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
                 <div>
-                  <span style={{ fontSize: '12px', color: '#8E44AD', fontWeight: 'bold' }}>🏛️ 한국 대사관 당직</span>
+                  <span style={{ fontSize: '12px', color: '#8E44AD', fontWeight: 'bold' }}>{t(lang, 'emergency_embassy')}</span>
                   <p style={{ margin: '2px 0 0', fontWeight: 'bold', fontSize: '18px', color: '#1A1A1A' }}>{emergencyPopup.embassy}</p>
                 </div>
                 <button
                   onClick={() => window.location.href = `tel:${emergencyPopup.embassy}`}
                   style={{ background: 'transparent', color: '#C0392B', border: '1.5px solid #C0392B', borderRadius: '8px', padding: '7px 14px', fontSize: '13px', cursor: 'pointer' }}
                 >
-                  📞 전화
+                  📞 {t(lang, 'emergency_call')}
                 </button>
               </div>
             )}
             {!emergencyPopup.hideComingSoon && (
               <p style={{ fontSize: '13px', color: '#888', textAlign: 'center', margin: '0 0 16px' }}>
-                🌱 해당 지역 데이터를 수집하는 중입니다.
+                {t(lang, 'emergency_coming_soon')}
               </p>
             )}
 
@@ -805,7 +808,7 @@ export default function Header({ isDark, setIsDark, city, changeCity, CITY_CENTE
                 color: '#1A1A1A', cursor: 'pointer',
               }}
             >
-              닫기
+              {t(lang, 'emergency_close')}
             </button>
           </div>
         </div>
@@ -829,10 +832,10 @@ export default function Header({ isDark, setIsDark, city, changeCity, CITY_CENTE
             }}
           >
             <p style={{ fontWeight: 'bold', fontSize: '16px', margin: '0 0 8px', color: '#1A1A1A' }}>
-              📍 현재 위치 확인
+              {t(lang, 'location_confirm_title')}
             </p>
             <p style={{ fontSize: '14px', color: '#555', margin: '0 0 20px' }}>
-              현재 <strong>{CITY_CENTERS[pendingCity]?.label}</strong>에 계신가요?
+              {t(lang, 'location_confirm_body', { city: CITY_CENTERS[pendingCity]?.label ?? '' })}
             </p>
             <div style={{ display: 'flex', gap: '10px' }}>
               <button
@@ -844,7 +847,7 @@ export default function Header({ isDark, setIsDark, city, changeCity, CITY_CENTE
                   color: '#1A1A1A', cursor: 'pointer',
                 }}
               >
-                아니요
+                {t(lang, 'location_confirm_no')}
               </button>
               <button
                 onClick={() => { confirmDetectedCity(); }}
@@ -855,7 +858,7 @@ export default function Header({ isDark, setIsDark, city, changeCity, CITY_CENTE
                   color: '#FFFFFF', cursor: 'pointer',
                 }}
               >
-                네, 맞아요
+                {t(lang, 'location_confirm_yes')}
               </button>
             </div>
           </div>
@@ -870,7 +873,7 @@ export default function Header({ isDark, setIsDark, city, changeCity, CITY_CENTE
           fontSize: '13px', zIndex: 400,
           boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
         }}>
-          🌱 준비중입니다
+          {t(lang, 'coming_soon')}
         </div>
       )}
     </>

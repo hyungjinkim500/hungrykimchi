@@ -1,4 +1,6 @@
 import { Link, useLocation } from 'react-router-dom';
+import { useLanguage } from '../../contexts/LanguageContext';
+import { t } from '../../lib/i18n';
 
 interface BottomNavProps {
   isDark: boolean;
@@ -7,6 +9,7 @@ interface BottomNavProps {
 
 export default function BottomNav({ isDark, onEmergency }: BottomNavProps) {
   const location = useLocation();
+  const { lang } = useLanguage();
 
   const tabStyle = (path: string) => ({
     textDecoration: 'none' as const,
@@ -36,11 +39,11 @@ export default function BottomNav({ isDark, onEmergency }: BottomNavProps) {
     }}>
       <Link to="/" style={tabStyle('/')}>
         <span style={{ fontSize: '24px' }}>📋</span>
-        전화번호부
+        {t(lang, 'nav_phonebook')}
       </Link>
       <Link to="/map" style={tabStyle('/map')}>
         <span style={{ fontSize: '24px' }}>🗺️</span>
-        김치맵
+        {t(lang, 'nav_map')}
       </Link>
       <button
         onClick={onEmergency}
@@ -51,15 +54,15 @@ export default function BottomNav({ isDark, onEmergency }: BottomNavProps) {
         }}
       >
         <span style={{ fontSize: '24px' }}>🚨</span>
-        긴급번호
+        {t(lang, 'nav_emergency')}
       </button>
       <Link to="/news" style={tabStyle('/news')}>
         <span style={{ fontSize: '24px' }}>📰</span>
-        소식
+        {t(lang, 'nav_news')}
       </Link>
       <Link to="/mypage" style={tabStyle('/mypage')}>
         <span style={{ fontSize: '24px' }}>👤</span>
-        내정보
+        {t(lang, 'nav_mypage')}
       </Link>
     </nav>
   );
