@@ -752,38 +752,34 @@ export default function BusinessDetail({ isDark: _isDark }: { isDark: boolean })
       {/* ── 리뷰 탭 (관공서 제외) ── */}
       {tab === 'review' && !isOfficial && (
         <>
-          <div style={{ background: '#fff', marginTop: 8, padding: '14px 16px' }}>
+          <div style={{ background: '#fff', marginTop: 8, padding: '16px 16px 8px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+              <div style={{ fontSize: 15, fontWeight: 700 }}>
+                {'리뷰 (' + reviews.length + ')'}
+              </div>
+            </div>
+
             {visitAnswer === 'none' && !userReview && (
-              <>
-                <div style={{ fontSize: 14, fontWeight: 700, marginBottom: 10 }}>
-                  {categoryType === 'mart' ? t(lang, 'biz_visited_q_mart') : categoryType === 'medical' ? t(lang, 'biz_visited_q_medical') : t(lang, 'biz_visited_q_food')}
-                </div>
-                <div style={{ display: 'flex', gap: 8 }}>
-                  <button onClick={() => { setVisitAnswer('yes'); setShowReviewFlow(true); }}
-                    style={{ flex: 1, padding: '13px 0', borderRadius: 10, border: '1.5px solid ' + RED, background: '#fff', color: RED, fontSize: 15, fontWeight: 700, cursor: 'pointer' }}>
-                    {t(lang, 'biz_visited_yes')}
-                  </button>
-                  <button onClick={() => setVisitAnswer('no')}
-                    style={{ flex: 1, padding: '13px 0', borderRadius: 10, border: '1.5px solid ' + BORDER, background: '#fff', color: '#999', fontSize: 15, fontWeight: 700, cursor: 'pointer' }}>
-                    {t(lang, 'biz_visited_no')}
-                  </button>
-                </div>
-              </>
+              <div style={{ display: 'flex', gap: 8, marginBottom: reviews.length ? 16 : 0 }}>
+                <button onClick={() => { setVisitAnswer('yes'); setShowReviewFlow(true); }}
+                  style={{ flex: 1, padding: '13px 0', borderRadius: 10, border: '1.5px solid ' + RED, background: '#fff', color: RED, fontSize: 15, fontWeight: 700, cursor: 'pointer' }}>
+                  {t(lang, 'biz_visited_yes')}
+                </button>
+                <button onClick={() => setVisitAnswer('no')}
+                  style={{ flex: 1, padding: '13px 0', borderRadius: 10, border: '1.5px solid ' + BORDER, background: '#fff', color: '#999', fontSize: 15, fontWeight: 700, cursor: 'pointer' }}>
+                  {t(lang, 'biz_visited_no')}
+                </button>
+              </div>
             )}
             {visitAnswer === 'no' && (
-              <div style={{ textAlign: 'center', fontSize: 14, color: '#999', padding: '4px 0' }}>{t(lang, 'biz_visited_no_msg')}</div>
+              <div style={{ textAlign: 'center', fontSize: 14, color: '#999', padding: '4px 0', marginBottom: 12 }}>{t(lang, 'biz_visited_no_msg')}</div>
             )}
             {userReview && (
-              <div style={{ textAlign: 'center', fontSize: 13, color: OK_COLOR, fontWeight: 700 }}>{t(lang, 'biz_already_reviewed')}</div>
+              <div style={{ textAlign: 'center', fontSize: 13, color: OK_COLOR, fontWeight: 700, marginBottom: 12 }}>{t(lang, 'biz_already_reviewed')}</div>
             )}
-          </div>
 
-          <div style={{ background: '#fff', marginTop: 8, padding: '16px 16px 8px' }}>
-            <div style={{ fontSize: 15, fontWeight: 700, marginBottom: reviews.length ? 14 : 0 }}>
-              {reviews.length > 0 ? t(lang, 'biz_reviews_label') : t(lang, 'biz_no_reviews_label')}
-            </div>
             {reviews.length === 0 && (
-              <div style={{ textAlign: 'center', padding: '24px 0', color: '#bbb', fontSize: 14 }}>
+              <div style={{ textAlign: 'center', padding: '20px 0', color: '#bbb', fontSize: 14 }}>
                 {categoryType === 'mart' ? t(lang, 'biz_no_reviews_mart') : categoryType === 'medical' ? t(lang, 'biz_no_reviews_medical') : t(lang, 'biz_no_reviews_food')}
               </div>
             )}
