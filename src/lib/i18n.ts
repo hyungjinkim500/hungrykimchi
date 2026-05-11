@@ -113,6 +113,10 @@ export const translations = {
     korean_run_tooltip: '한국인이 운영/근무하는 곳이에요 🇰🇷',
     no_phone: '전화번호 없음',
 
+    // News
+    news_tab_youtube: '🎬 추천 동영상',
+    news_tab_news: '📢 소식',
+
     // BusinessDetail
     biz_loading: '불러오는 중...',
     biz_not_found: '업체를 찾을 수 없어요.',
@@ -317,6 +321,10 @@ export const translations = {
     tourist_police: '👮 Tourist Police',
     korean_run_tooltip: 'This place is run/staffed by Koreans 🇰🇷',
     no_phone: 'No phone number',
+
+    // News
+    news_tab_youtube: '🎬 Recommended Videos',
+    news_tab_news: '📢 News',
 
     // BusinessDetail
     biz_loading: 'Loading...',

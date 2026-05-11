@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import YoutubeTab from '../components/ui/YoutubeTab';
 import NewsTab from '../components/ui/NewsTab';
-
+import { useLanguage } from '../contexts/LanguageContext';
+import { t } from '../lib/i18n';
 import type { City } from '../types/index';
 
 interface Props {
@@ -11,6 +12,7 @@ interface Props {
 
 export default function News({ isDark, city }: Props) {
   const [activeTab, setActiveTab] = useState<'youtube' | 'news'>('youtube');
+  const { lang } = useLanguage();
 
   const containerStyle: React.CSSProperties = {
     backgroundColor: isDark ? '#111111' : '#F5F5F5',
@@ -52,10 +54,10 @@ export default function News({ isDark, city }: Props) {
     <div style={containerStyle}>
       <div style={tabBarStyle}>
         <button style={tabStyle(activeTab === 'youtube')} onClick={() => setActiveTab('youtube')}>
-          🎬 추천 동영상
+          {t(lang, 'news_tab_youtube')}
         </button>
         <button style={tabStyle(activeTab === 'news')} onClick={() => setActiveTab('news')}>
-          📢 소식
+          {t(lang, 'news_tab_news')}
         </button>
       </div>
       <div style={{ flex: 1, overflowY: 'auto' }}>
