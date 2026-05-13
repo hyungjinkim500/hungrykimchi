@@ -311,7 +311,7 @@ interface HeaderProps {
   onEmergencyModeCity?: (cityKey: string) => void;
 }
 
-export default function Header({ isDark, setIsDark, city, changeCity, CITY_CENTERS, pendingCity, confirmDetectedCity, rejectDetectedCity, externalCityPickerOpen, onExternalCityPickerClose, emergencyMode, onEmergencyModeCity }: HeaderProps) {
+export default function Header({ isDark, setIsDark: _setIsDark, city, changeCity, CITY_CENTERS, pendingCity, confirmDetectedCity, rejectDetectedCity, externalCityPickerOpen, onExternalCityPickerClose, emergencyMode, onEmergencyModeCity }: HeaderProps) {
   const location = useLocation();
   const navigate = useNavigate();
   const { lang, setLang } = useLanguage();
@@ -442,7 +442,6 @@ export default function Header({ isDark, setIsDark, city, changeCity, CITY_CENTE
   const isPhoneBook = location.pathname === '/';
 
   const menuItems = [
-    { label: isDark ? t(lang, 'menu_light_mode') : t(lang, 'menu_dark_mode'), action: () => setIsDark(!isDark) },
     { label: t(lang, 'menu_suggest'), action: () => navigate('/register?type=suggestion') },
     { label: t(lang, 'menu_register'), action: () => navigate('/register?type=owner') },
     user
@@ -630,8 +629,7 @@ export default function Header({ isDark, setIsDark, city, changeCity, CITY_CENTE
                         const repCity = country.cities.find(c => c.active)?.key ?? country.cities[0]?.key;
                         if (repCity) { onEmergencyModeCity(repCity); closePicker(); return; }
                         if (COUNTRY_EMERGENCY[country.key]) {
-                          onEmergencyModeCity(country.key); closePicker(); return;
-                        }
+                          onEmergencyModeCity(country.key); closePicker(); return; }
                         return;
                       }
                       const hasCities = country.cities.some(c => c.active);
