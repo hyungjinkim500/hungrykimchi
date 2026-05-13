@@ -761,7 +761,7 @@ export default function BusinessDetail({ isDark: _isDark }: { isDark: boolean })
 
             {visitAnswer === 'none' && !userReview && (
               <div style={{ display: 'flex', gap: 8, marginBottom: reviews.length ? 16 : 0 }}>
-                <button onClick={() => { setVisitAnswer('yes'); setShowReviewFlow(true); }}
+                <button onClick={async () => { const { data: { user } } = await supabase.auth.getUser(); if (!user) { const ok = window.confirm(t(lang, 'review_login_required')); if (ok) navigate('/mypage'); return; } setVisitAnswer('yes'); setShowReviewFlow(true); }}
                   style={{ flex: 1, padding: '13px 0', borderRadius: 10, border: '1.5px solid ' + RED, background: '#fff', color: RED, fontSize: 15, fontWeight: 700, cursor: 'pointer' }}>
                   {t(lang, 'biz_visited_yes')}
                 </button>

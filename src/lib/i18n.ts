@@ -277,6 +277,9 @@ export const translations = {
     review_med_sat_q: '전반적인 진료 만족도는요?',
     review_med_sat_sub: '진료 품질, 친절도, 대기 시간 등을 종합해 주세요.',
     review_med_comment_placeholder: '예) 한국어 통역이 돼서 설명 듣기 편했어요. 대기는 좀 길었지만 진료는 꼼꼼했어요.',
+    review_login_required: '로그인이 필요합니다. 로그인 하시겠습니까?',
+    review_login_confirm: '로그인하기',
+    review_login_cancel: '취소',
   },
   en: {
     // 카테고리
@@ -381,7 +384,7 @@ export const translations = {
     coming_soon: '🌱 Coming Soon',
     location_confirm_title: '📍 Location Check',
     location_confirm_body: 'Are you currently in {city}?',
-    location_confirm_yes: 'Yes',
+    location_confirm_yes: 'Yes', 
     location_confirm_no: 'No',
     loading: 'Loading...',
     subfilter_label: 'Type',
@@ -554,6 +557,9 @@ export const translations = {
     review_med_sat_q: 'Overall satisfaction?',
     review_med_sat_sub: 'Consider treatment quality, friendliness, and wait time.',
     review_med_comment_placeholder: 'e.g. Korean interpretation was available, very helpful. Wait was long but thorough.',
+    review_login_required: 'Login is required. Would you like to log in?',
+    review_login_confirm: 'Go to Login',
+    review_login_cancel: 'Cancel',
   },
 } as const;
 
