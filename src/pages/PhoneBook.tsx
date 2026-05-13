@@ -368,9 +368,9 @@ export default function PhoneBook({ isDark, city, changeCity, CITY_CENTERS }: Pr
     '관공·긴급': t(lang, 'category_office'),
   };
   const sortLabels: Record<string, string> = {
-    rating: '⭐ 평점순',
-    name: '🔤 가나다순',
-    distance: '📍 거리순',
+    rating: t(lang, 'sort_rating'),
+    name: t(lang, 'sort_name'),
+    distance: t(lang, 'sort_distance'),
   };
   const currentCityLabel = city ? (CITY_CENTERS[city]?.label ?? '도시') : '도시';
   const currentCategoryLabel = categoryLabel[selectedCategory] ?? selectedCategory;
@@ -403,11 +403,11 @@ export default function PhoneBook({ isDark, city, changeCity, CITY_CENTERS }: Pr
   });
 
   if (loading) {
-    return <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>불러오는 중...</div>;
+    return <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>{t(lang, 'loading')}</div>;
   }
 
   if (error) {
-    return <div>에러: {error}</div>;
+    return <div>{error}</div>;
   }
 
   const muted = isDark ? '#888' : '#666';
@@ -549,7 +549,7 @@ export default function PhoneBook({ isDark, city, changeCity, CITY_CENTERS }: Pr
                   setSortOrder(s);
                   sessionStorage.setItem('pb_sort', s);
                   setActiveDropdown(null);
-                }}>{sortLabels[s]}{s === 'distance' && locationDenied ? ' (권한없음)' : ''}</button>
+                }}>{sortLabels[s]}{s === 'distance' && locationDenied ? t(lang, 'sort_distance_denied') : ''}</button>
               ))}
             </div>
           )}
@@ -636,7 +636,7 @@ export default function PhoneBook({ isDark, city, changeCity, CITY_CENTERS }: Pr
               alignItems: 'center',
             }}>
               <div>
-                <span style={{ fontSize: '12px', color: '#FF6B35', fontWeight: 'bold' }}>🚔 경찰신고</span>
+                <span style={{ fontSize: '12px', color: '#FF6B35', fontWeight: 'bold' }}>{t(lang, 'police_report')}</span>
                 <p style={{ margin: '2px 0 0', fontWeight: 'bold', fontSize: '16px', color: isDark ? '#FFFFFF' : '#1A1A1A' }}>{EMERGENCY_NUMBERS[city ?? '']?.police ?? '113'}</p>
               </div>
               <button
@@ -651,7 +651,7 @@ export default function PhoneBook({ isDark, city, changeCity, CITY_CENTERS }: Pr
                 }}
                 onClick={() => window.location.href = `tel:${EMERGENCY_NUMBERS[city ?? '']?.police ?? '113'}`}
               >
-                📞 전화
+                📞 {t(lang, 'call')}
               </button>
             </div>
 
@@ -667,7 +667,7 @@ export default function PhoneBook({ isDark, city, changeCity, CITY_CENTERS }: Pr
                 alignItems: 'center',
               }}>
                 <div>
-                  <span style={{ fontSize: '12px', color: '#FF6B35', fontWeight: 'bold' }}>👮 관광경찰</span>
+                <span style={{ fontSize: '12px', color: '#FF6B35', fontWeight: 'bold' }}>{t(lang, 'tourist_police')}</span>
                   <p style={{ margin: '2px 0 0', fontWeight: 'bold', fontSize: '16px', color: isDark ? '#FFFFFF' : '#1A1A1A' }}>
                     {EMERGENCY_NUMBERS[city ?? '']?.touristPolice}
                   </p>
@@ -684,7 +684,7 @@ export default function PhoneBook({ isDark, city, changeCity, CITY_CENTERS }: Pr
                   }}
                   onClick={() => window.location.href = `tel:${EMERGENCY_NUMBERS[city ?? '']?.touristPolice}`}
                 >
-                  📞 전화
+                  📞 {t(lang, 'call')}
                 </button>
               </div>
             )}
@@ -722,7 +722,7 @@ export default function PhoneBook({ isDark, city, changeCity, CITY_CENTERS }: Pr
                       fontSize: '12px', whiteSpace: 'nowrap',
                       zIndex: 50, boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
                     }}>
-                      한국인이 운영/근무하는 곳이에요 🇰🇷
+                     {t(lang, 'korean_run_tooltip')}
                       <div style={{
                         position: 'absolute', bottom: '-6px', right: '8px',
                         width: 0, height: 0,
