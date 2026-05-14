@@ -563,7 +563,7 @@ export default function BusinessDetail({ isDark: _isDark }: { isDark: boolean })
   const navigate = useNavigate();
   const [business, setBusiness] = useState<Business | null>(null);
   const [loading, setLoading] = useState(true);
-  const [tab, setTab] = useState<'review' | 'info'>('review');
+  const [tab, setTab] = useState<'review' | 'info'>('info');
   const [showReviewFlow, setShowReviewFlow] = useState(false);
   const [visitAnswer, setVisitAnswer] = useState<'none' | 'yes' | 'no'>('none');
   const [showShare, setShowShare] = useState(false);
@@ -737,7 +737,7 @@ export default function BusinessDetail({ isDark: _isDark }: { isDark: boolean })
 
         {/* 탭 - 관공서도 정보 탭은 유지 */}
         <div style={{ display: 'flex', borderTop: '0.5px solid ' + BORDER }}>
-          {(isOfficial ? ['info'] as const : ['review', 'info'] as const).map(tabKey => (
+          {(isOfficial ? ['info'] as const : ['info', 'review'] as const).map(tabKey => (
             <div key={tabKey} onClick={() => setTab(tabKey as 'review' | 'info')} style={{
               flex: 1, textAlign: 'center', padding: '11px 0', fontSize: 13, fontWeight: 600, cursor: 'pointer',
               color: tab === tabKey ? RED : '#999',
@@ -843,6 +843,12 @@ export default function BusinessDetail({ isDark: _isDark }: { isDark: boolean })
       {tab === 'info' && (
         <div style={{ background: '#fff', marginTop: 8, padding: 16 }}>
           <div style={{ fontSize: 15, fontWeight: 700, marginBottom: 14 }}>{t(lang, 'biz_info_title')}</div>
+          {dirUrl && (
+            <a href={dirUrl} onClick={e => { e.preventDefault(); window.location.href = dirUrl; }}
+              style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, marginBottom: 14, padding: 12, background: '#fff', color: '#1A73E8', border: '1.5px solid ' + BORDER, borderRadius: 10, fontSize: 14, fontWeight: 700, textDecoration: 'none' }}>
+              {t(lang, 'biz_open_gmaps')}
+            </a>
+          )}
           {[
             { icon: '📍', label: t(lang, 'biz_info_address'), value: business.address, href: undefined },
             { icon: '📞', label: t(lang, 'biz_info_phone'), value: business.phone, href: business.phone ? 'tel:' + business.phone : undefined },
@@ -860,12 +866,6 @@ export default function BusinessDetail({ isDark: _isDark }: { isDark: boolean })
               </div>
             </div>
           ))}
-          {dirUrl && (
-            <a href={dirUrl} onClick={e => { e.preventDefault(); window.location.href = dirUrl; }}
-              style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, marginTop: 14, padding: 12, background: '#fff', color: '#1A73E8', border: '1.5px solid ' + BORDER, borderRadius: 10, fontSize: 14, fontWeight: 700, textDecoration: 'none' }}>
-              {t(lang, 'biz_open_gmaps')}
-            </a>
-          )}
           {/* 제보 버튼 */}
           <button onClick={() => setShowReport(true)}
             style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4, width: '100%', marginTop: 24, padding: '8px 0', background: 'none', color: '#BBBBBB', border: 'none', borderRadius: 0, fontSize: 12, cursor: 'pointer', borderTop: '0.5px solid ' + BORDER }}>

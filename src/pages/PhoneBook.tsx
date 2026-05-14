@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { MapPin, Phone, ChevronRight } from 'lucide-react';
 import Fuse from 'fuse.js';
 import type { Business, City } from '../types/index';
 import { supabase } from '../lib/supabase';
@@ -698,41 +699,8 @@ export default function PhoneBook({ isDark, city, changeCity, CITY_CENTERS }: Pr
           >
             <div style={styles.cardHeader}>
               <span style={styles.businessName}>{lang === 'en' ? ((b as any).name_en || (b as any).name_ko || b.name) : ((b as any).name_ko || b.name)}</span>
-              {(b as any).is_korean_run && (
-                <div style={{ position: 'relative', display: 'inline-block' }}>
-                  <img
-                    src={kimchiLogo}
-                    alt="한국인 운영"
-                    style={{ width: '28px', height: '28px', objectFit: 'contain', cursor: 'pointer' }}
-                    onClick={() => {
-                      if (tooltipTimerRef.current) clearTimeout(tooltipTimerRef.current);
-                      if (tooltipId === b.id) {
-                        setTooltipId(null);
-                      } else {
-                        setTooltipId(b.id);
-                        tooltipTimerRef.current = setTimeout(() => setTooltipId(null), 5000);
-                      }
-                    }}
-                  />
-                  {tooltipId === b.id && (
-                    <div style={{
-                      position: 'absolute', bottom: '34px', right: 0,
-                      backgroundColor: '#C0392B', color: '#FFF',
-                      padding: '6px 10px', borderRadius: '8px',
-                      fontSize: '12px', whiteSpace: 'nowrap',
-                      zIndex: 50, boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
-                    }}>
-                     {t(lang, 'korean_run_tooltip')}
-                      <div style={{
-                        position: 'absolute', bottom: '-6px', right: '8px',
-                        width: 0, height: 0,
-                        borderLeft: '6px solid transparent',
-                        borderRight: '6px solid transparent',
-                        borderTop: '6px solid #C0392B',
-                      }} />
-                    </div>
-                  )}
-                </div>
+              {(b as any).google_place_id && (
+                <ChevronRight size={18} color="#CCCCCC" style={{ flexShrink: 0 }} />
               )}
             </div>
 
@@ -747,6 +715,43 @@ export default function PhoneBook({ isDark, city, changeCity, CITY_CENTERS }: Pr
             <p style={{...styles.addressText, margin: '4px 0 0'}}>{b.address}</p>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '8px', gap: '8px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                {(b as any).is_korean_run && (
+                  <div style={{ position: 'relative', display: 'inline-block' }}>
+                    <img
+                      src={kimchiLogo}
+                      alt="한국인 운영"
+                      style={{ width: '20px', height: '20px', objectFit: 'contain', cursor: 'pointer' }}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (tooltipTimerRef.current) clearTimeout(tooltipTimerRef.current);
+                        if (tooltipId === b.id) {
+                          setTooltipId(null);
+                        } else {
+                          setTooltipId(b.id);
+                          tooltipTimerRef.current = setTimeout(() => setTooltipId(null), 5000);
+                        }
+                      }}
+                    />
+                    {tooltipId === b.id && (
+                      <div style={{
+                        position: 'absolute', bottom: '26px', left: 0,
+                        backgroundColor: '#C0392B', color: '#FFF',
+                        padding: '6px 10px', borderRadius: '8px',
+                        fontSize: '12px', whiteSpace: 'nowrap',
+                        zIndex: 50, boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
+                      }}>
+                        {t(lang, 'korean_run_tooltip')}
+                        <div style={{
+                          position: 'absolute', bottom: '-6px', left: '8px',
+                          width: 0, height: 0,
+                          borderLeft: '6px solid transparent',
+                          borderRight: '6px solid transparent',
+                          borderTop: '6px solid #C0392B',
+                        }} />
+                      </div>
+                    )}
+                  </div>
+                )}
                 {(b as any).google_rating && (
                   <span style={{ fontSize: '12px', color: '#E65100', display: 'flex', alignItems: 'center', gap: '2px' }}>
                     ⭐ 구글 {((b as any).google_rating as number).toFixed(1)}
@@ -760,22 +765,16 @@ export default function PhoneBook({ isDark, city, changeCity, CITY_CENTERS }: Pr
                 )}
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0 }}>
-                {((b as any).google_place_id || (b.lat && b.lng)) && (
+                {(b as any).google_place_id && (
                   <button
                     style={styles.button(false)}
                     onClick={(e) => {
                       e.stopPropagation();
-                      const name = encodeURIComponent((b as any).name_ko || b.name || '');
-                      const placeId = (b as any).google_place_id;
-                      const url = placeId
-                        ? 'https://www.google.com/maps/search/?api=1&query=' + name + '&query_place_id=' + placeId
-                        : b.lat && b.lng
-                        ? 'https://www.google.com/maps/search/?api=1&query=' + b.lat + ',' + b.lng
-                        : 'https://www.google.com/maps/search/?api=1&query=' + name;
-                      window.location.href = url;
+                      sessionStorage.setItem('pb_is_back', 'true');
+                      navigate('/biz/' + (b as any).google_place_id);
                     }}
                   >
-                    🗺️ {t(lang, 'map')}
+                    <MapPin size={15} />
                   </button>
                 )}
                 {b.phone ? (
@@ -783,10 +782,10 @@ export default function PhoneBook({ isDark, city, changeCity, CITY_CENTERS }: Pr
                     style={{ ...styles.button(true), marginLeft: 0 }}
                     onClick={(e) => { e.stopPropagation(); window.location.href = 'tel:' + b.phone; }}
                   >
-                    📞 {t(lang, 'call')}
+                    <Phone size={15} />
                   </button>
                 ) : (
-                  <span style={styles.noPhoneText}>{lang === 'en' ? 'No phone number' : '전화번호 없음'}</span>
+                  <span style={styles.noPhoneText}>{t(lang, 'no_phone')}</span>
                 )}
               </div>
             </div>
